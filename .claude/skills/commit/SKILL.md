@@ -17,7 +17,12 @@ Run these in parallel:
 - Stage relevant files by name — never use `git add -A` or `git add .`
 - Never stage files that may contain secrets (`.env`, tokens, credentials)
 
-## 3. Write a conventional commit message
+## 3. Propose commits
+- If changes span multiple logical units, propose splitting into separate commits
+- Show the user a numbered list of proposed commits with: message, files, and rationale
+- Wait for user approval before proceeding
+
+## 4. Write a conventional commit message
 
 Format: `<type>(<scope>): <short description>`
 
@@ -34,11 +39,11 @@ Format: `<type>(<scope>): <short description>`
 
 **Scopes (project-specific):**
 - `auth` — OAuth2 PKCE, token storage, browser helper
-- `connection` — HassWSApi wrapper, connection state
-- `entity-browser` — entity list state and widget
-- `app` — top-level layout, app state, bootstrap
-- `config` — appsettings, DI registration, hosting setup
-- `theme` — TUI theming and styling
+- `connection` — HassWSApi wrapper, REST client, connection state
+- `state` — state list/get/set/delete commands
+- `service` — service list/call commands
+- `event` — event list/fire commands
+- `config` — DI registration, hosting setup
 
 Scope is optional — omit if the change spans many areas.
 
@@ -48,12 +53,12 @@ Scope is optional — omit if the change spans many areas.
 - Imperative mood ("add", not "added" or "adds")
 - No period at the end of the subject
 
-## 4. Commit
+## 5. Commit
 ```bash
 git commit -m "type(scope): subject line here"
 ```
 
-## 5. Verify
+## 6. Verify
 Run `git status` after committing to confirm success.
 
 ## Important
