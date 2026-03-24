@@ -9,13 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Serilog.Settings.Configuration" Version="9.*" />
     <PackageReference Include="Spectre.Console" Version="0.*" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.*" />
     <PackageReference Include="HassClient.WS" Version="2.*" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.*" />
-    <PackageReference Include="Serilog.Extensions.Hosting" Version="9.*" />
-    <PackageReference Include="Serilog.Sinks.File" Version="6.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
   </ItemGroup>
 
 </Project>
