@@ -1,10 +1,9 @@
 using Haus.Auth;
 using HassClient.WS;
-using Microsoft.Extensions.Logging;
 
 namespace Haus.Connection;
 
-public sealed class HassConnection(IAuthService authService, ILogger<HassConnection> logger) : IHassConnection
+public sealed class HassConnection(IAuthService authService) : IHassConnection
 {
     private readonly HassWSApi _client = new();
 
@@ -21,11 +20,9 @@ public sealed class HassConnection(IAuthService authService, ILogger<HassConnect
         var (url, token) = await authService.GetAccessTokenAsync(cancellationToken);
         var connectionParams = ConnectionParameters.CreateFromInstanceBaseUrl(url, token);
 
-        logger.LogInformation("Connecting to Home Assistant at {Url}", url);
         await _client.ConnectAsync(connectionParams);
 
         SetState(ConnectionState.Connected);
-        logger.LogInformation("Connected to Home Assistant");
     }
 
     public async Task DisconnectAsync()

@@ -1,11 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Logging;
 
 namespace Haus.Auth;
 
-public sealed class AuthService(ILogger<AuthService> logger) : IAuthService
+public sealed class AuthService : IAuthService
 {
     private const string EnvVarToken = "HASS_TOKEN";
     private const string EnvVarUrl = "HASS_URL";
@@ -39,12 +38,10 @@ public sealed class AuthService(ILogger<AuthService> logger) : IAuthService
             $"&code_challenge_method=S256" +
             $"&state={state}";
 
-        logger.LogInformation("Opening browser for authentication");
         BrowserHelper.Open(authorizeUrl);
 
         var code = await WaitForCallbackAsync(listener, state, cancellationToken);
 
-        logger.LogInformation("Authorization code received, exchanging for tokens");
         var tokenResult = await ExchangeCodeAsync(url, code, codeVerifier, cancellationToken);
 
         var tokenData = new TokenData(
@@ -54,7 +51,6 @@ public sealed class AuthService(ILogger<AuthService> logger) : IAuthService
             DateTimeOffset.UtcNow.AddSeconds(tokenResult.ExpiresIn));
 
         await TokenStore.SaveAsync(tokenData, cancellationToken);
-        logger.LogInformation("Login successful — tokens saved");
     }
 
     public async Task<(string Url, string AccessToken)> GetAccessTokenAsync(CancellationToken cancellationToken = default)
@@ -70,7 +66,6 @@ public sealed class AuthService(ILogger<AuthService> logger) : IAuthService
         if (tokenData.ExpiresAt > DateTimeOffset.UtcNow.AddMinutes(1))
             return (tokenData.Url, tokenData.AccessToken);
 
-        logger.LogInformation("Access token expired, refreshing");
         return await RefreshTokenAsync(tokenData, cancellationToken);
     }
 
