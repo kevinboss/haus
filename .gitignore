@@ -10,12 +10,11 @@ obj/
 
 ## IDE
 .vs/
-.vscode/
 .idea/
 *.swp
 *~
 
-## Serilog
+## Logs
 logs/
 *.log
 
