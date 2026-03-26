@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json;
+using Haus.Auth;
 using Haus.Connection;
 using Haus.Output;
 using Spectre.Console;
@@ -7,7 +8,7 @@ using Spectre.Console.Cli;
 
 namespace Haus.Commands.State;
 
-public sealed class StateSetCommand(IHassApiClient api) : HausCommand<StateSetCommand.Settings>(api)
+public sealed class StateSetCommand(IAuthService auth, IHassApiClient api) : HausCommand<StateSetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -37,7 +38,7 @@ public sealed class StateSetCommand(IHassApiClient api) : HausCommand<StateSetCo
                 payload["attributes"] = attrs;
         }
 
-        var result = await Api.PostAsync<EntityState>(
+        var result = await api.PostAsync<EntityState>(
             $"/api/states/{settings.EntityId}", payload, cancellationToken);
 
         OutputHelper.WriteResult(settings.Json, result, () =>
