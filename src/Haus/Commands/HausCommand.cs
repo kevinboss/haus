@@ -1,6 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json;
-using Haus.Connection;
+using Haus.Auth;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -14,14 +14,12 @@ public abstract class HausSettings : CommandSettings
     public bool Json { get; init; }
 }
 
-public abstract class HausCommand<TSettings>(IHassApiClient api) : AsyncCommand<TSettings>
+public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<TSettings>
     where TSettings : HausSettings
 {
-    protected IHassApiClient Api => api;
-
     public override async Task<int> ExecuteAsync(CommandContext context, TSettings settings, CancellationToken cancellationToken)
     {
-        if (!api.IsConnected)
+        if (!auth.IsLoggedIn)
         {
             OutputHelper.WriteError(settings.Json, "Not logged in. Run `haus login` or set HASS_URL/HASS_TOKEN.");
             return 1;

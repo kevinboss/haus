@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Haus.Auth;
 using Haus.Connection;
 using Haus.Output;
 using Spectre.Console;
@@ -6,13 +7,13 @@ using Spectre.Console.Cli;
 
 namespace Haus.Commands.State;
 
-public sealed class StateListCommand(IHassApiClient api) : HausCommand<StateListCommand.Settings>(api)
+public sealed class StateListCommand(IAuthService auth, IHassApiClient api) : HausCommand<StateListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var states = await Api.GetAsync<List<EntityState>>("/api/states", cancellationToken);
+        var states = await api.GetAsync<List<EntityState>>("/api/states", cancellationToken);
 
         OutputHelper.WriteResult(settings.Json, states, () =>
         {

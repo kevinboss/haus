@@ -9,8 +9,6 @@ public sealed class HassApiClient(IAuthService authService) : IHassApiClient, ID
 {
     private readonly HttpClient _httpClient = new();
 
-    public bool IsConnected => authService.IsLoggedIn;
-
     public async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken = default)
     {
         await EnsureAuthenticatedAsync(cancellationToken);

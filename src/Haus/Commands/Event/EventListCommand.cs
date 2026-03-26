@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Haus.Auth;
 using Haus.Connection;
 using Haus.Output;
 using Spectre.Console;
@@ -6,13 +7,13 @@ using Spectre.Console.Cli;
 
 namespace Haus.Commands.Event;
 
-public sealed class EventListCommand(IHassApiClient api) : HausCommand<EventListCommand.Settings>(api)
+public sealed class EventListCommand(IAuthService auth, IHassApiClient api) : HausCommand<EventListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var events = await Api.GetAsync<List<EventType>>("/api/events", cancellationToken);
+        var events = await api.GetAsync<List<EventType>>("/api/events", cancellationToken);
 
         if (events is null)
         {

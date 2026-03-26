@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json;
+using Haus.Auth;
 using Haus.Connection;
 using Haus.Output;
 using Spectre.Console;
@@ -7,7 +8,7 @@ using Spectre.Console.Cli;
 
 namespace Haus.Commands.Event;
 
-public sealed class EventFireCommand(IHassApiClient api) : HausCommand<EventFireCommand.Settings>(api)
+public sealed class EventFireCommand(IAuthService auth, IHassApiClient api) : HausCommand<EventFireCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -26,7 +27,7 @@ public sealed class EventFireCommand(IHassApiClient api) : HausCommand<EventFire
     {
         var data = ParseJsonData(settings.Data);
 
-        var result = await Api.PostAsync<JsonElement>(
+        var result = await api.PostAsync<JsonElement>(
             $"/api/events/{settings.EventType}", data, cancellationToken);
 
         OutputHelper.WriteResult(settings.Json, new { event_type = settings.EventType, result }, () =>
