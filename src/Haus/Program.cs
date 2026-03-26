@@ -9,7 +9,6 @@ using Spectre.Console.Cli;
 
 var services = new ServiceCollection();
 services.AddSingleton<IAuthService, AuthService>();
-services.AddSingleton<IHassConnection, HassConnection>();
 services.AddSingleton<IHassApiClient, HassApiClient>();
 
 var registrar = new TypeRegistrar(services);
