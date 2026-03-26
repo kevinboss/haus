@@ -1,5 +1,6 @@
 using Haus.Auth;
 using Haus.Commands;
+using Haus.Commands.Entity;
 using Haus.Commands.Event;
 using Haus.Commands.Service;
 using Haus.Commands.State;
@@ -10,6 +11,7 @@ using Spectre.Console.Cli;
 var services = new ServiceCollection();
 services.AddSingleton<IAuthService, AuthService>();
 services.AddSingleton<IHassApiClient, HassApiClient>();
+services.AddSingleton<IHassWebSocketClient, HassWebSocketClient>();
 
 var registrar = new TypeRegistrar(services);
 var app = new CommandApp(registrar);
@@ -40,6 +42,12 @@ app.Configure(config =>
             .WithDescription("List event types");
         evt.AddCommand<EventFireCommand>("fire")
             .WithDescription("Fire a custom event");
+    });
+    config.AddBranch("entity", ent =>
+    {
+        ent.SetDescription("Manage entity registry");
+        ent.AddCommand<EntityRenameCommand>("rename")
+            .WithDescription("Rename an entity's display name");
     });
     config.AddBranch("service", svc =>
     {
