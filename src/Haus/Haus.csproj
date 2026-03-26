@@ -11,7 +11,6 @@
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.*" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.*" />
-    <PackageReference Include="HassClient.WS" Version="2.*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
   </ItemGroup>
 
