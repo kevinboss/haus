@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json;
+using Haus.Auth;
 using Haus.Connection;
 using Haus.Output;
 using Spectre.Console;
@@ -7,7 +8,7 @@ using Spectre.Console.Cli;
 
 namespace Haus.Commands.Service;
 
-public sealed class ServiceCallCommand(IHassApiClient api) : HausCommand<ServiceCallCommand.Settings>(api)
+public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : HausCommand<ServiceCallCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -48,7 +49,7 @@ public sealed class ServiceCallCommand(IHassApiClient api) : HausCommand<Service
             data["entity_id"] = settings.EntityId;
         }
 
-        var result = await Api.PostAsync<JsonElement>(
+        var result = await api.PostAsync<JsonElement>(
             $"/api/services/{domain}/{service}", data, cancellationToken);
 
         OutputHelper.WriteResult(settings.Json, new { domain, service, result }, () =>
