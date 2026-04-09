@@ -19,6 +19,12 @@ haus state get light.kitchen
 # Call a service
 haus service call light.turn_on --entity light.kitchen
 
+# View automation config
+haus automation get automation.morning_routine
+
+# Toggle an automation
+haus automation toggle automation.morning_routine
+
 # Scriptable output
 haus state list --porcelain | grep automation
 haus state get sensor.temp --json
@@ -33,10 +39,6 @@ dotnet build
 dotnet run --project src/Haus -- <command>
 dotnet test
 ```
-
-## AI Disclaimer
-
-This project uses AI development tools. Every line of code is reviewed and approved by a human before being committed.
 
 ## License
 

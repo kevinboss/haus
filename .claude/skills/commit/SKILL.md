@@ -42,6 +42,7 @@ Format: `<type>(<scope>): <short description>`
 - `state` — state list/get/set/delete commands
 - `service` — service list/call commands
 - `event` — event list/fire commands
+- `automation` — automation get/toggle/delete commands
 - `config` — DI registration, hosting setup
 
 Scope is optional — omit if the change spans many areas.
