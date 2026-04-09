@@ -15,24 +15,34 @@ public sealed class ServiceListCommand(IAuthService auth, IHassApiClient api) : 
     {
         var domains = await api.GetAsync<List<ServiceDomain>>("/api/services", cancellationToken);
 
-        OutputHelper.WriteResult(settings.Json, domains, () =>
-        {
-            var table = new Table()
-                .Border(TableBorder.Rounded)
-                .AddColumn("Domain")
-                .AddColumn("Services");
-
-            foreach (var domain in domains.OrderBy(d => d.Domain))
+        OutputHelper.WriteResult(settings, domains,
+            () =>
             {
-                var serviceNames = string.Join(", ", domain.Services.Keys.Order());
-                table.AddRow(
-                    domain.Domain.EscapeMarkup(),
-                    serviceNames.EscapeMarkup());
-            }
+                var table = new Table()
+                    .Border(TableBorder.Rounded)
+                    .AddColumn("Domain")
+                    .AddColumn("Services");
 
-            AnsiConsole.Write(table);
-            AnsiConsole.MarkupLine($"[dim]{domains.Sum(d => d.Services.Count)} services across {domains.Count} domains[/]");
-        });
+                foreach (var domain in domains.OrderBy(d => d.Domain))
+                {
+                    var serviceNames = string.Join(", ", domain.Services.Keys.Order());
+                    table.AddRow(
+                        domain.Domain.EscapeMarkup(),
+                        serviceNames.EscapeMarkup());
+                }
+
+                AnsiConsole.Write(table);
+                AnsiConsole.MarkupLine($"[dim]{domains.Sum(d => d.Services.Count)} services across {domains.Count} domains[/]");
+            },
+            () =>
+            {
+                OutputHelper.WriteColumns(
+                    ["DOMAIN", "SERVICES"],
+                    domains.OrderBy(d => d.Domain).Select(d => new[]
+                    {
+                        d.Domain, string.Join(", ", d.Services.Keys.Order())
+                    }));
+            });
 
         return 0;
     }

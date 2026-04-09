@@ -20,10 +20,9 @@ public sealed class StateDeleteCommand(IAuthService auth, IHassApiClient api) : 
     {
         await api.DeleteAsync($"/api/states/{settings.EntityId}", cancellationToken);
 
-        OutputHelper.WriteResult(settings.Json, new { deleted = settings.EntityId }, () =>
-        {
-            AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.EntityId.EscapeMarkup()}[/]");
-        });
+        OutputHelper.WriteResult(settings, new { deleted = settings.EntityId },
+            () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.EntityId.EscapeMarkup()}[/]"),
+            () => Console.WriteLine(settings.EntityId));
 
         return 0;
     }

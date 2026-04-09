@@ -15,18 +15,24 @@ public sealed class StatusCommand(IAuthService auth, IHassApiClient api) : HausC
     {
         var apiStatus = await api.GetAsync<ApiStatusResponse>("/api/", cancellationToken);
 
-        OutputHelper.WriteResult(settings.Json, new { version = apiStatus.Version, message = apiStatus.Message }, () =>
-        {
-            var table = new Table()
-                .Border(TableBorder.Rounded)
-                .AddColumn("Property")
-                .AddColumn("Value");
+        OutputHelper.WriteResult(settings, new { version = apiStatus.Version, message = apiStatus.Message },
+            () =>
+            {
+                var table = new Table()
+                    .Border(TableBorder.Rounded)
+                    .AddColumn("Property")
+                    .AddColumn("Value");
 
-            table.AddRow("[bold]Version[/]", apiStatus.Version.EscapeMarkup());
-            table.AddRow("[bold]Message[/]", apiStatus.Message.EscapeMarkup());
+                table.AddRow("[bold]Version[/]", apiStatus.Version.EscapeMarkup());
+                table.AddRow("[bold]Message[/]", apiStatus.Message.EscapeMarkup());
 
-            AnsiConsole.Write(table);
-        });
+                AnsiConsole.Write(table);
+            },
+            () =>
+            {
+                OutputHelper.WriteKeyValue("version", apiStatus.Version);
+                OutputHelper.WriteKeyValue("message", apiStatus.Message);
+            });
 
         return 0;
     }
