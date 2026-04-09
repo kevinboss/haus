@@ -74,6 +74,7 @@ src/Haus/
 
 - When adding or modifying CLI commands, update `.claude/skills/haus/SKILL.md` to reflect the changes.
 - When adding a new command scope, add it to `.claude/skills/commit/SKILL.md` under **Scopes**.
+- When adding user-facing features, update `README.md` to reflect the changes.
 
 ## Configuration
 
