@@ -21,32 +21,45 @@ public sealed class StateGetCommand(IAuthService auth, IHassApiClient api) : Hau
     {
         var state = await api.GetAsync<EntityState>($"/api/states/{settings.EntityId}", cancellationToken);
 
-        OutputHelper.WriteResult(settings.Json, state, () =>
-        {
-            var table = new Table()
-                .Border(TableBorder.Rounded)
-                .AddColumn("Property")
-                .AddColumn("Value");
-
-            table.AddRow("[bold]Entity ID[/]", state.EntityId.EscapeMarkup());
-            table.AddRow("[bold]State[/]", state.State.EscapeMarkup());
-            table.AddRow("[bold]Last Changed[/]", state.LastChanged.LocalDateTime.ToString("g").EscapeMarkup());
-            table.AddRow("[bold]Last Updated[/]", state.LastUpdated.LocalDateTime.ToString("g").EscapeMarkup());
-
-            foreach (var (key, value) in state.Attributes.OrderBy(a => a.Key))
+        OutputHelper.WriteResult(settings, state,
+            () =>
             {
-                var display = value switch
-                {
-                    JsonElement el => el.ToString(),
-                    null => "",
-                    _ => value.ToString() ?? ""
-                };
-                table.AddRow($"[dim]{key.EscapeMarkup()}[/]", display.EscapeMarkup());
-            }
+                var table = new Table()
+                    .Border(TableBorder.Rounded)
+                    .AddColumn("Property")
+                    .AddColumn("Value");
 
-            AnsiConsole.Write(table);
-        });
+                table.AddRow("[bold]Entity ID[/]", state.EntityId.EscapeMarkup());
+                table.AddRow("[bold]State[/]", state.State.EscapeMarkup());
+                table.AddRow("[bold]Last Changed[/]", state.LastChanged.LocalDateTime.ToString("g").EscapeMarkup());
+                table.AddRow("[bold]Last Updated[/]", state.LastUpdated.LocalDateTime.ToString("g").EscapeMarkup());
+
+                foreach (var (key, value) in state.Attributes.OrderBy(a => a.Key))
+                {
+                    var display = FormatAttributeValue(value);
+                    table.AddRow($"[dim]{key.EscapeMarkup()}[/]", display.EscapeMarkup());
+                }
+
+                AnsiConsole.Write(table);
+            },
+            () =>
+            {
+                OutputHelper.WriteKeyValue("entity_id", state.EntityId);
+                OutputHelper.WriteKeyValue("state", state.State);
+                OutputHelper.WriteKeyValue("last_changed", state.LastChanged.LocalDateTime.ToString("g"));
+                OutputHelper.WriteKeyValue("last_updated", state.LastUpdated.LocalDateTime.ToString("g"));
+
+                foreach (var (key, value) in state.Attributes.OrderBy(a => a.Key))
+                    OutputHelper.WriteKeyValue(key, FormatAttributeValue(value));
+            });
 
         return 0;
     }
+
+    private static string FormatAttributeValue(object? value) => value switch
+    {
+        JsonElement el => el.ToString(),
+        null => "",
+        _ => value.ToString() ?? ""
+    };
 }

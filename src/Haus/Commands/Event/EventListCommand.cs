@@ -17,27 +17,37 @@ public sealed class EventListCommand(IAuthService auth, IHassApiClient api) : Ha
 
         if (events is null)
         {
-            OutputHelper.WriteError(settings.Json, "Empty response from Home Assistant API.");
+            OutputHelper.WriteError(settings, "Empty response from Home Assistant API.");
             return 1;
         }
 
-        OutputHelper.WriteResult(settings.Json, events, () =>
-        {
-            var table = new Table()
-                .Border(TableBorder.Rounded)
-                .AddColumn("Event Type")
-                .AddColumn("Listener Count");
-
-            foreach (var evt in events.OrderBy(e => e.Event))
+        OutputHelper.WriteResult(settings, events,
+            () =>
             {
-                table.AddRow(
-                    evt.Event.EscapeMarkup(),
-                    evt.ListenerCount.ToString());
-            }
+                var table = new Table()
+                    .Border(TableBorder.Rounded)
+                    .AddColumn("Event Type")
+                    .AddColumn("Listener Count");
 
-            AnsiConsole.Write(table);
-            AnsiConsole.MarkupLine($"[dim]{events.Count} event types[/]");
-        });
+                foreach (var evt in events.OrderBy(e => e.Event))
+                {
+                    table.AddRow(
+                        evt.Event.EscapeMarkup(),
+                        evt.ListenerCount.ToString());
+                }
+
+                AnsiConsole.Write(table);
+                AnsiConsole.MarkupLine($"[dim]{events.Count} event types[/]");
+            },
+            () =>
+            {
+                OutputHelper.WriteColumns(
+                    ["EVENT TYPE", "LISTENER COUNT"],
+                    events.OrderBy(e => e.Event).Select(e => new[]
+                    {
+                        e.Event, e.ListenerCount.ToString()
+                    }));
+            });
 
         return 0;
     }

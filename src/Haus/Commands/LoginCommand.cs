@@ -11,7 +11,7 @@ public sealed class LoginCommand(IAuthService authService) : AsyncCommand<LoginC
     private const string DefaultUrl = "http://homeassistant.local:8123";
     private const string EnvVarUrl = "HASS_URL";
 
-    public sealed class Settings : CommandSettings
+    public sealed class Settings : CommandSettings, IOutputSettings
     {
         [CommandArgument(0, "[url]")]
         [Description("Home Assistant URL (default: HASS_URL env var or http://homeassistant.local:8123)")]
@@ -20,6 +20,10 @@ public sealed class LoginCommand(IAuthService authService) : AsyncCommand<LoginC
         [CommandOption("--json")]
         [Description("Output as JSON")]
         public bool Json { get; init; }
+
+        [CommandOption("--porcelain")]
+        [Description("Plain text output for scripting")]
+        public bool Porcelain { get; init; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
@@ -34,13 +38,14 @@ public sealed class LoginCommand(IAuthService authService) : AsyncCommand<LoginC
         try
         {
             await authService.LoginAsync(url, cancellationToken);
-            OutputHelper.WriteResult(settings.Json, new { status = "ok", url }, () =>
-                AnsiConsole.MarkupLine("[green]Login successful![/] Token saved."));
+            OutputHelper.WriteResult(settings, new { status = "ok", url },
+                () => AnsiConsole.MarkupLine("[green]Login successful![/] Token saved."),
+                () => Console.WriteLine("ok"));
             return 0;
         }
         catch (Exception ex)
         {
-            OutputHelper.WriteError(settings.Json, ex);
+            OutputHelper.WriteError(settings, ex);
             return 1;
         }
     }

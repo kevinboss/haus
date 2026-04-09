@@ -14,26 +14,37 @@ public sealed class StateListCommand(IAuthService auth, IHassApiClient api) : Ha
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var states = await api.GetAsync<List<EntityState>>("/api/states", cancellationToken);
+        var sorted = states.OrderBy(s => s.EntityId).ToList();
 
-        OutputHelper.WriteResult(settings.Json, states, () =>
-        {
-            var table = new Table()
-                .Border(TableBorder.Rounded)
-                .AddColumn("Entity ID")
-                .AddColumn("State")
-                .AddColumn("Last Changed");
-
-            foreach (var state in states.OrderBy(s => s.EntityId))
+        OutputHelper.WriteResult(settings, states,
+            () =>
             {
-                table.AddRow(
-                    state.EntityId.EscapeMarkup(),
-                    state.State.EscapeMarkup(),
-                    state.LastChanged.LocalDateTime.ToString("g").EscapeMarkup());
-            }
+                var table = new Table()
+                    .Border(TableBorder.Rounded)
+                    .AddColumn(new TableColumn("Entity ID").NoWrap())
+                    .AddColumn("State")
+                    .AddColumn("Last Changed");
 
-            AnsiConsole.Write(table);
-            AnsiConsole.MarkupLine($"[dim]{states.Count} entities[/]");
-        });
+                foreach (var state in sorted)
+                {
+                    table.AddRow(
+                        state.EntityId.EscapeMarkup(),
+                        state.State.EscapeMarkup(),
+                        state.LastChanged.LocalDateTime.ToString("g").EscapeMarkup());
+                }
+
+                AnsiConsole.Write(table);
+                AnsiConsole.MarkupLine($"[dim]{states.Count} entities[/]");
+            },
+            () =>
+            {
+                OutputHelper.WriteColumns(
+                    ["ENTITY ID", "STATE", "LAST CHANGED"],
+                    sorted.Select(s => new[]
+                    {
+                        s.EntityId, s.State, s.LastChanged.LocalDateTime.ToString("g")
+                    }));
+            });
 
         return 0;
     }
