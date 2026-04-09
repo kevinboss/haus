@@ -150,7 +150,7 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
         return type switch
         {
             "time" => FormatTimeTrigger(trigger),
-            "state" => FormatEntityTrigger(trigger, "entity_id", "state change"),
+            "state" => FormatStateTrigger(trigger),
             "numeric_state" => FormatEntityTrigger(trigger, "entity_id", "numeric state"),
             "event" => trigger.TryGetProperty("event_type", out var e) ? $"event: {e.GetString()}" : "event",
             "sun" => trigger.TryGetProperty("event", out var s) ? $"sun {s.GetString()}" : "sun",
@@ -171,6 +171,18 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
             return $"time at {at} ({dayList})";
         }
         return $"time at {at}";
+    }
+
+    private static string FormatStateTrigger(JsonElement trigger)
+    {
+        var result = FormatEntityTrigger(trigger, "entity_id", "state change");
+        if (trigger.TryGetProperty("attribute", out var attr))
+            result += $" [{attr.GetString()}";
+        if (trigger.TryGetProperty("to", out var to))
+            result += trigger.TryGetProperty("attribute", out _) ? $" = {to}" : $" → {to}";
+        if (trigger.TryGetProperty("attribute", out _))
+            result += "]";
+        return result;
     }
 
     private static string FormatEntityTrigger(JsonElement trigger, string entityProp, string label)
