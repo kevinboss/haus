@@ -91,6 +91,12 @@ dotnet run --project src/Haus -- automation toggle <automation_id>
 ```
 Example: `automation toggle automation.morning_routine`
 
+### automation update — Update an automation's configuration
+```bash
+dotnet run --project src/Haus -- automation update <automation_id> --data '<JSON>'
+```
+Use `automation get --json` to get the current config, modify it, then pass back via `--data`.
+
 ### automation delete — Delete an automation
 ```bash
 dotnet run --project src/Haus -- automation delete <automation_id>

@@ -31,6 +31,8 @@ app.Configure(config =>
             .WithDescription("Get automation configuration");
         auto.AddCommand<AutomationToggleCommand>("toggle")
             .WithDescription("Toggle an automation on/off");
+        auto.AddCommand<AutomationUpdateCommand>("update")
+            .WithDescription("Update an automation's configuration");
         auto.AddCommand<AutomationDeleteCommand>("delete")
             .WithDescription("Delete an automation");
     });
