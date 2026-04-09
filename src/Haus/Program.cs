@@ -1,5 +1,6 @@
 using Haus.Auth;
 using Haus.Commands;
+using Haus.Commands.Automation;
 using Haus.Commands.Entity;
 using Haus.Commands.Event;
 using Haus.Commands.Service;
@@ -23,6 +24,16 @@ app.Configure(config =>
         .WithDescription("Authenticate with Home Assistant via OAuth2 browser login");
     config.AddCommand<StatusCommand>("status")
         .WithDescription("Check Home Assistant API connectivity");
+    config.AddBranch("automation", auto =>
+    {
+        auto.SetDescription("Manage automations");
+        auto.AddCommand<AutomationGetCommand>("get")
+            .WithDescription("Get automation configuration");
+        auto.AddCommand<AutomationToggleCommand>("toggle")
+            .WithDescription("Toggle an automation on/off");
+        auto.AddCommand<AutomationDeleteCommand>("delete")
+            .WithDescription("Delete an automation");
+    });
     config.AddBranch("state", state =>
     {
         state.SetDescription("Manage entity states");
