@@ -78,6 +78,25 @@ Example: `entity rename sensor.temp_123 "Living Room Temperature"`
 dotnet run --project src/Haus -- service list
 ```
 
+### automation get — Get automation configuration
+```bash
+dotnet run --project src/Haus -- automation get <automation_id>
+```
+Example: `automation get automation.morning_routine`
+Shows alias, state, mode, triggers, conditions, and actions summary. Use `--json` for the full config.
+
+### automation toggle — Toggle an automation on/off
+```bash
+dotnet run --project src/Haus -- automation toggle <automation_id>
+```
+Example: `automation toggle automation.morning_routine`
+
+### automation delete — Delete an automation
+```bash
+dotnet run --project src/Haus -- automation delete <automation_id>
+```
+Example: `automation delete automation.old_routine`
+
 ### service call — Call a service
 ```bash
 dotnet run --project src/Haus -- service call <domain.service> [--entity <entity_id>] [--data '<JSON>']
@@ -91,5 +110,5 @@ Examples:
 - Requires prior `haus login` or env vars `HASS_URL`/`HASS_TOKEN`
 - Entity IDs follow `<domain>.<object_id>` format (e.g., `light.kitchen`, `automation.bedtime`)
 - Home Assistant domains include: `automation`, `light`, `switch`, `sensor`, `binary_sensor`, `climate`, `cover`, `fan`, `media_player`, `vacuum`, `script`, `scene`, `input_boolean`, `input_number`, `input_select`, `input_text`, and more
-- To control automations: use `service call automation.turn_on/turn_off/trigger --entity automation.<name>`
+- To control automations: use `automation toggle`, `service call automation.trigger --entity automation.<name>`, etc.
 - Errors go to stderr — redirect with `2>/dev/null` when piping output
