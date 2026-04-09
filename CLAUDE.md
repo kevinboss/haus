@@ -38,7 +38,11 @@ src/Haus/
 - **Commands** inherit `AsyncCommand<TSettings>` with nested `Settings` class. Thin handlers — delegate to services.
 - **Use shared infrastructure.** REST commands use `IHassApiClient`, WebSocket commands use `IHassConnection`. Never create raw `HttpClient` or `HassWSApi` in a command.
 - **No in-memory filtering.** Only expose CLI flags/options that map to actual API query parameters. If the API doesn't support filtering, neither does the CLI.
-- **Output**: default human-readable tables, `--json` for machine-readable. Errors to stderr, data to stdout. Use `OutputHelper`.
+- **Output**: three modes via `OutputHelper.WriteResult(settings, data, humanOutput, porcelainOutput)`:
+  - **Default**: Spectre.Console tables/markup for interactive terminal use.
+  - **`--porcelain`**: plain tab-separated text for grep/cut/awk scripting. Lists use `OutputHelper.WriteColumns` (TSV with header). Key-value uses `OutputHelper.WriteKeyValue` (key\tvalue). Actions output bare identifiers.
+  - **`--json`**: structured JSON for machine consumption.
+  - Errors to stderr, data to stdout. `HausSettings` implements `IOutputSettings`.
 - **Fail fast** with actionable messages (e.g., "Run `haus login` or set HASS_URL/HASS_TOKEN.").
 - Commands grouped in subfolders by API domain (`Commands/State/`, `Commands/Service/`, etc.).
 - `async Task` everywhere, no `async void`. Pass `CancellationToken` through all async I/O.
@@ -65,6 +69,11 @@ src/Haus/
 - `HassWSApi.CallServiceAsync(domain, service, data)` — control entities
 - `HassWSApi.GetEntityRegistryEntriesAsync()` — entity metadata
 - `HassWSApi.GetAreasAsync()` / `GetDevicesAsync()` — organizational data
+
+## Skills
+
+- When adding or modifying CLI commands, update `.claude/skills/haus/SKILL.md` to reflect the changes.
+- When adding a new command scope, add it to `.claude/skills/commit/SKILL.md` under **Scopes**.
 
 ## Configuration
 

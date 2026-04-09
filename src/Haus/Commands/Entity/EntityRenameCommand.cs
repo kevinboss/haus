@@ -30,10 +30,9 @@ public sealed class EntityRenameCommand(IAuthService auth, IHassWebSocketClient 
             name = settings.Name
         }, cancellationToken);
 
-        OutputHelper.WriteResult(settings.Json, result, () =>
-        {
-            AnsiConsole.MarkupLine($"[green]Renamed[/] [bold]{settings.EntityId.EscapeMarkup()}[/] to [bold]{settings.Name.EscapeMarkup()}[/]");
-        });
+        OutputHelper.WriteResult(settings, result,
+            () => AnsiConsole.MarkupLine($"[green]Renamed[/] [bold]{settings.EntityId.EscapeMarkup()}[/] to [bold]{settings.Name.EscapeMarkup()}[/]"),
+            () => Console.WriteLine($"{settings.EntityId}\t{settings.Name}"));
 
         return 0;
     }

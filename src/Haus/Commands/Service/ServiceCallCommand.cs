@@ -52,10 +52,9 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
         var result = await api.PostAsync<JsonElement>(
             $"/api/services/{domain}/{service}", data, cancellationToken);
 
-        OutputHelper.WriteResult(settings.Json, new { domain, service, result }, () =>
-        {
-            AnsiConsole.MarkupLine($"[green]Called[/] [bold]{domain}.{service}[/]");
-        });
+        OutputHelper.WriteResult(settings, new { domain, service, result },
+            () => AnsiConsole.MarkupLine($"[green]Called[/] [bold]{domain}.{service}[/]"),
+            () => Console.WriteLine($"{domain}.{service}"));
 
         return 0;
     }

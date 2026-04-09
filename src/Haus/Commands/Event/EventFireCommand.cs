@@ -30,10 +30,9 @@ public sealed class EventFireCommand(IAuthService auth, IHassApiClient api) : Ha
         var result = await api.PostAsync<JsonElement>(
             $"/api/events/{settings.EventType}", data, cancellationToken);
 
-        OutputHelper.WriteResult(settings.Json, new { event_type = settings.EventType, result }, () =>
-        {
-            AnsiConsole.MarkupLine($"[green]Fired[/] [bold]{settings.EventType.EscapeMarkup()}[/]");
-        });
+        OutputHelper.WriteResult(settings, new { event_type = settings.EventType, result },
+            () => AnsiConsole.MarkupLine($"[green]Fired[/] [bold]{settings.EventType.EscapeMarkup()}[/]"),
+            () => Console.WriteLine(settings.EventType));
 
         return 0;
     }
