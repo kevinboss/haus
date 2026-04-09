@@ -2,7 +2,6 @@
 name: commit
 description: Create a conventional commit for staged and unstaged changes
 user-invocable: true
-allowed-tools: Bash, Glob, Grep, Read
 ---
 
 # Commit Skill
