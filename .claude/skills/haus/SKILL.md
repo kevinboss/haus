@@ -103,6 +103,19 @@ dotnet run --project src/Haus -- automation delete <automation_id>
 ```
 Example: `automation delete automation.old_routine`
 
+### update list — List update entities and their availability
+```bash
+dotnet run --project src/Haus -- update list
+```
+Shows all `update.*` entities with installed version, latest version, and status (available/installing/skipped/up to date). Updates with state `on` are sorted first.
+
+### update install — Install an available update
+```bash
+dotnet run --project src/Haus -- update install <entity_id> [--version <VERSION>] [--backup]
+```
+Example: `update install update.home_assistant_core_update --backup`
+Defaults to the latest version. `--backup` creates a backup first (only supported by some integrations).
+
 ### service call — Call a service
 ```bash
 dotnet run --project src/Haus -- service call <domain.service> [--entity <entity_id>] [--data '<JSON>']

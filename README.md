@@ -25,6 +25,12 @@ haus automation get automation.morning_routine
 # Toggle an automation
 haus automation toggle automation.morning_routine
 
+# Check for available updates
+haus update list
+
+# Install an update
+haus update install update.home_assistant_core_update
+
 # Scriptable output
 haus state list --porcelain | grep automation
 haus state get sensor.temp --json
