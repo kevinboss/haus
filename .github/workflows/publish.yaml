@@ -1,0 +1,100 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Release
+    strategy:
+      matrix:
+        kind: ['linux']
+        include:
+          - kind: linux
+            os: ubuntu-latest
+            target: linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v5.0.1
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Create build data
+        shell: bash
+        id: build-data
+        run: |
+          tag=$(git describe --tags --abbrev=0)
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=${tag:1}" >> $GITHUB_OUTPUT
+          echo "release_name=haus-$tag-${{ matrix.target }}" >> $GITHUB_OUTPUT
+
+      - name: Build
+        shell: bash
+        run: |
+          dotnet publish src/Haus/Haus.csproj --self-contained --runtime "${{ matrix.target }}" -c Release -o "${{ steps.build-data.outputs.release_name }}" -p:Version=${{ steps.build-data.outputs.version }} -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+      - name: Package Linux
+        shell: bash
+        run: |
+          tar czvf "${{ steps.build-data.outputs.release_name }}.tar.gz" "${{ steps.build-data.outputs.release_name }}"
+        if: ${{ matrix.target == 'linux-x64' }}
+
+      - name: Delete output directory
+        shell: bash
+        run: |
+          rm -r ${{ steps.build-data.outputs.release_name }}
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "haus*"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  aur:
+    name: Publish to AUR
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Create build data
+        shell: bash
+        id: build-data
+        run: |
+          tag=$(git describe --tags --abbrev=0)
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=${tag:1}" >> $GITHUB_OUTPUT
+
+      - name: Compute tarball sha256
+        shell: bash
+        id: checksum
+        run: |
+          url="https://github.com/${{ github.repository }}/releases/download/${{ steps.build-data.outputs.tag }}/haus-${{ steps.build-data.outputs.tag }}-linux-x64.tar.gz"
+          curl -sL "$url" -o haus.tar.gz
+          echo "sha256=$(sha256sum haus.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: Update PKGBUILD
+        shell: bash
+        run: |
+          cd packaging/aur/haus-bin
+          sed -i "s/^pkgver=.*/pkgver=${{ steps.build-data.outputs.version }}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+          sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=('${{ steps.checksum.outputs.sha256 }}')/" PKGBUILD
+
+      - name: Deploy to AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v4
+        with:
+          pkgname: haus-bin
+          pkgbuild: packaging/aur/haus-bin/PKGBUILD
+          assets: packaging/aur/haus-bin/LICENSE
+          commit_username: Kevin Boss
+          commit_email: kevin.boss@outlook.com
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Update to v${{ steps.build-data.outputs.version }}"
