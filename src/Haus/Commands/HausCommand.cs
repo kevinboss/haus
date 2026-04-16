@@ -21,7 +21,7 @@ public abstract class HausSettings : CommandSettings, IOutputSettings
 public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<TSettings>
     where TSettings : HausSettings
 {
-    public override async Task<int> ExecuteAsync(CommandContext context, TSettings settings, CancellationToken cancellationToken)
+    protected override async Task<int> ExecuteAsync(CommandContext context, TSettings settings, CancellationToken cancellationToken)
     {
         if (!auth.IsLoggedIn)
         {
