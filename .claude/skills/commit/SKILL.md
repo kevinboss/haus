@@ -43,6 +43,7 @@ Format: `<type>(<scope>): <short description>`
 - `service` — service list/call commands
 - `event` — event list/fire commands
 - `automation` — automation get/toggle/update/delete commands
+- `update` — update list command (Home Assistant update entities)
 - `config` — DI registration, hosting setup
 
 Scope is optional — omit if the change spans many areas.

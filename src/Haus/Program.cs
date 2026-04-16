@@ -5,6 +5,7 @@ using Haus.Commands.Entity;
 using Haus.Commands.Event;
 using Haus.Commands.Service;
 using Haus.Commands.State;
+using Haus.Commands.Update;
 using Haus.Connection;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
@@ -69,6 +70,14 @@ app.Configure(config =>
             .WithDescription("List available services by domain");
         svc.AddCommand<ServiceCallCommand>("call")
             .WithDescription("Call a service (e.g. light.turn_on, vacuum.start)");
+    });
+    config.AddBranch("update", upd =>
+    {
+        upd.SetDescription("Check for available updates");
+        upd.AddCommand<UpdateListCommand>("list")
+            .WithDescription("List update entities and their availability");
+        upd.AddCommand<UpdateInstallCommand>("install")
+            .WithDescription("Install an available update");
     });
 });
 
