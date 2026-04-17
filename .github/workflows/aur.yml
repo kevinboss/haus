@@ -5,8 +5,10 @@ on:
     types: [released]
 
 jobs:
-  publish:
+  wait:
     runs-on: ubuntu-latest
+    outputs:
+      conclusion: ${{ steps.wait-for-release.outputs.conclusion }}
     steps:
       - name: Wait for Release
         uses: fountainhead/action-wait-for-check@v1.2.0
@@ -15,6 +17,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           checkName: Release (linux)
 
+  publish:
+    needs: wait
+    if: needs.wait.outputs.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout
         uses: actions/checkout@v6
 
@@ -27,7 +34,6 @@ jobs:
           echo "version=${tag:1}" >> $GITHUB_OUTPUT
 
       - name: Download release tarball
-        if: steps.wait-for-release.outputs.conclusion == 'success'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,13 +43,11 @@ jobs:
             --pattern "haus-${{ steps.build-data.outputs.tag }}-linux-x64.tar.gz"
 
       - name: Compute tarball sha256
-        if: steps.wait-for-release.outputs.conclusion == 'success'
         shell: bash
         id: checksum
         run: echo "sha256=$(sha256sum haus-${{ steps.build-data.outputs.tag }}-linux-x64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
 
       - name: Update PKGBUILD
-        if: steps.wait-for-release.outputs.conclusion == 'success'
         shell: bash
         run: |
           cd packaging/aur/haus-bin
@@ -52,7 +56,6 @@ jobs:
           sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=('${{ steps.checksum.outputs.sha256 }}')/" PKGBUILD
 
       - name: Deploy to AUR
-        if: steps.wait-for-release.outputs.conclusion == 'success'
         uses: KSXGitHub/github-actions-deploy-aur@v4.1.2
         with:
           pkgname: haus-bin
