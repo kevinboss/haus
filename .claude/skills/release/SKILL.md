@@ -6,14 +6,17 @@ user-invocable: true
 
 # Release Skill
 
-Creates a new version tag, pushes it, and publishes a GitHub release. This triggers `.github/workflows/publish.yaml` which builds the linux-x64 self-contained binary, attaches it to the release, and pushes an updated PKGBUILD to the AUR `haus-bin` package.
+Creates a new version tag, pushes it, and publishes a GitHub release. This triggers:
+- `publish.yaml` — builds linux-x64 and win-x64 self-contained binaries, uploads as release assets
+- `aur.yml` — updates the AUR `haus-bin` package
+- `winget.yml` — submits an update PR to `microsoft/winget-pkgs` for `kevinboss.haus`
 
 ## 1. Validate preconditions
 Run these in parallel:
 - `git status` — working tree must be clean
 - `git rev-parse --abbrev-ref HEAD` — must be on `main`
 - `git fetch origin && git status -sb` — must be up to date with `origin/main`
-- `gh secret list --repo kevinboss/haus` — confirm `AUR_SSH_PRIVATE_KEY` is present
+- `gh secret list --repo kevinboss/haus` — confirm `AUR_SSH_PRIVATE_KEY` and `WINGET_TOKEN` are present
 - `git tag --list 'v*' --sort=-v:refname | head -5` — show recent versions to help pick next
 
 If any check fails, stop and report — do not create the tag.
