@@ -21,6 +21,7 @@ var app = new CommandApp(registrar);
 app.Configure(config =>
 {
     config.SetApplicationName("haus");
+    config.UseAssemblyInformationalVersion();
     config.AddCommand<LoginCommand>("login")
         .WithDescription("Authenticate with Home Assistant via OAuth2 browser login");
     config.AddCommand<StatusCommand>("status")
