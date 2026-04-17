@@ -1,0 +1,31 @@
+name: Publish to WinGet
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  wait:
+    runs-on: ubuntu-latest
+    outputs:
+      conclusion: ${{ steps.wait-for-release.outputs.conclusion }}
+    steps:
+      - name: Wait for Release
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        id: wait-for-release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Release (windows)
+
+  publish:
+    needs: wait
+    if: needs.wait.outputs.conclusion == 'success'
+    runs-on: windows-latest
+    steps:
+      - name: Publish haus to WinGet
+        uses: vedantmgoyal2009/winget-releaser@v2
+        with:
+          identifier: kevinboss.haus
+          installers-regex: '\.exe$'
+          token: ${{ secrets.WINGET_TOKEN }}
+          max-versions-to-keep: 5
