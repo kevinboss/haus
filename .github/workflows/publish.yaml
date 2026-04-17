@@ -12,11 +12,14 @@ jobs:
     name: Release
     strategy:
       matrix:
-        kind: ['linux']
+        kind: ['linux', 'windows']
         include:
           - kind: linux
             os: ubuntu-latest
             target: linux-x64
+          - kind: windows
+            os: windows-latest
+            target: win-x64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -46,6 +49,13 @@ jobs:
         run: |
           tar czvf "${{ steps.build-data.outputs.release_name }}.tar.gz" "${{ steps.build-data.outputs.release_name }}"
         if: ${{ matrix.target == 'linux-x64' }}
+
+      - name: Package Windows
+        shell: bash
+        run: |
+          7z a -tzip "${{ steps.build-data.outputs.release_name }}.zip" "./${{ steps.build-data.outputs.release_name }}/*"
+          cp "./${{ steps.build-data.outputs.release_name }}/Haus.exe" "./haus.exe"
+        if: ${{ matrix.target == 'win-x64' }}
 
       - name: Delete output directory
         shell: bash
