@@ -1,0 +1,64 @@
+name: Publish to AUR
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Release
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        id: wait-for-release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Release (linux)
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Resolve version
+        shell: bash
+        id: build-data
+        run: |
+          tag="${{ github.event.release.tag_name }}"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=${tag:1}" >> $GITHUB_OUTPUT
+
+      - name: Download release tarball
+        if: steps.wait-for-release.outputs.conclusion == 'success'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download "${{ steps.build-data.outputs.tag }}" \
+            --repo "${{ github.repository }}" \
+            --pattern "haus-${{ steps.build-data.outputs.tag }}-linux-x64.tar.gz"
+
+      - name: Compute tarball sha256
+        if: steps.wait-for-release.outputs.conclusion == 'success'
+        shell: bash
+        id: checksum
+        run: echo "sha256=$(sha256sum haus-${{ steps.build-data.outputs.tag }}-linux-x64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: Update PKGBUILD
+        if: steps.wait-for-release.outputs.conclusion == 'success'
+        shell: bash
+        run: |
+          cd packaging/aur/haus-bin
+          sed -i "s/^pkgver=.*/pkgver=${{ steps.build-data.outputs.version }}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+          sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=('${{ steps.checksum.outputs.sha256 }}')/" PKGBUILD
+
+      - name: Deploy to AUR
+        if: steps.wait-for-release.outputs.conclusion == 'success'
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.2
+        with:
+          pkgname: haus-bin
+          pkgbuild: packaging/aur/haus-bin/PKGBUILD
+          assets: packaging/aur/haus-bin/LICENSE
+          commit_username: Kevin Boss
+          commit_email: kevin.boss@outlook.com
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Update to v${{ steps.build-data.outputs.version }}"
