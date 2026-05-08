@@ -1,8 +1,12 @@
 using Haus.Auth;
 using Haus.Commands;
 using Haus.Commands.Automation;
+using Haus.Commands.Config;
 using Haus.Commands.Entity;
 using Haus.Commands.Event;
+using Haus.Commands.History;
+using Haus.Commands.Log;
+using Haus.Commands.Logbook;
 using Haus.Commands.Service;
 using Haus.Commands.State;
 using Haus.Commands.Update;
@@ -26,6 +30,26 @@ app.Configure(config =>
         .WithDescription("Authenticate with Home Assistant via OAuth2 browser login");
     config.AddCommand<StatusCommand>("status")
         .WithDescription("Check Home Assistant API connectivity");
+    config.AddCommand<LogCommand>("log")
+        .WithDescription("Show the Home Assistant error log");
+    config.AddBranch("logbook", lb =>
+    {
+        lb.SetDescription("Browse the Home Assistant logbook");
+        lb.AddCommand<LogbookListCommand>("list")
+            .WithDescription("List logbook entries");
+    });
+    config.AddBranch("history", hist =>
+    {
+        hist.SetDescription("Query state history");
+        hist.AddCommand<HistoryGetCommand>("get")
+            .WithDescription("Get state history for an entity");
+    });
+    config.AddBranch("config", cfg =>
+    {
+        cfg.SetDescription("Inspect Home Assistant configuration");
+        cfg.AddCommand<ConfigCheckCommand>("check")
+            .WithDescription("Validate the current configuration");
+    });
     config.AddBranch("automation", auto =>
     {
         auto.SetDescription("Manage automations");

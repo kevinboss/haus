@@ -124,6 +124,42 @@ Examples:
 - `service call light.turn_on --entity light.kitchen`
 - `service call light.turn_on --data '{"entity_id":"light.bedroom","brightness":200}'`
 
+### log — Show recent errors and warnings
+```bash
+dotnet run --project src/Haus -- log [-n|--limit <COUNT>] [-l|--level <LEVEL>] [--with-trace]
+```
+Reads HA's in-memory `system_log` (the same buffer that powers Settings → System → Logs in the UI). Works on every install regardless of how HA is configured to write logs.
+- `-n|--limit` — show only the most recent N entries
+- `-l|--level` — filter by level: `error`, `warning`, `info`, `debug`
+- `--with-trace` — include exception stack traces
+
+Newest entries first.
+
+### logbook list — List logbook entries
+```bash
+dotnet run --project src/Haus -- logbook list [-e <ENTITY>] [-s <DURATION>] [-u <ISO>]
+```
+- `-e|--entity` — filter to a single entity (e.g. `light.kitchen`)
+- `-s|--since` — how far back to look. Duration shorthand: `30m`, `2h`, `1d`. Default: `1h`
+- `-u|--until` — end timestamp (ISO 8601). Default: now
+
+Useful for seeing "what just changed" in HA — automation triggers, state changes, and integration events with human-readable messages.
+
+### history get — Get state history for an entity
+```bash
+dotnet run --project src/Haus -- history get <entity_id> [-s <DURATION>] [-u <ISO>] [--with-attributes]
+```
+- `<entity_id>` — required, e.g. `device_tracker.unifi_express`
+- `-s|--since` — how far back. Default: `1h`
+- `-u|--until` — end timestamp (ISO 8601). Default: now
+- `--with-attributes` — include full state attributes (default omits them for compactness)
+
+### config check — Validate Home Assistant configuration
+```bash
+dotnet run --project src/Haus -- config check
+```
+Calls `/api/config/core/check_config`. Exits 0 if valid, 1 if invalid. Requires admin auth.
+
 ## Usage Notes
 
 - Requires prior `haus login` or env vars `HASS_URL`/`HASS_TOKEN`
