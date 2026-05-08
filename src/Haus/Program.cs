@@ -8,6 +8,7 @@ using Haus.Commands.History;
 using Haus.Commands.Log;
 using Haus.Commands.Logbook;
 using Haus.Commands.Service;
+using Haus.Commands.Skill;
 using Haus.Commands.State;
 using Haus.Commands.Update;
 using Haus.Connection;
@@ -103,6 +104,12 @@ app.Configure(config =>
             .WithDescription("List update entities and their availability");
         upd.AddCommand<UpdateInstallCommand>("install")
             .WithDescription("Install an available update");
+    });
+    config.AddBranch("skill", skill =>
+    {
+        skill.SetDescription("Install Haus integrations into AI tools");
+        skill.AddCommand<SkillInstallCommand>("install")
+            .WithDescription("Install the Haus skill into Claude Code (~/.claude/skills/haus/)");
     });
 });
 

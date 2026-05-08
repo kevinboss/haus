@@ -48,6 +48,7 @@ Format: `<type>(<scope>): <short description>`
 - `logbook` — logbook list command
 - `history` — state history command
 - `config` — DI registration, hosting setup, config check command
+- `skill` — skill install command
 
 Scope is optional — omit if the change spans many areas.
 

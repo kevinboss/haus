@@ -47,6 +47,9 @@ haus config check
 haus log --limit 10
 haus log --level error
 
+# Install the Haus skill into Claude Code
+haus skill install
+
 # Scriptable output
 haus state list --porcelain | grep automation
 haus state get sensor.temp --json
