@@ -6,7 +6,7 @@ namespace Haus.Connection;
 
 public sealed class HassApiClient(IAuthService authService) : IHassApiClient, IDisposable
 {
-    private readonly HttpClient _httpClient = new();
+    private readonly HttpClient _httpClient = new() { Timeout = Timeout.InfiniteTimeSpan };
 
     public async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken = default)
     {
