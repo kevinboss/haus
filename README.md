@@ -2,7 +2,9 @@
 
 > This project is being developed using AI development tools. However, every line of code is reviewed and approved by a human before being committed.
 
-A command-line interface for [Home Assistant](https://www.home-assistant.io/) built on .NET 10.
+Scriptable command-line interface for [Home Assistant](https://www.home-assistant.io/).
+
+![haus demo](docs/haus-demo.gif)
 
 ## Usage
 
