@@ -31,7 +31,17 @@ public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<T
 
         try
         {
-            return await RunAsync(context, settings, cancellationToken);
+            if (settings.Json || settings.Porcelain || !AnsiConsole.Profile.Capabilities.Interactive)
+                return await RunAsync(context, settings, cancellationToken);
+
+            var exitCode = 0;
+            await AnsiConsole.Status()
+                .Spinner(Spinner.Known.Dots)
+                .StartAsync("Running...", async _ =>
+                {
+                    exitCode = await RunAsync(context, settings, cancellationToken);
+                });
+            return exitCode;
         }
         catch (Exception ex)
         {
