@@ -14,4 +14,21 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="$(IntermediateOutputPath)haus.SKILL.md" LogicalName="Haus.Resources.SKILL.md" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="_GenerateSkillResource"
+          BeforeTargets="PrepareResources"
+          Inputs="$(MSBuildThisFileDirectory)..\..\.claude\skills\haus\SKILL.md;$(MSBuildThisFileFullPath)"
+          Outputs="$(IntermediateOutputPath)haus.SKILL.md">
+    <PropertyGroup>
+      <_SkillSource>$(MSBuildThisFileDirectory)..\..\.claude\skills\haus\SKILL.md</_SkillSource>
+      <_SkillOutput>$(IntermediateOutputPath)haus.SKILL.md</_SkillOutput>
+      <_SkillContent>$([System.IO.File]::ReadAllText('$(_SkillSource)').Replace('dotnet run --project src/Haus --', 'haus'))</_SkillContent>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <WriteLinesToFile File="$(_SkillOutput)" Lines="$(_SkillContent)" Overwrite="true" />
+  </Target>
+
 </Project>

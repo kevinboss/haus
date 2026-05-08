@@ -18,6 +18,12 @@ When piping output (e.g. through grep), use `--porcelain` for clean, parseable r
 
 ## Commands
 
+### skill install — Install this skill into Claude Code
+```bash
+dotnet run --project src/Haus -- skill install [-f|--force]
+```
+Writes the embedded skill file to `~/.claude/skills/haus/SKILL.md`. The embedded version is generated at build time so the examples use the published `haus` binary rather than the dev-time invocation. `--force` overwrites an existing file.
+
 ### login — Authenticate with Home Assistant
 ```bash
 dotnet run --project src/Haus -- login [url]
