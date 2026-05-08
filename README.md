@@ -31,6 +31,22 @@ haus update list
 # Install an update
 haus update install update.home_assistant_core_update
 
+# See what just changed (logbook entries from the last hour)
+haus logbook list
+
+# Filter logbook to a single entity
+haus logbook list --entity automation.morning_routine --since 1d
+
+# State history for an entity
+haus history get device_tracker.phone --since 6h
+
+# Validate Home Assistant configuration
+haus config check
+
+# Show recent errors and warnings
+haus log --limit 10
+haus log --level error
+
 # Scriptable output
 haus state list --porcelain | grep automation
 haus state get sensor.temp --json
