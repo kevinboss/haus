@@ -25,7 +25,7 @@ public sealed class EntityRenameCommand(IAuthService auth, IHassWebSocketClient 
     {
         var result = await ws.SendCommandAsync(new
         {
-            type = "config/entity_registry/update",
+            type = EntityRegistryCommands.Update,
             entity_id = settings.EntityId,
             name = settings.Name
         }, cancellationToken);
