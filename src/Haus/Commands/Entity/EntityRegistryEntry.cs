@@ -25,8 +25,10 @@ internal sealed record EntityRegistryEntry(
     [property: JsonPropertyName("device_class")] string? DeviceClass,
     [property: JsonPropertyName("labels")] List<string>? Labels)
 {
+    [JsonIgnore]
     public string DisplayName => Name ?? OriginalName ?? EntityId;
 
+    [JsonIgnore]
     public string Status =>
         DisabledBy is not null ? "disabled" :
         HiddenBy is not null ? "hidden" : "active";
