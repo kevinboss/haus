@@ -73,11 +73,35 @@ dotnet run --project src/Haus -- event fire <event_type> [--data '<JSON>']
 ```
 Example: `event fire my_event --data '{"key":"value"}'`
 
+### entity list — List all registered entities
+```bash
+dotnet run --project src/Haus -- entity list
+```
+Returns every entity in the entity registry, including disabled and hidden ones (unlike `state list`, which only returns entities with current state). Each row shows entity ID, display name, integration platform, area, and status (active/disabled/hidden).
+
+### entity get — Show registry metadata for an entity
+```bash
+dotnet run --project src/Haus -- entity get <entity_id>
+```
+Returns registry metadata: platform, area, device, icon, category, disabled/hidden status. For runtime state, use `state get` instead.
+
 ### entity rename — Rename an entity's display name
 ```bash
 dotnet run --project src/Haus -- entity rename <entity_id> <name>
 ```
 Example: `entity rename sensor.temp_123 "Living Room Temperature"`
+
+### entity update — Update an entity's registry fields
+```bash
+dotnet run --project src/Haus -- entity update <entity_id> [--name <NAME>] [--icon <ICON>] [--area <AREA_ID>] [--new-id <ENTITY_ID>] [--disable|--enable] [--hide|--show]
+```
+At least one field is required. `--disable`/`--enable` and `--hide`/`--show` are mutually exclusive. Use `--new-id` to rename the entity ID itself (e.g. `sensor.temp_123` → `sensor.living_room_temp`).
+
+### entity delete — Remove an entity from the registry
+```bash
+dotnet run --project src/Haus -- entity delete <entity_id>
+```
+Destructive. Removes the entity from the registry; some integrations will recreate it on next discovery.
 
 ### service list — List available services by domain
 ```bash
