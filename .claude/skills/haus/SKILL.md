@@ -139,6 +139,37 @@ dotnet run --project src/Haus -- automation delete <automation_id>
 ```
 Example: `automation delete automation.old_routine`
 
+### script list — List all scripts
+```bash
+dotnet run --project src/Haus -- script list
+```
+Shows every `script.*` entity with alias and last-triggered timestamp. Use `--porcelain` for grep-friendly output.
+
+### script get — Get script configuration
+```bash
+dotnet run --project src/Haus -- script get <script_id>
+```
+Example: `script get script.notify_all_phones`
+Shows alias, mode, fields, and a sequence summary. Use `--json` for the full config.
+
+### script create — Create a new script
+```bash
+dotnet run --project src/Haus -- script create --id <ID> --data '<JSON>'
+```
+`--id` is the script's object ID (the part after `script.`); it becomes the entity name. `--data` is the full script configuration (alias, sequence, optional mode/fields/description). Useful for wrapping multi-target service calls (e.g. `notify.send_message` to several phones) into a single reusable script.
+
+### script update — Update a script's configuration
+```bash
+dotnet run --project src/Haus -- script update <script_id> --data '<JSON>'
+```
+Use `script get --json` to get the current config, modify it, then pass back via `--data`.
+
+### script delete — Delete a script
+```bash
+dotnet run --project src/Haus -- script delete <script_id>
+```
+Example: `script delete script.old_routine`
+
 ### update list — List update entities and their availability
 ```bash
 dotnet run --project src/Haus -- update list

@@ -7,6 +7,7 @@ using Haus.Commands.Event;
 using Haus.Commands.History;
 using Haus.Commands.Log;
 using Haus.Commands.Logbook;
+using Haus.Commands.Script;
 using Haus.Commands.Service;
 using Haus.Commands.Skill;
 using Haus.Commands.State;
@@ -64,6 +65,20 @@ app.Configure(config =>
             .WithDescription("Update an automation's configuration");
         auto.AddCommand<AutomationDeleteCommand>("delete")
             .WithDescription("Delete an automation");
+    });
+    config.AddBranch("script", scr =>
+    {
+        scr.SetDescription("Manage scripts");
+        scr.AddCommand<ScriptListCommand>("list")
+            .WithDescription("List all scripts");
+        scr.AddCommand<ScriptGetCommand>("get")
+            .WithDescription("Get script configuration");
+        scr.AddCommand<ScriptCreateCommand>("create")
+            .WithDescription("Create a new script from a JSON configuration");
+        scr.AddCommand<ScriptUpdateCommand>("update")
+            .WithDescription("Update a script's configuration");
+        scr.AddCommand<ScriptDeleteCommand>("delete")
+            .WithDescription("Delete a script");
     });
     config.AddBranch("state", state =>
     {
