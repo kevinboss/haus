@@ -27,7 +27,7 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var configId = settings.Id ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
-        var config = JsonSerializer.Deserialize<Dictionary<string, object>>(settings.Data);
+        var config = ParseTyped<AutomationConfig>(settings.Data);
 
         await api.PostAsync<JsonElement>(
             $"/api/config/automation/config/{configId}", config, cancellationToken);

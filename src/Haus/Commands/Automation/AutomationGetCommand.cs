@@ -27,67 +27,41 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        var config = await api.GetAsync<JsonElement>($"/api/config/automation/config/{state.Attributes.Id}", cancellationToken);
+        var config = await api.GetAsync<AutomationConfig>($"/api/config/automation/config/{state.Attributes.Id}", cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteHumanOutput(settings.AutomationId, state, config),
-            () => Console.WriteLine(JsonSerializer.Serialize(config)));
+            () => Console.WriteLine(JsonSerializer.Serialize(config, HausJsonOptions.Default)));
 
         return 0;
     }
 
-    private static void WriteHumanOutput(string entityId, AutomationState state, JsonElement config)
+    private static void WriteHumanOutput(string entityId, AutomationState state, AutomationConfig config)
     {
-        var alias = config.TryGetProperty("alias", out var a) ? a.GetString() ?? entityId : entityId;
-        var mode = config.TryGetProperty("mode", out var m) ? m.GetString() ?? "single" : "single";
-        var description = config.TryGetProperty("description", out var d) ? d.GetString() ?? "" : "";
-
-        AnsiConsole.MarkupLine($"[bold]{alias.EscapeMarkup()}[/]");
-        if (!string.IsNullOrEmpty(description))
-            AnsiConsole.MarkupLine($"[dim]{description.EscapeMarkup()}[/]");
+        AnsiConsole.MarkupLine($"[bold]{config.Alias.EscapeMarkup()}[/]");
+        if (!string.IsNullOrEmpty(config.Description))
+            AnsiConsole.MarkupLine($"[dim]{config.Description.EscapeMarkup()}[/]");
         AnsiConsole.WriteLine();
 
         var table = new Table().Border(TableBorder.None).HideHeaders()
             .AddColumn("Key").AddColumn("Value");
         table.AddRow("[dim]Entity ID[/]", entityId.EscapeMarkup());
         table.AddRow("[dim]State[/]", state.State == "on" ? "[green]on[/]" : "[red]off[/]");
-        table.AddRow("[dim]Mode[/]", mode);
+        table.AddRow("[dim]Mode[/]", config.Mode.ToString().ToLowerInvariant());
         AnsiConsole.Write(table);
         AnsiConsole.WriteLine();
 
-        WriteTriggers(config);
-        WriteConditions(config);
-        WriteActions(config);
+        WriteList("Triggers", config.Triggers, SummarizeTrigger);
+        WriteList("Conditions", config.Conditions, SummarizeCondition);
+        WriteList("Actions", config.Actions, SummarizeAction);
     }
 
-    private static void WriteTriggers(JsonElement config)
+    private static void WriteList(string heading, JsonElement[]? items, Func<JsonElement, string> summarize)
     {
-        if (!config.TryGetProperty("triggers", out var triggers) || triggers.GetArrayLength() == 0)
-            return;
-
-        AnsiConsole.MarkupLine("[bold]Triggers[/]");
-        var i = 1;
-        foreach (var trigger in triggers.EnumerateArray())
-        {
-            var summary = SummarizeTrigger(trigger);
-            AnsiConsole.MarkupLine($"  [dim]{i}.[/] {summary.EscapeMarkup()}");
-            i++;
-        }
-        AnsiConsole.WriteLine();
-    }
-
-    private static void WriteConditions(JsonElement config)
-    {
-        if (!config.TryGetProperty("conditions", out var conditions) || conditions.GetArrayLength() == 0)
-            return;
-
-        AnsiConsole.MarkupLine("[bold]Conditions[/]");
-        var i = 1;
-        foreach (var condition in conditions.EnumerateArray())
-        {
-            AnsiConsole.MarkupLine($"  [dim]{i}.[/] {SummarizeCondition(condition).EscapeMarkup()}");
-            i++;
-        }
+        if (items is null || items.Length == 0) return;
+        AnsiConsole.MarkupLine($"[bold]{heading}[/]");
+        for (var i = 0; i < items.Length; i++)
+            AnsiConsole.MarkupLine($"  [dim]{i + 1}.[/] {summarize(items[i]).EscapeMarkup()}");
         AnsiConsole.WriteLine();
     }
 
@@ -125,22 +99,6 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
             return wrapper;
         var summaries = inner.EnumerateArray().Select(SummarizeCondition);
         return $"{wrapper}({string.Join(", ", summaries)})";
-    }
-
-    private static void WriteActions(JsonElement config)
-    {
-        if (!config.TryGetProperty("actions", out var actions) || actions.GetArrayLength() == 0)
-            return;
-
-        AnsiConsole.MarkupLine("[bold]Actions[/]");
-        var i = 1;
-        foreach (var action in actions.EnumerateArray())
-        {
-            var summary = SummarizeAction(action);
-            AnsiConsole.MarkupLine($"  [dim]{i}.[/] {summary.EscapeMarkup()}");
-            i++;
-        }
-        AnsiConsole.WriteLine();
     }
 
     private static string SummarizeTrigger(JsonElement trigger)

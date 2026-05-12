@@ -37,7 +37,8 @@ src/Haus/
 
 - **Commands** inherit `AsyncCommand<TSettings>` with nested `Settings` class. Thin handlers — delegate to services.
 - **Use shared infrastructure.** REST commands use `IHassApiClient`, WebSocket commands use `IHassConnection`. Never create raw `HttpClient` or `HassWSApi` in a command.
-- **No in-memory filtering.** Only expose CLI flags/options that map to actual API query parameters. If the API doesn't support filtering, neither does the CLI.
+- **No in-memory filtering via flags.** Don't expose CLI flags/options that imply API-level filtering when the API doesn't support it. Domain-scoped list commands (e.g. `automation list`, `script list` filtering `/api/states` to a single domain) are fine — the command name itself defines the scope, not a user-supplied filter.
+- **Each entity-management branch exposes `list`.** Branches that manage configurable entities (`automation`, `script`, `entity`, `state`, ...) should offer a `list` subcommand alongside `get`/`create`/`update`/`delete`. Browsing the inventory is a primary use case and shouldn't require piping `state list` through `grep`.
 - **Output**: three modes via `OutputHelper.WriteResult(settings, data, humanOutput, porcelainOutput)`:
   - **Default**: human-friendly output using Spectre.Console. Always invest in making this readable — summarize complex data (e.g. show trigger/action summaries, not raw JSON). Never dump raw JSON as the human output.
   - **`--porcelain`**: plain tab-separated text for grep/cut/awk scripting. Lists use `OutputHelper.WriteColumns` (TSV with header). Key-value uses `OutputHelper.WriteKeyValue` (key\tvalue). Actions output bare identifiers.

@@ -33,7 +33,7 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
             return 1;
         }
 
-        var config = JsonSerializer.Deserialize<Dictionary<string, object>>(settings.Data);
+        var config = ParseTyped<AutomationConfig>(settings.Data);
         var result = await api.PostAsync<JsonElement>(
             $"/api/config/automation/config/{state.Attributes.Id}", config, cancellationToken);
 

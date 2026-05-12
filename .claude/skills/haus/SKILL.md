@@ -108,6 +108,12 @@ Destructive. Removes the entity from the registry; some integrations will recrea
 dotnet run --project src/Haus -- service list
 ```
 
+### automation list — List all automations
+```bash
+dotnet run --project src/Haus -- automation list
+```
+Shows every `automation.*` entity with alias, on/off state, and last-changed timestamp. Use `--porcelain` for grep-friendly output.
+
 ### automation get — Get automation configuration
 ```bash
 dotnet run --project src/Haus -- automation get <automation_id>

@@ -55,6 +55,8 @@ app.Configure(config =>
     config.AddBranch("automation", auto =>
     {
         auto.SetDescription("Manage automations");
+        auto.AddCommand<AutomationListCommand>("list")
+            .WithDescription("List all automations");
         auto.AddCommand<AutomationGetCommand>("get")
             .WithDescription("Get automation configuration");
         auto.AddCommand<AutomationToggleCommand>("toggle")
