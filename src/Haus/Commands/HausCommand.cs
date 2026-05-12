@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Haus.Auth;
+using Haus.Connection;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -54,6 +55,20 @@ public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<T
 
     protected static Dictionary<string, object>? ParseJsonData(string? json) =>
         json is not null ? JsonSerializer.Deserialize<Dictionary<string, object>>(json) : null;
+
+    protected static T ParseTyped<T>(string json) where T : class
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<T>(json, HausJsonOptions.Default)
+                ?? throw new InvalidOperationException($"--data deserialized to null for {typeof(T).Name}.");
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"--data does not match the expected {typeof(T).Name} shape: {ex.Message}", ex);
+        }
+    }
 
     protected static ValidationResult ValidateJsonData(string? json)
     {
