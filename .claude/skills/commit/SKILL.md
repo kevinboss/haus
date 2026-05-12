@@ -43,6 +43,7 @@ Format: `<type>(<scope>): <short description>`
 - `service` — service list/call commands
 - `event` — event list/fire commands
 - `automation` — automation get/toggle/update/delete commands
+- `script` — script get/create/update/delete commands
 - `update` — update list command (Home Assistant update entities)
 - `log` — error log command
 - `logbook` — logbook list command
