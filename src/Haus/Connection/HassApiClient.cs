@@ -11,21 +11,21 @@ public sealed class HassApiClient(IAuthService authService) : IHassApiClient, ID
     public async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken = default)
     {
         await EnsureAuthenticatedAsync(cancellationToken);
-        return await _httpClient.GetFromJsonAsync<T>(path, cancellationToken: cancellationToken)
+        return await _httpClient.GetFromJsonAsync<T>(path, HausJsonOptions.Default, cancellationToken)
             ?? throw new InvalidOperationException("Empty response from Home Assistant API.");
     }
 
     public async Task<T> PostAsync<T>(string path, object? data = null, CancellationToken cancellationToken = default)
     {
         await EnsureAuthenticatedAsync(cancellationToken);
-        var response = await _httpClient.PostAsJsonAsync(path, data ?? new object(), cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync(path, data ?? new object(), HausJsonOptions.Default, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             throw new InvalidOperationException(
                 string.IsNullOrWhiteSpace(body) ? $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}" : body);
         }
-        return await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
+        return await response.Content.ReadFromJsonAsync<T>(HausJsonOptions.Default, cancellationToken)
             ?? throw new InvalidOperationException("Empty response from Home Assistant API.");
     }
 
