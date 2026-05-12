@@ -27,6 +27,9 @@ haus automation get automation.morning_routine
 # Toggle an automation
 haus automation toggle automation.morning_routine
 
+# Create a new automation from JSON
+haus automation create --data "$(cat morning.json)"
+
 # Check for available updates
 haus update list
 
