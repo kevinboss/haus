@@ -97,6 +97,12 @@ dotnet run --project src/Haus -- automation toggle <automation_id>
 ```
 Example: `automation toggle automation.morning_routine`
 
+### automation create — Create a new automation
+```bash
+dotnet run --project src/Haus -- automation create --data '<JSON>' [--id <ID>]
+```
+`--data` is the full automation configuration (alias, triggers, actions, optional mode/conditions). `--id` sets the config ID; omit it to auto-generate a millisecond-timestamp ID (same convention as the HA UI). The new entity ID is derived from the alias.
+
 ### automation update — Update an automation's configuration
 ```bash
 dotnet run --project src/Haus -- automation update <automation_id> --data '<JSON>'
