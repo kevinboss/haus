@@ -88,8 +88,16 @@ app.Configure(config =>
     config.AddBranch("entity", ent =>
     {
         ent.SetDescription("Manage entity registry");
+        ent.AddCommand<EntityListCommand>("list")
+            .WithDescription("List all registered entities (including disabled/hidden)");
+        ent.AddCommand<EntityGetCommand>("get")
+            .WithDescription("Show registry metadata for an entity");
         ent.AddCommand<EntityRenameCommand>("rename")
             .WithDescription("Rename an entity's display name");
+        ent.AddCommand<EntityUpdateCommand>("update")
+            .WithDescription("Update an entity's registry fields (name, icon, area, disable, hide, new ID)");
+        ent.AddCommand<EntityDeleteCommand>("delete")
+            .WithDescription("Remove an entity from the registry");
     });
     config.AddBranch("service", svc =>
     {

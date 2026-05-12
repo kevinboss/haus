@@ -30,6 +30,12 @@ haus automation toggle automation.morning_routine
 # Create a new automation from JSON
 haus automation create --data "$(cat morning.json)"
 
+# List the entity registry (includes disabled/hidden entities)
+haus entity list
+
+# Disable a noisy entity
+haus entity update sensor.unused --disable
+
 # Check for available updates
 haus update list
 
