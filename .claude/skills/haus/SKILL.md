@@ -227,12 +227,13 @@ Useful for seeing "what just changed" in HA — automation triggers, state chang
 
 ### history get — Get state history for an entity
 ```bash
-dotnet run --project src/Haus -- history get <entity_id> [-s <DURATION>] [-u <ISO>] [--with-attributes]
+dotnet run --project src/Haus -- history get <entity_id> [-s <DURATION>] [-u <ISO>] [--with-attributes] [--statistics <PERIOD>]
 ```
 - `<entity_id>` — required, e.g. `device_tracker.unifi_express`
 - `-s|--since` — how far back. Default: `1h`
 - `-u|--until` — end timestamp (ISO 8601). Default: now
 - `--with-attributes` — include full state attributes (default omits them for compactness)
+- `--statistics <PERIOD>` — use recorder statistics (mean/min/max/sum per period) instead of raw state changes. Period: `5minute`, `hour`, `day`, `week`, `month`. Useful when state changes are sparse because the sensor reports in coarse steps — statistics aggregate per period even when no state change was logged. Requires `state_class: measurement` on the sensor.
 
 ### config check — Validate Home Assistant configuration
 ```bash
