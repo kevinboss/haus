@@ -45,6 +45,7 @@ Format: `<type>(<scope>): <short description>`
 - `entity` — entity registry list/get/rename/rename-id/update/delete commands
 - `automation` — automation get/toggle/create/update/delete commands
 - `script` — script get/create/update/delete commands
+- `scene` — scene list/get/create/update/delete/activate commands
 - `zone` — zone list/get/update commands
 - `update` — update list command (Home Assistant update entities)
 - `log` — error log command

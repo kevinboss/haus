@@ -182,6 +182,42 @@ dotnet run --project src/Haus -- script delete <script_id>
 ```
 Example: `script delete script.old_routine`
 
+### scene list — List all scenes
+```bash
+dotnet run --project src/Haus -- scene list
+```
+Shows every `scene.*` entity with name, type (config/runtime), entity count, and last-activated timestamp. **Config scenes** are persisted and editable via this CLI. **Runtime scenes** are created by automations using the `scene.create` service (e.g. for snapshot/restore) — they appear here for visibility but aren't editable or deletable; they disappear on HA restart.
+
+### scene get — Get scene details
+```bash
+dotnet run --project src/Haus -- scene get <scene_id>
+```
+For config scenes: shows name, icon, entities and their target states. For runtime scenes: shows the entity list captured in the snapshot. Use `--json` for the full config body (config scenes only).
+
+### scene create — Create a new scene
+```bash
+dotnet run --project src/Haus -- scene create (--data '<JSON>' | --from-file <PATH>) [--id <ID>]
+```
+JSON requires `name` and `entities` (a dict mapping entity_id → state string or `{state, ...attrs}` object). `--id` sets the config ID; omit to auto-generate. Fails if the chosen ID is already in use.
+
+### scene update — Update a config scene
+```bash
+dotnet run --project src/Haus -- scene update <scene_id> (--data '<JSON>' | --from-file <PATH>)
+```
+Refuses runtime scenes with a clear error.
+
+### scene delete — Delete a config scene
+```bash
+dotnet run --project src/Haus -- scene delete <scene_id>
+```
+Refuses runtime scenes with a clear error.
+
+### scene activate — Activate a scene (apply target states)
+```bash
+dotnet run --project src/Haus -- scene activate <scene_id> [--transition <SECONDS>]
+```
+Wraps `scene.turn_on`. `--transition` applies to compatible entities (e.g. lights fade over N seconds).
+
 ### update list — List update entities and their availability
 ```bash
 dotnet run --project src/Haus -- update list

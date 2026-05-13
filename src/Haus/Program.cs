@@ -7,6 +7,7 @@ using Haus.Commands.Event;
 using Haus.Commands.History;
 using Haus.Commands.Log;
 using Haus.Commands.Logbook;
+using Haus.Commands.Scene;
 using Haus.Commands.Script;
 using Haus.Commands.Service;
 using Haus.Commands.Skill;
@@ -82,6 +83,22 @@ app.Configure(config =>
             .WithDescription("Update a script's configuration");
         scr.AddCommand<ScriptDeleteCommand>("delete")
             .WithDescription("Delete a script");
+    });
+    config.AddBranch("scene", scn =>
+    {
+        scn.SetDescription("Manage scenes (config and runtime)");
+        scn.AddCommand<SceneListCommand>("list")
+            .WithDescription("List all scenes (config + runtime)");
+        scn.AddCommand<SceneGetCommand>("get")
+            .WithDescription("Get scene details");
+        scn.AddCommand<SceneCreateCommand>("create")
+            .WithDescription("Create a new scene from a JSON configuration");
+        scn.AddCommand<SceneUpdateCommand>("update")
+            .WithDescription("Update a config scene");
+        scn.AddCommand<SceneDeleteCommand>("delete")
+            .WithDescription("Delete a config scene");
+        scn.AddCommand<SceneActivateCommand>("activate")
+            .WithDescription("Activate a scene (wraps scene.turn_on)");
     });
     config.AddBranch("state", state =>
     {
