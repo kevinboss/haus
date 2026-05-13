@@ -12,6 +12,7 @@ using Haus.Commands.Service;
 using Haus.Commands.Skill;
 using Haus.Commands.State;
 using Haus.Commands.Update;
+using Haus.Commands.Zone;
 using Haus.Connection;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
@@ -133,6 +134,16 @@ app.Configure(config =>
             .WithDescription("List update entities and their availability");
         upd.AddCommand<UpdateInstallCommand>("install")
             .WithDescription("Install an available update");
+    });
+    config.AddBranch("zone", zone =>
+    {
+        zone.SetDescription("Manage geofence zones");
+        zone.AddCommand<ZoneListCommand>("list")
+            .WithDescription("List all zones");
+        zone.AddCommand<ZoneGetCommand>("get")
+            .WithDescription("Show full zone details");
+        zone.AddCommand<ZoneUpdateCommand>("update")
+            .WithDescription("Update a zone (radius, coordinates, icon, passive flag)");
     });
     config.AddBranch("skill", skill =>
     {
