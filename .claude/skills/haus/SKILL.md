@@ -127,6 +127,12 @@ dotnet run --project src/Haus -- automation get <automation_id>
 Example: `automation get automation.morning_routine`
 Shows alias, state, mode, triggers, conditions, and actions summary. Use `--json` for the full config.
 
+### automation trace — View recent execution traces
+```bash
+dotnet run --project src/Haus -- automation trace <automation_id> [--last | --run <run_id>]
+```
+Without flags: table of the last 10 runs (run ID, started, trigger, result, duration). With `--last`: expanded step tree of the most recent run (timestamps, container types, service calls, condition results, delays). With `--run <id>`: same expansion for a specific run. Closes the "why didn't my automation fire?" debugging loop — shows skipped conditions, not just successful fires. An automation that hasn't fired (yet) returns a clear empty-state message.
+
 ### automation toggle — Toggle an automation on/off
 ```bash
 dotnet run --project src/Haus -- automation toggle <automation_id>

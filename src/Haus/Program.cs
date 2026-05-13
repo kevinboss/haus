@@ -61,6 +61,8 @@ app.Configure(config =>
             .WithDescription("List all automations");
         auto.AddCommand<AutomationGetCommand>("get")
             .WithDescription("Get automation configuration");
+        auto.AddCommand<AutomationTraceCommand>("trace")
+            .WithDescription("View recent execution traces");
         auto.AddCommand<AutomationToggleCommand>("toggle")
             .WithDescription("Toggle an automation on/off");
         auto.AddCommand<AutomationCreateCommand>("create")
