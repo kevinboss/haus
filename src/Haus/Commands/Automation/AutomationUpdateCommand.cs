@@ -19,9 +19,14 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
 
         [CommandOption("--data <JSON>")]
         [Description("Full automation configuration as JSON")]
-        public required string Data { get; init; }
+        public string? Data { get; init; }
 
-        public override ValidationResult Validate() => ValidateJsonData(Data);
+        [CommandOption("--from-file <PATH>")]
+        [Description("Read configuration JSON from a file (use --from-file=- for stdin)")]
+        public string? FromFile { get; init; }
+
+        public override ValidationResult Validate() =>
+            JsonInput.ValidateRequired(Data, FromFile);
     }
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
@@ -33,7 +38,8 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
             return 1;
         }
 
-        var config = ParseTyped<AutomationConfig>(settings.Data);
+        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var config = ParseTyped<AutomationConfig>(json);
         var result = await api.PostAsync<JsonElement>(
             $"/api/config/automation/config/{state.Attributes.Id}", config, cancellationToken);
 
