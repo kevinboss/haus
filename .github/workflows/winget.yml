@@ -7,19 +7,16 @@ on:
 jobs:
   wait:
     runs-on: ubuntu-latest
-    outputs:
-      conclusion: ${{ steps.wait-for-release.outputs.conclusion }}
     steps:
       - name: Wait for Release
-        uses: fountainhead/action-wait-for-check@v1.2.0
-        id: wait-for-release
+        uses: lewagon/wait-on-check-action@v1.7.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: Release (windows)
+          ref: ${{ github.sha }}
+          check-name: Release (windows)
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     needs: wait
-    if: needs.wait.outputs.conclusion == 'success'
     runs-on: windows-latest
     steps:
       - name: Publish haus to WinGet

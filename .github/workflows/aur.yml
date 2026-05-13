@@ -7,19 +7,16 @@ on:
 jobs:
   wait:
     runs-on: ubuntu-latest
-    outputs:
-      conclusion: ${{ steps.wait-for-release.outputs.conclusion }}
     steps:
       - name: Wait for Release
-        uses: fountainhead/action-wait-for-check@v1.2.0
-        id: wait-for-release
+        uses: lewagon/wait-on-check-action@v1.7.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: Release (linux)
+          ref: ${{ github.sha }}
+          check-name: Release (linux)
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     needs: wait
-    if: needs.wait.outputs.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
