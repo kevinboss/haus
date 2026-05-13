@@ -42,8 +42,10 @@ Format: `<type>(<scope>): <short description>`
 - `state` — state list/get/set/delete commands
 - `service` — service list/call commands
 - `event` — event list/fire commands
-- `automation` — automation get/toggle/update/delete commands
+- `entity` — entity registry list/get/rename/rename-id/update/delete commands
+- `automation` — automation get/toggle/create/update/delete commands
 - `script` — script get/create/update/delete commands
+- `zone` — zone list/get/update commands
 - `update` — update list command (Home Assistant update entities)
 - `log` — error log command
 - `logbook` — logbook list command

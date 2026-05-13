@@ -188,6 +188,28 @@ dotnet run --project src/Haus -- update list
 ```
 Shows all `update.*` entities with installed version, latest version, and status (available/installing/skipped/up to date). Updates with state `on` are sorted first.
 
+### zone list — List geofence zones
+```bash
+dotnet run --project src/Haus -- zone list
+```
+Shows every `zone.*` entity with name, coordinates, radius, person count inside, and whether it's editable via this CLI. Includes `zone.home`, UI-configured zones, and YAML-configured zones.
+
+### zone get — Show full zone details
+```bash
+dotnet run --project src/Haus -- zone get <zone_id>
+```
+Example: `zone get zone.home`. Shows coordinates, radius, passive/active, icon, and currently-inside persons.
+
+### zone update — Update a zone
+```bash
+dotnet run --project src/Haus -- zone update <zone_id> [--radius <METERS>] [--lat <LAT>] [--lng <LNG>] [--icon <ICON>] [--passive | --active] [--data '<JSON>' | --from-file <PATH>]
+```
+Partial flags merge with the current zone state; `--data`/`--from-file` replace the body wholesale (and cannot be combined with partial flags).
+
+**zone.home** is special: it's linked to HA's installation coordinates (`config/core/update`), not the zone storage. Only `--radius`, `--lat`, `--lng` are supported on zone.home; `--icon`, `--passive`, `--data`, `--from-file` are rejected with a clear error.
+
+YAML-configured zones are not editable via this command (HA's storage backend doesn't expose them).
+
 ### update install — Install an available update
 ```bash
 dotnet run --project src/Haus -- update install <entity_id> [--version <VERSION>] [--backup]
