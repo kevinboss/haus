@@ -27,6 +27,29 @@ public sealed class UpdateInstallCommand(IAuthService auth, IHassApiClient api) 
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
+        var preflight = await api.GetAsync<UpdateState>($"/api/states/{settings.EntityId}", cancellationToken);
+        if ((preflight.Attributes.SupportedFeatures & UpdateEntityFeature.Install) == 0)
+        {
+            OutputHelper.WriteError(settings,
+                $"{settings.EntityId} is read-only — this update entity does not support install. " +
+                "Upgrade via the device or integration itself.");
+            return 1;
+        }
+        if (settings.Version is not null &&
+            (preflight.Attributes.SupportedFeatures & UpdateEntityFeature.SpecificVersion) == 0)
+        {
+            OutputHelper.WriteError(settings,
+                $"{settings.EntityId} does not support installing a specific version. Omit --version to install the latest.");
+            return 1;
+        }
+        if (settings.Backup &&
+            (preflight.Attributes.SupportedFeatures & UpdateEntityFeature.Backup) == 0)
+        {
+            OutputHelper.WriteError(settings,
+                $"{settings.EntityId} does not support pre-install backups. Omit --backup.");
+            return 1;
+        }
+
         var data = new Dictionary<string, object> { ["entity_id"] = settings.EntityId };
         if (!string.IsNullOrEmpty(settings.Version)) data["version"] = settings.Version;
         if (settings.Backup) data["backup"] = true;
