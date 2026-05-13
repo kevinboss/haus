@@ -91,6 +91,12 @@ dotnet run --project src/Haus -- entity rename <entity_id> <name>
 ```
 Example: `entity rename sensor.temp_123 "Living Room Temperature"`
 
+### entity rename-id — Rename an entity's ID
+```bash
+dotnet run --project src/Haus -- entity rename-id <old_entity_id> <new_entity_id>
+```
+Example: `entity rename-id automation.sunday_morning_cleaning automation.weekly_cleaning`. The new ID must share the same domain prefix. HA rewrites references in automations, scripts, and dashboards atomically. (`entity update --new-id` does the same thing as part of the kitchen-sink update command.)
+
 ### entity update — Update an entity's registry fields
 ```bash
 dotnet run --project src/Haus -- entity update <entity_id> [--name <NAME>] [--icon <ICON>] [--area <AREA_ID>] [--new-id <ENTITY_ID>] [--disable|--enable] [--hide|--show]
