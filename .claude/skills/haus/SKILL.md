@@ -69,9 +69,9 @@ dotnet run --project src/Haus -- event list
 
 ### event fire — Fire a custom event
 ```bash
-dotnet run --project src/Haus -- event fire <event_type> [--data '<JSON>']
+dotnet run --project src/Haus -- event fire <event_type> [--data '<JSON>' | --from-file <PATH>]
 ```
-Example: `event fire my_event --data '{"key":"value"}'`
+Example: `event fire my_event --data '{"key":"value"}'`. Use `--from-file=-` to read JSON from stdin.
 
 ### entity list — List all registered entities
 ```bash
@@ -129,15 +129,15 @@ Example: `automation toggle automation.morning_routine`
 
 ### automation create — Create a new automation
 ```bash
-dotnet run --project src/Haus -- automation create --data '<JSON>' [--id <ID>]
+dotnet run --project src/Haus -- automation create (--data '<JSON>' | --from-file <PATH>) [--id <ID>]
 ```
-`--data` is the full automation configuration (alias, triggers, actions, optional mode/conditions). `--id` sets the config ID; omit it to auto-generate a millisecond-timestamp ID (same convention as the HA UI). The new entity ID is derived from the alias.
+Provide the configuration via `--data` (inline JSON) or `--from-file` (path; use `--from-file=-` for stdin) — exactly one is required. `--id` sets the config ID; omit it to auto-generate a millisecond-timestamp ID (same convention as the HA UI). The new entity ID is derived from the alias. Fails if the chosen ID is already in use.
 
 ### automation update — Update an automation's configuration
 ```bash
-dotnet run --project src/Haus -- automation update <automation_id> --data '<JSON>'
+dotnet run --project src/Haus -- automation update <automation_id> (--data '<JSON>' | --from-file <PATH>)
 ```
-Use `automation get --json` to get the current config, modify it, then pass back via `--data`.
+Use `automation get --json` to get the current config, modify it, then pass back via `--data` or `--from-file` (use `--from-file=-` for stdin — avoids shell-quoting pain when configs contain Jinja).
 
 ### automation delete — Delete an automation
 ```bash
@@ -160,15 +160,15 @@ Shows alias, mode, fields, and a sequence summary. Use `--json` for the full con
 
 ### script create — Create a new script
 ```bash
-dotnet run --project src/Haus -- script create --id <ID> --data '<JSON>'
+dotnet run --project src/Haus -- script create --id <ID> (--data '<JSON>' | --from-file <PATH>)
 ```
-`--id` is the script's object ID (the part after `script.`); it becomes the entity name. `--data` is the full script configuration (alias, sequence, optional mode/fields/description). Useful for wrapping multi-target service calls (e.g. `notify.send_message` to several phones) into a single reusable script.
+`--id` is the script's object ID (the part after `script.`); it becomes the entity name. Provide the configuration via `--data` (inline JSON) or `--from-file` (path; use `--from-file=-` for stdin). Useful for wrapping multi-target service calls (e.g. `notify.send_message` to several phones) into a single reusable script.
 
 ### script update — Update a script's configuration
 ```bash
-dotnet run --project src/Haus -- script update <script_id> --data '<JSON>'
+dotnet run --project src/Haus -- script update <script_id> (--data '<JSON>' | --from-file <PATH>)
 ```
-Use `script get --json` to get the current config, modify it, then pass back via `--data`.
+Use `script get --json` to get the current config, modify it, then pass back via `--data` or `--from-file`.
 
 ### script delete — Delete a script
 ```bash
@@ -191,11 +191,12 @@ Defaults to the latest version. `--backup` creates a backup first (only supporte
 
 ### service call — Call a service
 ```bash
-dotnet run --project src/Haus -- service call <domain.service> [--entity <entity_id>] [--data '<JSON>']
+dotnet run --project src/Haus -- service call <domain.service> [--entity <entity_id>] [--data '<JSON>' | --from-file <PATH>]
 ```
 Examples:
 - `service call light.turn_on --entity light.kitchen`
 - `service call light.turn_on --data '{"entity_id":"light.bedroom","brightness":200}'`
+- `service call notify.mobile_app --from-file payload.json`
 
 ### log — Show recent errors and warnings
 ```bash

@@ -24,6 +24,10 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
         [Description("Service data as JSON")]
         public string? Data { get; init; }
 
+        [CommandOption("--from-file <PATH>")]
+        [Description("Read service data JSON from a file (use --from-file=- for stdin)")]
+        public string? FromFile { get; init; }
+
         public string Domain => Service[..Service.IndexOf('.')];
         public string ServiceName => Service[(Service.IndexOf('.') + 1)..];
 
@@ -33,7 +37,7 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
             if (dot <= 0 || dot >= Service.Length - 1)
                 return ValidationResult.Error("Service must be in domain.service format (e.g. light.turn_on).");
 
-            return ValidateJsonData(Data);
+            return JsonInput.ValidateOptional(Data, FromFile);
         }
     }
 
@@ -42,7 +46,7 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
         var domain = settings.Domain;
         var service = settings.ServiceName;
 
-        var data = ParseJsonData(settings.Data);
+        var data = ParseJsonData(JsonInput.Resolve(settings.Data, settings.FromFile));
         if (settings.EntityId is not null)
         {
             data ??= [];
