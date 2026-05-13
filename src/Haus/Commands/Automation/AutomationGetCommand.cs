@@ -51,9 +51,9 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
         AnsiConsole.Write(table);
         AnsiConsole.WriteLine();
 
-        WriteList("Triggers", config.Triggers, SummarizeTrigger);
-        WriteList("Conditions", config.Conditions, SummarizeCondition);
-        WriteList("Actions", config.Actions, SummarizeAction);
+        WriteList("Triggers", config.Triggers, AutomationSummarizer.SummarizeTrigger);
+        WriteList("Conditions", config.Conditions, AutomationSummarizer.SummarizeCondition);
+        WriteList("Actions", config.Actions, AutomationSummarizer.SummarizeAction);
     }
 
     private static void WriteList(string heading, JsonElement[]? items, Func<JsonElement, string> summarize)
@@ -63,126 +63,5 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
         for (var i = 0; i < items.Length; i++)
             AnsiConsole.MarkupLine($"  [dim]{i + 1}.[/] {summarize(items[i]).EscapeMarkup()}");
         AnsiConsole.WriteLine();
-    }
-
-    private static string SummarizeCondition(JsonElement condition)
-    {
-        var type = condition.TryGetProperty("condition", out var c) ? c.GetString() ?? "unknown" : "unknown";
-
-        return type switch
-        {
-            "state" => FormatStateCondition(condition),
-            "not" => FormatWrappedCondition("not", condition),
-            "or" => FormatWrappedCondition("or", condition),
-            "and" => FormatWrappedCondition("and", condition),
-            "numeric_state" => FormatEntityTrigger(condition, "entity_id", "numeric state"),
-            "template" => "template",
-            "time" => "time",
-            "zone" => "zone",
-            _ => type
-        };
-    }
-
-    private static string FormatStateCondition(JsonElement condition)
-    {
-        var entity = condition.TryGetProperty("entity_id", out var e)
-            ? (e.ValueKind == JsonValueKind.Array
-                ? string.Join(", ", e.EnumerateArray().Select(x => x.GetString()))
-                : e.GetString() ?? "")
-            : "";
-        return $"state: {entity}";
-    }
-
-    private static string FormatWrappedCondition(string wrapper, JsonElement condition)
-    {
-        if (!condition.TryGetProperty("conditions", out var inner))
-            return wrapper;
-        var summaries = inner.EnumerateArray().Select(SummarizeCondition);
-        return $"{wrapper}({string.Join(", ", summaries)})";
-    }
-
-    private static string SummarizeTrigger(JsonElement trigger)
-    {
-        var type = trigger.TryGetProperty("trigger", out var t) ? t.GetString() ?? "unknown" : "unknown";
-
-        return type switch
-        {
-            "time" => FormatTimeTrigger(trigger),
-            "state" => FormatStateTrigger(trigger),
-            "numeric_state" => FormatEntityTrigger(trigger, "entity_id", "numeric state"),
-            "event" => trigger.TryGetProperty("event_type", out var e) ? $"event: {e.GetString()}" : "event",
-            "sun" => trigger.TryGetProperty("event", out var s) ? $"sun {s.GetString()}" : "sun",
-            "zone" => "zone",
-            "device" => "device trigger",
-            "template" => "template",
-            "webhook" => trigger.TryGetProperty("webhook_id", out var w) ? $"webhook: {w.GetString()}" : "webhook",
-            _ => type
-        };
-    }
-
-    private static string FormatTimeTrigger(JsonElement trigger)
-    {
-        var at = trigger.TryGetProperty("at", out var a) ? a.GetString() ?? "" : "";
-        if (trigger.TryGetProperty("weekday", out var days) && days.ValueKind == JsonValueKind.Array)
-        {
-            var dayList = string.Join(", ", days.EnumerateArray().Select(d => d.GetString()));
-            return $"time at {at} ({dayList})";
-        }
-        return $"time at {at}";
-    }
-
-    private static string FormatStateTrigger(JsonElement trigger)
-    {
-        var result = FormatEntityTrigger(trigger, "entity_id", "state change");
-        if (trigger.TryGetProperty("attribute", out var attr))
-            result += $" [{attr.GetString()}";
-        if (trigger.TryGetProperty("to", out var to))
-            result += trigger.TryGetProperty("attribute", out _) ? $" = {to}" : $" → {to}";
-        if (trigger.TryGetProperty("attribute", out _))
-            result += "]";
-        return result;
-    }
-
-    private static string FormatEntityTrigger(JsonElement trigger, string entityProp, string label)
-    {
-        if (!trigger.TryGetProperty(entityProp, out var e))
-            return label;
-
-        var entities = e.ValueKind == JsonValueKind.Array
-            ? string.Join(", ", e.EnumerateArray().Select(x => x.GetString()))
-            : e.GetString() ?? "";
-        return $"{label}: {entities}";
-    }
-
-    private static string SummarizeAction(JsonElement action)
-    {
-        var actionName = action.TryGetProperty("action", out var a) ? a.GetString() ?? "" : "";
-        var target = "";
-        if (action.TryGetProperty("target", out var t) &&
-            t.TryGetProperty("entity_id", out var eid))
-            target = eid.GetString() ?? "";
-
-        if (!string.IsNullOrEmpty(actionName) && !string.IsNullOrEmpty(target))
-            return $"{actionName} → {target}";
-        if (!string.IsNullOrEmpty(actionName))
-            return actionName;
-
-        if (action.TryGetProperty("choose", out var choose))
-        {
-            var branchCount = choose.GetArrayLength();
-            return $"choose ({branchCount} {(branchCount == 1 ? "branch" : "branches")})";
-        }
-        if (action.TryGetProperty("delay", out var delay))
-            return $"delay: {delay}";
-        if (action.TryGetProperty("condition", out var cond))
-            return $"condition: {cond.GetString()}";
-        if (action.TryGetProperty("repeat", out _))
-            return "repeat";
-        if (action.TryGetProperty("wait_template", out _))
-            return "wait_template";
-        if (action.TryGetProperty("if", out _))
-            return "if/then";
-
-        return "unknown action";
     }
 }
