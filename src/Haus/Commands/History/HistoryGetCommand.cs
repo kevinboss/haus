@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Haus.Auth;
 using Haus.Connection;
@@ -9,8 +10,11 @@ using Spectre.Console.Cli;
 
 namespace Haus.Commands.History;
 
-public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api) : HausCommand<HistoryGetCommand.Settings>(auth)
+public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHassWebSocketClient ws)
+    : HausCommand<HistoryGetCommand.Settings>(auth)
 {
+    private static readonly string[] StatisticsPeriods = ["5minute", "hour", "day", "week", "month"];
+
     public sealed class Settings : HausSettings
     {
         [CommandArgument(0, "<entity_id>")]
@@ -29,6 +33,10 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api) : H
         [Description("Include full state attributes (default omits them for compactness)")]
         public bool WithAttributes { get; init; }
 
+        [CommandOption("--statistics <PERIOD>")]
+        [Description("Use recorder statistics instead of raw state changes. Period: 5minute, hour, day, week, month.")]
+        public string? Statistics { get; init; }
+
         public override ValidationResult Validate()
         {
             try { _ = DurationParser.Parse(Since); }
@@ -36,6 +44,9 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api) : H
 
             if (Until is not null && !DateTimeOffset.TryParse(Until, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out _))
                 return ValidationResult.Error("--until must be an ISO 8601 timestamp.");
+
+            if (Statistics is not null && !StatisticsPeriods.Contains(Statistics))
+                return ValidationResult.Error($"--statistics must be one of: {string.Join(", ", StatisticsPeriods)}.");
 
             return ValidationResult.Success();
         }
@@ -45,14 +56,45 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api) : H
     {
         var since = DurationParser.Parse(settings.Since);
         var startTime = DateTimeOffset.UtcNow - since;
-        var path = BuildPath(startTime, settings.EntityId, settings.Until, settings.WithAttributes);
+        var endTime = settings.Until is not null
+            ? DateTimeOffset.Parse(settings.Until, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+            : DateTimeOffset.UtcNow;
 
+        return settings.Statistics is not null
+            ? await RunStatisticsAsync(settings, startTime, endTime, cancellationToken)
+            : await RunStateHistoryAsync(settings, startTime, cancellationToken);
+    }
+
+    private async Task<int> RunStateHistoryAsync(Settings settings, DateTimeOffset startTime, CancellationToken cancellationToken)
+    {
+        var path = BuildPath(startTime, settings.EntityId, settings.Until, settings.WithAttributes);
         var groups = await api.GetAsync<List<List<HistoryState>>>(path, cancellationToken);
         var states = groups.Count > 0 ? groups[0] : [];
 
         OutputHelper.WriteResult(settings, states,
-            humanOutput: () => WriteHumanOutput(states, settings.EntityId),
-            porcelainOutput: () => WritePorcelainOutput(states));
+            humanOutput: () => WriteHistoryHuman(states, settings.EntityId),
+            porcelainOutput: () => WriteHistoryPorcelain(states));
+
+        return 0;
+    }
+
+    private async Task<int> RunStatisticsAsync(Settings settings, DateTimeOffset startTime, DateTimeOffset endTime, CancellationToken cancellationToken)
+    {
+        var result = await ws.SendCommandAsync(new
+        {
+            type = "recorder/statistics_during_period",
+            start_time = startTime.ToString("o", CultureInfo.InvariantCulture),
+            end_time = endTime.ToString("o", CultureInfo.InvariantCulture),
+            statistic_ids = new[] { settings.EntityId },
+            period = settings.Statistics
+        }, cancellationToken);
+
+        var byEntity = result.Deserialize<Dictionary<string, List<StatisticsRow>>>() ?? [];
+        var rows = byEntity.TryGetValue(settings.EntityId, out var r) ? r : [];
+
+        OutputHelper.WriteResult(settings, rows,
+            humanOutput: () => WriteStatisticsHuman(rows, settings.EntityId, settings.Statistics!),
+            porcelainOutput: () => WriteStatisticsPorcelain(rows));
 
         return 0;
     }
@@ -70,7 +112,7 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api) : H
         return $"{basePath}?{string.Join('&', queryParts)}";
     }
 
-    private static void WriteHumanOutput(List<HistoryState> states, string entityId)
+    private static void WriteHistoryHuman(List<HistoryState> states, string entityId)
     {
         if (states.Count == 0)
         {
@@ -94,7 +136,7 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api) : H
         AnsiConsole.MarkupLine($"[dim]{states.Count} state change{(states.Count == 1 ? "" : "s")} for {entityId.EscapeMarkup()}[/]");
     }
 
-    private static void WritePorcelainOutput(List<HistoryState> states)
+    private static void WriteHistoryPorcelain(List<HistoryState> states)
     {
         OutputHelper.WriteColumns(
             ["WHEN", "STATE"],
@@ -104,6 +146,69 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api) : H
                 s.State ?? ""
             }));
     }
+
+    private static void WriteStatisticsHuman(List<StatisticsRow> rows, string entityId, string period)
+    {
+        if (rows.Count == 0)
+        {
+            AnsiConsole.MarkupLine($"[dim]No statistics recorded for {entityId.EscapeMarkup()}. (Sensor needs state_class: measurement to be aggregated.)[/]");
+            return;
+        }
+
+        var table = new Table()
+            .Border(TableBorder.Rounded)
+            .AddColumn("Start")
+            .AddColumn(new TableColumn("Mean").RightAligned())
+            .AddColumn(new TableColumn("Min").RightAligned())
+            .AddColumn(new TableColumn("Max").RightAligned())
+            .AddColumn(new TableColumn("Sum").RightAligned());
+
+        foreach (var row in rows)
+        {
+            table.AddRow(
+                FormatStart(row.Start).EscapeMarkup(),
+                FormatNumber(row.Mean),
+                FormatNumber(row.Min),
+                FormatNumber(row.Max),
+                FormatNumber(row.Sum));
+        }
+
+        AnsiConsole.Write(table);
+        AnsiConsole.MarkupLine($"[dim]{rows.Count} {period} period{(rows.Count == 1 ? "" : "s")} for {entityId.EscapeMarkup()}[/]");
+    }
+
+    private static void WriteStatisticsPorcelain(List<StatisticsRow> rows)
+    {
+        OutputHelper.WriteColumns(
+            ["START", "MEAN", "MIN", "MAX", "SUM"],
+            rows.Select(r => new[]
+            {
+                FormatStartIso(r.Start),
+                FormatNumber(r.Mean),
+                FormatNumber(r.Min),
+                FormatNumber(r.Max),
+                FormatNumber(r.Sum)
+            }));
+    }
+
+    private static string FormatNumber(double? value) =>
+        value is null ? "" : value.Value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string FormatStart(JsonElement start) => start.ValueKind switch
+    {
+        JsonValueKind.Number => DateTimeOffset.FromUnixTimeMilliseconds(start.GetInt64())
+            .ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
+        JsonValueKind.String => FormatTimeLocal(start.GetString()),
+        _ => start.ToString()
+    };
+
+    private static string FormatStartIso(JsonElement start) => start.ValueKind switch
+    {
+        JsonValueKind.Number => DateTimeOffset.FromUnixTimeMilliseconds(start.GetInt64())
+            .ToString("o", CultureInfo.InvariantCulture),
+        JsonValueKind.String => FormatTimeIso(start.GetString()),
+        _ => start.ToString()
+    };
 
     private static string FormatTimeLocal(string? iso) =>
         DateTimeOffset.TryParse(iso, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var dt)
@@ -121,3 +226,10 @@ internal sealed record HistoryState(
     [property: JsonPropertyName("last_changed")] string? LastChanged,
     [property: JsonPropertyName("last_updated")] string? LastUpdated,
     [property: JsonPropertyName("entity_id")] string? EntityId);
+
+internal sealed record StatisticsRow(
+    [property: JsonPropertyName("start")] JsonElement Start,
+    [property: JsonPropertyName("mean")] double? Mean,
+    [property: JsonPropertyName("min")] double? Min,
+    [property: JsonPropertyName("max")] double? Max,
+    [property: JsonPropertyName("sum")] double? Sum);
