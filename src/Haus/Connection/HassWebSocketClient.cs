@@ -81,7 +81,7 @@ public sealed class HassWebSocketClient(IAuthService authService) : IHassWebSock
             {
                 var error = msg.TryGetProperty("error", out var err)
                     ? err.GetProperty("message").GetString() : "Unknown error";
-                throw new InvalidOperationException($"WebSocket command failed: {error}");
+                throw new InvalidOperationException(error);
             }
 
             return msg.TryGetProperty("result", out var r) ? r.Clone() : default;
