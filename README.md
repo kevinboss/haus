@@ -27,11 +27,11 @@ haus automation get automation.morning_routine
 # Toggle an automation
 haus automation toggle automation.morning_routine
 
-# Create a new automation from JSON
-haus automation create --data "$(cat morning.json)"
+# Create a new automation from a JSON file (avoids shell-quoting Jinja)
+haus automation create --from-file morning.json
 
 # Create a reusable script (e.g. fan out notifications to multiple phones)
-haus script create --id notify_all_phones --data "$(cat notify_all.json)"
+haus script create --id notify_all_phones --from-file notify_all.json
 
 # List the entity registry (includes disabled/hidden entities)
 haus entity list

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Net;
 using System.Text.Json;
 using Haus.Auth;
 using Haus.Connection;
@@ -15,19 +16,32 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
     {
         [CommandOption("--data <JSON>")]
         [Description("Full automation configuration as JSON (alias, triggers, actions, ...)")]
-        public required string Data { get; init; }
+        public string? Data { get; init; }
+
+        [CommandOption("--from-file <PATH>")]
+        [Description("Read configuration JSON from a file (use --from-file=- for stdin)")]
+        public string? FromFile { get; init; }
 
         [CommandOption("--id <ID>")]
         [Description("Config ID for the new automation (default: millisecond timestamp)")]
         public string? Id { get; init; }
 
-        public override ValidationResult Validate() => ValidateJsonData(Data);
+        public override ValidationResult Validate() =>
+            JsonInput.ValidateRequired(Data, FromFile);
     }
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
+        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var config = ParseTyped<AutomationConfig>(json);
+
         var configId = settings.Id ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
-        var config = ParseTyped<AutomationConfig>(settings.Data);
+
+        if (await ConfigIdExists(configId, cancellationToken))
+        {
+            OutputHelper.WriteError(settings, $"Config ID '{configId}' is already in use. Pick a different --id.");
+            return 1;
+        }
 
         await api.PostAsync<JsonElement>(
             $"/api/config/automation/config/{configId}", config, cancellationToken);
@@ -37,5 +51,18 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
             () => Console.WriteLine(configId));
 
         return 0;
+    }
+
+    private async Task<bool> ConfigIdExists(string configId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await api.GetAsync<JsonElement>($"/api/config/automation/config/{configId}", cancellationToken);
+            return true;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
     }
 }
