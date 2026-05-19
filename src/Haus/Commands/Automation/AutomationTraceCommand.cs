@@ -64,7 +64,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
         if (runId is null)
             return WriteSummaryList(settings, summaries);
 
-        var match = summaries.FirstOrDefault(s => s.RunId == runId);
+        var match = summaries.SingleOrDefault(s => s.RunId == runId);
         if (match is null)
         {
             OutputHelper.WriteError(settings, $"Run '{runId}' not found. Use `automation trace {settings.AutomationId}` to list recent runs.");
@@ -100,7 +100,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
 
                 foreach (var s in ordered)
                     table.AddRow(
-                        ShortenRunId(s.RunId).EscapeMarkup(),
+                        StackRunId(s.RunId).EscapeMarkup(),
                         FormatLocal(s.Timestamp.Start).EscapeMarkup(),
                         (s.Trigger ?? "[dim]—[/]"),
                         FormatResultMarkup(s.ScriptExecution),
@@ -143,7 +143,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
 
     private static void WriteRunHuman(TraceSummary summary, JsonElement trace)
     {
-        AnsiConsole.MarkupLine($"[bold]Run {ShortenRunId(summary.RunId).EscapeMarkup()}[/]");
+        AnsiConsole.MarkupLine($"[bold]Run {summary.RunId.EscapeMarkup()}[/]");
         AnsiConsole.MarkupLine($"[dim]Started:[/]  {FormatLocal(summary.Timestamp.Start).EscapeMarkup()}");
         AnsiConsole.MarkupLine($"[dim]Trigger:[/]  {(summary.Trigger ?? "—").EscapeMarkup()}");
         AnsiConsole.MarkupLine($"[dim]Result:[/]   {FormatResultMarkup(summary.ScriptExecution)}");
@@ -313,7 +313,16 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
         _ => script_execution
     };
 
-    private static string ShortenRunId(string runId) => runId.Length > 8 ? runId[..8] : runId;
+    private static string StackRunId(string runId)
+    {
+        var sb = new System.Text.StringBuilder(runId.Length + runId.Length / 8);
+        for (var i = 0; i < runId.Length; i += 8)
+        {
+            if (i > 0) sb.Append('\n');
+            sb.Append(runId.AsSpan(i, Math.Min(8, runId.Length - i)));
+        }
+        return sb.ToString();
+    }
 
     private static string StripMarkup(string s)
     {
