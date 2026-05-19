@@ -38,7 +38,7 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
             return 1;
         }
 
-        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<AutomationConfig>(json);
         var result = await api.PostAsync<JsonElement>(
             $"/api/config/automation/config/{state.Attributes.Id}", config, cancellationToken);
