@@ -32,7 +32,7 @@ public sealed class ScriptUpdateCommand(IAuthService auth, IHassApiClient api)
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var objectId = ScriptGetCommand.StripPrefix(settings.ScriptId);
-        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<ScriptConfig>(json);
 
         var result = await api.PostAsync<JsonElement>(

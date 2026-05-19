@@ -32,7 +32,7 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<AutomationConfig>(json);
 
         var configId = settings.Id ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();

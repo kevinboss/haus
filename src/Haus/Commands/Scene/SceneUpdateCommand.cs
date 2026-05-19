@@ -39,7 +39,7 @@ public sealed class SceneUpdateCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<SceneConfig>(json);
 
         await api.PostAsync<JsonElement>(

@@ -46,7 +46,7 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
         var domain = settings.Domain;
         var service = settings.ServiceName;
 
-        var data = ParseJsonData(JsonInput.Resolve(settings.Data, settings.FromFile));
+        var data = ParseJsonData(TextInput.Resolve(settings.Data, settings.FromFile));
         if (settings.EntityId is not null)
         {
             data ??= [];

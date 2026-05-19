@@ -22,9 +22,9 @@ public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
         [Description("Read configuration JSON from a file (use --from-file=- for stdin)")]
         public string? FromFile { get; init; }
 
-        [CommandOption("--id <ID>")]
+        [CommandOption("--config-id <ID>")]
         [Description("Config ID for the new scene (default: millisecond timestamp)")]
-        public string? Id { get; init; }
+        public string? ConfigId { get; init; }
 
         public override ValidationResult Validate() =>
             JsonInput.ValidateRequired(Data, FromFile);
@@ -32,14 +32,14 @@ public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<SceneConfig>(json);
 
-        var configId = settings.Id ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+        var configId = settings.ConfigId ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
 
         if (await ConfigIdExists(configId, cancellationToken))
         {
-            OutputHelper.WriteError(settings, $"Config ID '{configId}' is already in use. Pick a different --id.");
+            OutputHelper.WriteError(settings, $"Config ID '{configId}' is already in use. Pick a different --config-id.");
             return 1;
         }
 

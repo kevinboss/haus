@@ -30,7 +30,7 @@ public sealed class EventFireCommand(IAuthService auth, IHassApiClient api) : Ha
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var data = ParseJsonData(JsonInput.Resolve(settings.Data, settings.FromFile));
+        var data = ParseJsonData(TextInput.Resolve(settings.Data, settings.FromFile));
 
         var result = await api.PostAsync<JsonElement>(
             $"/api/events/{settings.EventType}", data, cancellationToken);
