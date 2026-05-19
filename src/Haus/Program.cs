@@ -65,6 +65,10 @@ app.Configure(config =>
             .WithDescription("View recent execution traces");
         auto.AddCommand<AutomationToggleCommand>("toggle")
             .WithDescription("Toggle an automation on/off");
+        auto.AddCommand<AutomationEnableCommand>("enable")
+            .WithDescription("Enable an automation");
+        auto.AddCommand<AutomationDisableCommand>("disable")
+            .WithDescription("Disable an automation");
         auto.AddCommand<AutomationCreateCommand>("create")
             .WithDescription("Create a new automation from a JSON configuration");
         auto.AddCommand<AutomationUpdateCommand>("update")
