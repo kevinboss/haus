@@ -12,6 +12,7 @@ using Haus.Commands.Script;
 using Haus.Commands.Service;
 using Haus.Commands.Skill;
 using Haus.Commands.State;
+using Haus.Commands.Template;
 using Haus.Commands.Update;
 using Haus.Commands.Zone;
 using Haus.Connection;
@@ -36,6 +37,8 @@ app.Configure(config =>
         .WithDescription("Check Home Assistant API connectivity");
     config.AddCommand<LogCommand>("log")
         .WithDescription("Show the Home Assistant error log");
+    config.AddCommand<TemplateCommand>("template")
+        .WithDescription("Render a Jinja2 template against current state");
     config.AddBranch("logbook", lb =>
     {
         lb.SetDescription("Browse the Home Assistant logbook");
