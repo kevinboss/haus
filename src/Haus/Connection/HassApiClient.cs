@@ -25,6 +25,8 @@ public sealed class HassApiClient(IAuthService authService) : IHassApiClient, ID
             throw new InvalidOperationException(
                 string.IsNullOrWhiteSpace(body) ? $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}" : body);
         }
+        if (typeof(T) == typeof(string))
+            return (T)(object)await response.Content.ReadAsStringAsync(cancellationToken);
         return await response.Content.ReadFromJsonAsync<T>(HausJsonOptions.Default, cancellationToken)
             ?? throw new InvalidOperationException("Empty response from Home Assistant API.");
     }
