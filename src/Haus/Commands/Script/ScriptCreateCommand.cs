@@ -21,9 +21,9 @@ public sealed class ScriptCreateCommand(IAuthService auth, IHassApiClient api)
         [Description("Read configuration JSON from a file (use --from-file=- for stdin)")]
         public string? FromFile { get; init; }
 
-        [CommandOption("--id <ID>")]
+        [CommandOption("--object-id <ID>")]
         [Description("Script object ID — becomes the entity name (e.g. notify_all_phones → script.notify_all_phones)")]
-        public required string Id { get; init; }
+        public required string ObjectId { get; init; }
 
         public override ValidationResult Validate() =>
             JsonInput.ValidateRequired(Data, FromFile);
@@ -31,8 +31,8 @@ public sealed class ScriptCreateCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var objectId = ScriptGetCommand.StripPrefix(settings.Id);
-        var json = JsonInput.Resolve(settings.Data, settings.FromFile)!;
+        var objectId = ScriptGetCommand.StripPrefix(settings.ObjectId);
+        var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<ScriptConfig>(json);
 
         await api.PostAsync<JsonElement>(

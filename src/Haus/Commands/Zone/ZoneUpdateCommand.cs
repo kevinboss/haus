@@ -125,7 +125,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
 
     private async Task<Dictionary<string, object?>> BuildFieldsAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var rawJson = JsonInput.Resolve(settings.Data, settings.FromFile);
+        var rawJson = TextInput.Resolve(settings.Data, settings.FromFile);
         if (rawJson is not null)
         {
             var parsed = JsonSerializer.Deserialize<Dictionary<string, object?>>(rawJson, HausJsonOptions.Default);
