@@ -14,7 +14,11 @@ All commands support these global output flags:
 - `--json` — structured JSON for machine consumption
 - `--porcelain` — plain tab-separated text for grep/cut/awk scripting
 
-When piping output (e.g. through grep), use `--porcelain` for clean, parseable results. Default output uses Spectre.Console tables (pretty but not grep-friendly).
+**Claude should always pass `--json` or `--porcelain`.** The default output is Spectre.Console tables (rounded borders, colors, multi-line cells) designed for humans at a terminal — it wraps, truncates, and uses ANSI markup that's noisy for an LLM to parse.
+
+- Use `--json` when extracting specific fields or working with nested data (attributes, registry metadata, traces).
+- Use `--porcelain` when filtering with grep/cut/awk (`helper list --porcelain | grep input_boolean`) or when a flat tabular view is enough.
+- Errors go to stderr — append `2>/dev/null` when piping, or `2>&1 | tail` to capture both streams.
 
 ## Commands
 
@@ -109,6 +113,58 @@ dotnet run --project src/Haus -- entity delete <entity_id>
 ```
 Destructive. Removes the entity from the registry; some integrations will recreate it on next discovery.
 
+### helper list — List all UI helpers
+```bash
+dotnet run --project src/Haus -- helper list
+```
+Shows every helper across `input_boolean`, `input_text`, `input_number`, `input_select`, `input_datetime`, `counter`, and `timer` with entity_id, kind, name, and current state.
+
+### helper create-boolean — Create an input_boolean
+```bash
+dotnet run --project src/Haus -- helper create-boolean --name <NAME> [--object-id <ID>] [--icon <ICON>] [--initial true|false]
+```
+Example: `helper create-boolean --name "Bedtime lock" --object-id bedtime_lock`. If `--object-id` is set, entity_id is aligned to `input_boolean.<object-id>`; otherwise HA derives it from `--name`.
+
+### helper create-text — Create an input_text
+```bash
+dotnet run --project src/Haus -- helper create-text --name <NAME> [--object-id <ID>] [--icon <ICON>] [--initial <V>] [--min <N>] [--max <N>] [--mode text|password] [--pattern <REGEX>]
+```
+
+### helper create-number — Create an input_number
+```bash
+dotnet run --project src/Haus -- helper create-number --name <NAME> --min <N> --max <N> [--object-id <ID>] [--icon <ICON>] [--step <N>] [--initial <N>] [--mode box|slider] [--unit <UNIT>]
+```
+`--min` and `--max` are required.
+
+### helper create-select — Create an input_select
+```bash
+dotnet run --project src/Haus -- helper create-select --name <NAME> --options <CSV> [--object-id <ID>] [--icon <ICON>] [--initial <V>]
+```
+Example: `helper create-select --name "Mode" --options "auto,manual,off" --initial auto`.
+
+### helper create-datetime — Create an input_datetime
+```bash
+dotnet run --project src/Haus -- helper create-datetime --name <NAME> [--has-date] [--has-time] [--object-id <ID>] [--icon <ICON>] [--initial <ISO>]
+```
+At least one of `--has-date` or `--has-time` is required.
+
+### helper create-counter — Create a counter
+```bash
+dotnet run --project src/Haus -- helper create-counter --name <NAME> [--object-id <ID>] [--icon <ICON>] [--initial <N>] [--min <N>] [--max <N>] [--step <N>] [--restore]
+```
+
+### helper create-timer — Create a timer
+```bash
+dotnet run --project src/Haus -- helper create-timer --name <NAME> --duration <DUR> [--object-id <ID>] [--icon <ICON>] [--restore]
+```
+`--duration` accepts shorthand like `30s`, `5m`, `1h`.
+
+### helper delete — Delete a helper
+```bash
+dotnet run --project src/Haus -- helper delete <entity_id>
+```
+Removes the helper's config and registry entry (unlike `entity delete`, which only removes the registry entry).
+
 ### service list — List available services by domain
 ```bash
 dotnet run --project src/Haus -- service list
@@ -137,13 +193,25 @@ Without flags: table of the last 10 runs (run ID, started, trigger, result, dura
 ```bash
 dotnet run --project src/Haus -- automation toggle <automation_id>
 ```
-Example: `automation toggle automation.morning_routine`
+Example: `automation toggle automation.morning_routine`. Order-dependent — use `enable`/`disable` for idempotent scripted control.
+
+### automation enable — Enable an automation (idempotent)
+```bash
+dotnet run --project src/Haus -- automation enable <automation_id>
+```
+Wraps `automation.turn_on`. Safe to re-run.
+
+### automation disable — Disable an automation (idempotent)
+```bash
+dotnet run --project src/Haus -- automation disable <automation_id>
+```
+Wraps `automation.turn_off`. Safe to re-run.
 
 ### automation create — Create a new automation
 ```bash
-dotnet run --project src/Haus -- automation create (--data '<JSON>' | --from-file <PATH>) [--id <ID>]
+dotnet run --project src/Haus -- automation create (--data '<JSON>' | --from-file <PATH>) [--config-id <ID>]
 ```
-Provide the configuration via `--data` (inline JSON) or `--from-file` (path; use `--from-file=-` for stdin) — exactly one is required. `--id` sets the config ID; omit it to auto-generate a millisecond-timestamp ID (same convention as the HA UI). The new entity ID is derived from the alias. Fails if the chosen ID is already in use.
+Provide the configuration via `--data` (inline JSON) or `--from-file` (path; use `--from-file=-` for stdin) — exactly one is required. `--config-id` sets the storage config ID; omit it to auto-generate a millisecond-timestamp ID (same convention as the HA UI). When `--config-id` is provided, the entity_id is aligned to `automation.<config-id>` (HA's alias-derived default is overridden). Without it, the entity_id stays alias-derived. Fails if the chosen config ID is already in use.
 
 ### automation update — Update an automation's configuration
 ```bash
@@ -172,9 +240,9 @@ Shows alias, mode, fields, and a sequence summary. Use `--json` for the full con
 
 ### script create — Create a new script
 ```bash
-dotnet run --project src/Haus -- script create --id <ID> (--data '<JSON>' | --from-file <PATH>)
+dotnet run --project src/Haus -- script create --object-id <ID> (--data '<JSON>' | --from-file <PATH>)
 ```
-`--id` is the script's object ID (the part after `script.`); it becomes the entity name. Provide the configuration via `--data` (inline JSON) or `--from-file` (path; use `--from-file=-` for stdin). Useful for wrapping multi-target service calls (e.g. `notify.send_message` to several phones) into a single reusable script.
+`--object-id` is the part after `script.` and becomes the entity name (e.g. `notify_all_phones` → `script.notify_all_phones`). Provide the configuration via `--data` (inline JSON) or `--from-file` (path; use `--from-file=-` for stdin). Useful for wrapping multi-target service calls (e.g. `notify.send_message` to several phones) into a single reusable script.
 
 ### script update — Update a script's configuration
 ```bash
@@ -202,9 +270,9 @@ For config scenes: shows name, icon, entities and their target states. For runti
 
 ### scene create — Create a new scene
 ```bash
-dotnet run --project src/Haus -- scene create (--data '<JSON>' | --from-file <PATH>) [--id <ID>]
+dotnet run --project src/Haus -- scene create (--data '<JSON>' | --from-file <PATH>) [--config-id <ID>]
 ```
-JSON requires `name` and `entities` (a dict mapping entity_id → state string or `{state, ...attrs}` object). `--id` sets the config ID; omit to auto-generate. Fails if the chosen ID is already in use.
+JSON requires `name` and `entities` (a dict mapping entity_id → state string or `{state, ...attrs}` object). `--config-id` sets the storage config ID; omit to auto-generate. Fails if the chosen config ID is already in use.
 
 ### scene update — Update a config scene
 ```bash
@@ -267,6 +335,15 @@ Examples:
 - `service call light.turn_on --entity light.kitchen`
 - `service call light.turn_on --data '{"entity_id":"light.bedroom","brightness":200}'`
 - `service call notify.mobile_app --from-file payload.json`
+
+### template — Render a Jinja2 template against current HA state
+```bash
+dotnet run --project src/Haus -- template <template> | --from-file <PATH>
+```
+Evaluates a Jinja2 template using HA's `/api/template` endpoint — same engine that runs in automations and templates in the UI. Use it to catch Jinja bugs before deploying an automation.
+- Inline: `template "{{ states('sensor.temperature') }}"`
+- From file: `template --from-file ./my_template.j2`
+- From stdin: `template --from-file=-`
 
 ### log — Show recent errors and warnings
 ```bash
