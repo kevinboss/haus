@@ -36,9 +36,6 @@ public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassWebSoc
                 return ValidationResult.Error(
                     $"Domain prefix must match: cannot rename {oldDomain}.* to {newDomain}.*.");
 
-            if (OldEntityId == NewEntityId)
-                return ValidationResult.Error("Old and new entity IDs are identical.");
-
             return ValidationResult.Success();
         }
     }
