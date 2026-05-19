@@ -4,6 +4,7 @@ using Haus.Commands.Automation;
 using Haus.Commands.Config;
 using Haus.Commands.Entity;
 using Haus.Commands.Event;
+using Haus.Commands.Helper;
 using Haus.Commands.History;
 using Haus.Commands.Log;
 using Haus.Commands.Logbook;
@@ -144,6 +145,28 @@ app.Configure(config =>
             .WithDescription("Update an entity's registry fields (name, icon, area, disable, hide, new ID)");
         ent.AddCommand<EntityDeleteCommand>("delete")
             .WithDescription("Remove an entity from the registry");
+    });
+    config.AddBranch("helper", h =>
+    {
+        h.SetDescription("Create and manage UI helpers (input_boolean, counter, timer, ...)");
+        h.AddCommand<HelperListCommand>("list")
+            .WithDescription("List all helpers across input_*, counter, timer");
+        h.AddCommand<HelperDeleteCommand>("delete")
+            .WithDescription("Delete a helper");
+        h.AddCommand<HelperCreateBooleanCommand>("create-boolean")
+            .WithDescription("Create an input_boolean");
+        h.AddCommand<HelperCreateTextCommand>("create-text")
+            .WithDescription("Create an input_text");
+        h.AddCommand<HelperCreateNumberCommand>("create-number")
+            .WithDescription("Create an input_number");
+        h.AddCommand<HelperCreateSelectCommand>("create-select")
+            .WithDescription("Create an input_select");
+        h.AddCommand<HelperCreateDatetimeCommand>("create-datetime")
+            .WithDescription("Create an input_datetime");
+        h.AddCommand<HelperCreateCounterCommand>("create-counter")
+            .WithDescription("Create a counter");
+        h.AddCommand<HelperCreateTimerCommand>("create-timer")
+            .WithDescription("Create a timer");
     });
     config.AddBranch("service", svc =>
     {
