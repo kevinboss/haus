@@ -35,6 +35,7 @@ src/Haus/
 
 ## Architecture Rules
 
+- **Mirror nearby components.** Before adding or modifying a command, read 1-2 similar ones in the same or an adjacent folder. Match their flag names (`--from-file`, `--config-id`, `--object-id`), Settings structure, validation style, error messages, and output shape. New components should look like they belong next to the existing ones — divergences should be intentional, not accidental.
 - **Commands** inherit `AsyncCommand<TSettings>` with nested `Settings` class. Thin handlers — delegate to services.
 - **Use shared infrastructure.** REST commands use `IHassApiClient`, WebSocket commands use `IHassConnection`. Never create raw `HttpClient` or `HassWSApi` in a command.
 - **No in-memory filtering via flags.** Don't expose CLI flags/options that imply API-level filtering when the API doesn't support it. Domain-scoped list commands (e.g. `automation list`, `script list` filtering `/api/states` to a single domain) are fine — the command name itself defines the scope, not a user-supplied filter.
