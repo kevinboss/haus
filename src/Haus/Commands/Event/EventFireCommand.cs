@@ -28,7 +28,7 @@ public sealed class EventFireCommand(IAuthService auth, IHassApiClient api) : Ha
             JsonInput.ValidateOptional(Data, FromFile);
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var data = ParseJsonData(TextInput.Resolve(settings.Data, settings.FromFile));
 

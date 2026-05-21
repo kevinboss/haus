@@ -16,7 +16,7 @@ public sealed class StateDeleteCommand(IAuthService auth, IHassApiClient api) : 
         public required string EntityId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         await api.DeleteAsync($"/api/states/{settings.EntityId}", cancellationToken);
 

@@ -1,16 +1,19 @@
 using System.ComponentModel;
 using Haus.Auth;
 using Haus.Output;
+using JetBrains.Annotations;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands;
 
+[UsedImplicitly]
 public sealed class LoginCommand(IAuthService authService) : AsyncCommand<LoginCommand.Settings>
 {
     private const string DefaultUrl = "http://homeassistant.local:8123";
     private const string EnvVarUrl = "HASS_URL";
 
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     public sealed class Settings : CommandSettings, IOutputSettings
     {
         [CommandArgument(0, "[url]")]

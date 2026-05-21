@@ -1,9 +1,5 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
-using Haus.Commands.Entity;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
@@ -21,7 +17,7 @@ public sealed class HelperDeleteCommand(IAuthService auth, IHassWebSocketClient 
         public required string EntityId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var domain = settings.EntityId.Split('.', 2)[0];
 

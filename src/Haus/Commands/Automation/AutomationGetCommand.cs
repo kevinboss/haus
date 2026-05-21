@@ -3,7 +3,6 @@ using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Hass;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -20,7 +19,7 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
         public required string AutomationId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var state = await api.GetAsync<AutomationState>($"/api/states/{settings.AutomationId}", cancellationToken);
         if (state.Attributes.Id is null)

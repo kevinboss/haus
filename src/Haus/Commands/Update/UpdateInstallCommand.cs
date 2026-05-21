@@ -25,7 +25,7 @@ public sealed class UpdateInstallCommand(IAuthService auth, IHassApiClient api) 
         public bool Backup { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var preflight = await api.GetAsync<UpdateState>($"/api/states/{settings.EntityId}", cancellationToken);
         if ((preflight.Attributes.SupportedFeatures & UpdateEntityFeature.Install) == 0)

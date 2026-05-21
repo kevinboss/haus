@@ -80,7 +80,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
         }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var objectId = StripPrefix(settings.ZoneId);
 
@@ -136,7 +136,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
             Longitude: settings.Longitude ?? a.Longitude,
             Radius: settings.Radius ?? a.Radius,
             Icon: settings.Icon ?? a.Icon,
-            Passive: settings.Passive ? true : settings.Active ? false : a.Passive);
+            Passive: settings.Passive || (!settings.Active && a.Passive));
     }
 
     private static string StripPrefix(string entityId) =>

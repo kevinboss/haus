@@ -19,7 +19,7 @@ public sealed class SceneGetCommand(IAuthService auth, IHassApiClient api)
         public required string SceneId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var state = await api.GetAsync<SceneState>($"/api/states/{settings.SceneId}", cancellationToken);
 

@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
@@ -42,7 +40,7 @@ public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassWebSoc
         }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         await ws.UpdateEntityRegistryEntryAsync(settings.OldEntityId, new(NewEntityId: settings.NewEntityId), cancellationToken);
 

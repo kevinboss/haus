@@ -1,7 +1,9 @@
 using System.Text.Json;
+using JetBrains.Annotations;
 
 namespace Haus.Ws;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record SystemLogEntry(
     double Timestamp,
     string Level,

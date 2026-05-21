@@ -1,9 +1,6 @@
 using System.ComponentModel;
 using System.Globalization;
-using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
@@ -28,7 +25,7 @@ public sealed class LogCommand(IAuthService auth, IHassWebSocketClient ws) : Hau
         public bool WithTrace { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var entries = (await ws.ListSystemLogAsync(cancellationToken)).ToList();
         entries.Sort((a, b) => b.Timestamp.CompareTo(a.Timestamp));
@@ -36,7 +33,7 @@ public sealed class LogCommand(IAuthService auth, IHassWebSocketClient ws) : Hau
         if (settings.Level is { } level)
             entries = entries.Where(e => string.Equals(e.Level, level, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        if (settings.Limit is { } n && n > 0)
+        if (settings.Limit is { } n and > 0)
             entries = entries.Take(n).ToList();
 
         OutputHelper.WriteResult(settings, entries,

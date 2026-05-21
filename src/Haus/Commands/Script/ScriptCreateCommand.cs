@@ -29,7 +29,7 @@ public sealed class ScriptCreateCommand(IAuthService auth, IHassApiClient api)
             JsonInput.ValidateRequired(Data, FromFile);
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var objectId = ScriptGetCommand.StripPrefix(settings.ObjectId);
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;

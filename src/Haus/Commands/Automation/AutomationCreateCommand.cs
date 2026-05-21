@@ -2,9 +2,7 @@ using System.ComponentModel;
 using System.Net;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Commands.Entity;
 using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
@@ -33,7 +31,7 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
             JsonInput.ValidateRequired(Data, FromFile);
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<AutomationConfig>(json);

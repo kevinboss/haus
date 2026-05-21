@@ -1,7 +1,5 @@
 using System.ComponentModel;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
@@ -19,7 +17,7 @@ public sealed class DashboardDeleteCommand(IAuthService auth, IHassWebSocketClie
         public required string UrlPath { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var dashboards = await ws.ListDashboardsAsync(cancellationToken);
         var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);

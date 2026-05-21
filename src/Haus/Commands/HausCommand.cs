@@ -1,15 +1,15 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Hass;
-using Haus.Ws;
 using Haus.Output;
+using JetBrains.Annotations;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors | ImplicitUseTargetFlags.Members)]
 public abstract class HausSettings : CommandSettings, IOutputSettings
 {
     [CommandOption("--json")]
@@ -21,6 +21,7 @@ public abstract class HausSettings : CommandSettings, IOutputSettings
     public bool Porcelain { get; init; }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<TSettings>
     where TSettings : HausSettings
 {
@@ -35,14 +36,14 @@ public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<T
         try
         {
             if (settings.Json || settings.Porcelain || !AnsiConsole.Profile.Capabilities.Interactive)
-                return await RunAsync(context, settings, cancellationToken);
+                return await RunAsync(settings, cancellationToken);
 
             var exitCode = 0;
             await AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync("Running...", async _ =>
                 {
-                    exitCode = await RunAsync(context, settings, cancellationToken);
+                    exitCode = await RunAsync(settings, cancellationToken);
                 });
             return exitCode;
         }
@@ -53,7 +54,7 @@ public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<T
         }
     }
 
-    protected abstract Task<int> RunAsync(CommandContext context, TSettings settings, CancellationToken cancellationToken);
+    protected abstract Task<int> RunAsync(TSettings settings, CancellationToken cancellationToken);
 
     protected static Dictionary<string, object>? ParseJsonData(string? json) =>
         json is not null ? JsonSerializer.Deserialize<Dictionary<string, object>>(json) : null;

@@ -7,6 +7,8 @@ namespace Haus.Auth;
 
 public sealed class AuthService : IAuthService, ITokenProvider
 {
+    private static readonly HttpClient SharedHttpClient = new();
+
     private const string EnvVarToken = "HASS_TOKEN";
     private const string EnvVarUrl = "HASS_URL";
     private const string AuthorizePath = "/auth/authorize";
@@ -97,8 +99,7 @@ public sealed class AuthService : IAuthService, ITokenProvider
     private static async Task<OAuthTokenResponse> ExchangeCodeAsync(
         string url, string code, string codeVerifier, CancellationToken cancellationToken)
     {
-        using var httpClient = new HttpClient();
-        var response = await httpClient.PostAsync(
+        var response = await SharedHttpClient.PostAsync(
             $"{url}{TokenPath}",
             new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -117,8 +118,7 @@ public sealed class AuthService : IAuthService, ITokenProvider
     private async Task<(string Url, string AccessToken)> RefreshTokenAsync(
         TokenData tokenData, CancellationToken cancellationToken)
     {
-        using var httpClient = new HttpClient();
-        var response = await httpClient.PostAsync(
+        var response = await SharedHttpClient.PostAsync(
             $"{tokenData.Url}{TokenPath}",
             new FormUrlEncodedContent(new Dictionary<string, string>
             {

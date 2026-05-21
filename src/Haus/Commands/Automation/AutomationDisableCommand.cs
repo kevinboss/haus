@@ -18,7 +18,7 @@ public sealed class AutomationDisableCommand(IAuthService auth, IHassApiClient a
         public required string AutomationId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         await api.PostAsync<JsonElement>(
             "/api/services/automation/turn_off",

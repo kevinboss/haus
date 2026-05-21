@@ -1,13 +1,16 @@
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Haus.Ws;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record EntityRegistryUpdate(
     string? Name = null,
     string? Icon = null,
     string? AreaId = null,
     string? NewEntityId = null);
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record EntityRegistryEntry(
     [property: JsonPropertyName("entity_id")] string EntityId,
     [property: JsonPropertyName("unique_id")] string? UniqueId,

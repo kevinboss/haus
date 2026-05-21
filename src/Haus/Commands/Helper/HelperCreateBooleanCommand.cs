@@ -1,7 +1,5 @@
 using System.ComponentModel;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Spectre.Console.Cli;
 
@@ -29,7 +27,7 @@ public sealed class HelperCreateBooleanCommand(IAuthService auth, IHassWebSocket
         public bool? Initial { get; init; }
     }
 
-    protected override Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var body = new Dictionary<string, object?>();
         if (settings.Initial is not null) body["initial"] = settings.Initial.Value;

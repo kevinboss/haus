@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Zone;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record ZoneAttributes(
     [property: JsonPropertyName("latitude")] double Latitude,
     [property: JsonPropertyName("longitude")] double Longitude,
@@ -12,6 +14,7 @@ internal sealed record ZoneAttributes(
     [property: JsonPropertyName("icon")] string? Icon,
     [property: JsonPropertyName("friendly_name")] string? FriendlyName);
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record ZoneState(
     [property: JsonPropertyName("entity_id")] string EntityId,
     [property: JsonPropertyName("state")] string State,

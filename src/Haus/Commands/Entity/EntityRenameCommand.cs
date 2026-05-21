@@ -1,7 +1,5 @@
 using System.ComponentModel;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
@@ -23,7 +21,7 @@ public sealed class EntityRenameCommand(IAuthService auth, IHassWebSocketClient 
         public required string Name { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         await ws.UpdateEntityRegistryEntryAsync(settings.EntityId, new(Name: settings.Name), cancellationToken);
 

@@ -30,7 +30,7 @@ public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
             JsonInput.ValidateRequired(Data, FromFile);
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<SceneConfig>(json);

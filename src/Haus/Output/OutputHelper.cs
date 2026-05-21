@@ -1,7 +1,5 @@
 using System.Text.Json;
-using Haus.Rest;
 using Haus.Hass;
-using Haus.Ws;
 using Spectre.Console;
 
 namespace Haus.Output;
@@ -22,14 +20,6 @@ public static class OutputHelper
             Console.WriteLine(JsonSerializer.Serialize(data, JsonOptions));
         else if (settings.Porcelain)
             porcelainOutput();
-        else
-            humanOutput();
-    }
-
-    public static void WriteResult<T>(IOutputSettings settings, T data, Action humanOutput)
-    {
-        if (settings.Json)
-            Console.WriteLine(JsonSerializer.Serialize(data, JsonOptions));
         else
             humanOutput();
     }

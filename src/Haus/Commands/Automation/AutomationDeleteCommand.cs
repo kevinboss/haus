@@ -17,7 +17,7 @@ public sealed class AutomationDeleteCommand(IAuthService auth, IHassApiClient ap
         public required string AutomationId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var state = await api.GetAsync<AutomationState>($"/api/states/{settings.AutomationId}", cancellationToken);
         if (state.Attributes.Id is null)

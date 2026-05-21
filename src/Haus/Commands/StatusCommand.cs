@@ -3,7 +3,7 @@ using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
-using Spectre.Console.Cli;
+using JetBrains.Annotations;
 
 namespace Haus.Commands;
 
@@ -11,7 +11,7 @@ public sealed class StatusCommand(IAuthService auth, IHassApiClient api) : HausC
 {
     public sealed class Settings : HausSettings;
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var apiStatus = await api.GetAsync<ApiStatusResponse>("/api/", cancellationToken);
 
@@ -37,6 +37,7 @@ public sealed class StatusCommand(IAuthService auth, IHassApiClient api) : HausC
         return 0;
     }
 
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     private sealed record ApiStatusResponse(
         [property: JsonPropertyName("message")] string Message,
         [property: JsonPropertyName("version")] string Version);

@@ -13,17 +13,6 @@ internal enum HelperKind
 
 internal static class HelperKinds
 {
-    public static readonly IReadOnlyDictionary<string, HelperKind> ByName = new Dictionary<string, HelperKind>(StringComparer.OrdinalIgnoreCase)
-    {
-        ["boolean"] = HelperKind.Boolean,
-        ["text"] = HelperKind.Text,
-        ["number"] = HelperKind.Number,
-        ["select"] = HelperKind.Select,
-        ["datetime"] = HelperKind.Datetime,
-        ["counter"] = HelperKind.Counter,
-        ["timer"] = HelperKind.Timer
-    };
-
     public static string Domain(this HelperKind kind) => kind switch
     {
         HelperKind.Boolean => "input_boolean",
@@ -47,7 +36,4 @@ internal static class HelperKinds
         "timer" => HelperKind.Timer,
         _ => null
     };
-
-    public static IEnumerable<string> AllDomains() =>
-        Enum.GetValues<HelperKind>().Select(k => k.Domain());
 }
