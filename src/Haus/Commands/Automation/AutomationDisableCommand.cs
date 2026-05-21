@@ -20,12 +20,9 @@ public sealed class AutomationDisableCommand(IAuthService auth, IHassApiClient a
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        await api.PostAsync<JsonElement>(
-            "/api/services/automation/turn_off",
-            new { entity_id = settings.AutomationId },
-            cancellationToken);
+        await api.CallServiceAsync("automation", "turn_off", new { entity_id = settings.AutomationId }, cancellationToken);
 
-        var state = await api.GetAsync<JsonElement>($"/api/states/{settings.AutomationId}", cancellationToken);
+        var state = await api.GetStateAsync<JsonElement>(settings.AutomationId, cancellationToken);
         var newState = state.GetProperty("state").GetString() ?? "unknown";
 
         OutputHelper.WriteResult(settings, new { entity_id = settings.AutomationId, state = newState },

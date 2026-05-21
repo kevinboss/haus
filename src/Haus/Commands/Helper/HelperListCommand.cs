@@ -13,7 +13,7 @@ public sealed class HelperListCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.GetAsync<List<JsonElement>>("/api/states", cancellationToken);
+        var states = await api.ListStatesAsync<JsonElement>(cancellationToken);
         var helpers = states
             .Where(s => HelperKinds.FromDomain(s.GetProperty("entity_id").GetString()!.Split('.', 2)[0]) is not null)
             .Select(HelperRow.From)

@@ -13,7 +13,7 @@ public sealed class StateListCommand(IAuthService auth, IHassApiClient api) : Ha
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.GetAsync<List<EntityState>>("/api/states", cancellationToken);
+        var states = await api.ListStatesAsync<EntityState>(cancellationToken);
         var sorted = states.OrderBy(s => s.EntityId).ToList();
 
         OutputHelper.WriteResult(settings, states,

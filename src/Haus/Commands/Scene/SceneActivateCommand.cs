@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
@@ -32,7 +31,7 @@ public sealed class SceneActivateCommand(IAuthService auth, IHassApiClient api)
         var payload = new Dictionary<string, object?> { ["entity_id"] = settings.SceneId };
         if (settings.Transition is not null) payload["transition"] = settings.Transition;
 
-        await api.PostAsync<JsonElement>("/api/services/scene/turn_on", payload, cancellationToken);
+        await api.CallServiceAsync("scene", "turn_on", payload, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { activated = settings.SceneId },
             () => AnsiConsole.MarkupLine($"[green]Activated[/] [bold]{settings.SceneId.EscapeMarkup()}[/]"),

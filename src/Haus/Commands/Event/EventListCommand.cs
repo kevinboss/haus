@@ -1,9 +1,7 @@
-using System.Text.Json.Serialization;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
-using JetBrains.Annotations;
 
 namespace Haus.Commands.Event;
 
@@ -13,7 +11,7 @@ public sealed class EventListCommand(IAuthService auth, IHassApiClient api) : Ha
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var events = await api.GetAsync<List<EventType>>("/api/events", cancellationToken);
+        var events = await api.ListEventTypesAsync(cancellationToken);
 
         OutputHelper.WriteResult(settings, events,
             () =>
@@ -46,8 +44,3 @@ public sealed class EventListCommand(IAuthService auth, IHassApiClient api) : Ha
         return 0;
     }
 }
-
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-internal sealed record EventType(
-    [property: JsonPropertyName("event")] string Event,
-    [property: JsonPropertyName("listener_count")] int ListenerCount);

@@ -21,7 +21,7 @@ public sealed class SceneGetCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetAsync<SceneState>($"/api/states/{settings.SceneId}", cancellationToken);
+        var state = await api.GetStateAsync<SceneState>(settings.SceneId, cancellationToken);
 
         // Runtime scenes have no config endpoint — render from state only
         if (state.Attributes.Id is null)
@@ -32,8 +32,7 @@ public sealed class SceneGetCommand(IAuthService auth, IHassApiClient api)
             return 0;
         }
 
-        var config = await api.GetAsync<SceneConfig>(
-            $"/api/config/scene/config/{state.Attributes.Id}", cancellationToken);
+        var config = await api.GetSceneConfigAsync<SceneConfig>(state.Attributes.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteConfigHuman(state, config),

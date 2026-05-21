@@ -45,8 +45,7 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
             return 1;
         }
 
-        await api.PostAsync<JsonElement>(
-            $"/api/config/automation/config/{configId}", config, cancellationToken);
+        await api.SaveAutomationConfigAsync(configId, config, cancellationToken);
 
         var entityId = configIdProvided
             ? await AlignConfigIdAsync(configId, cancellationToken)
@@ -85,7 +84,7 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
     {
         try
         {
-            await api.GetAsync<JsonElement>($"/api/config/automation/config/{configId}", cancellationToken);
+            await api.GetAutomationConfigAsync<JsonElement>(configId, cancellationToken);
             return true;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

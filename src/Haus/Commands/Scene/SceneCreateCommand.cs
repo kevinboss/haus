@@ -43,8 +43,7 @@ public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        await api.PostAsync<JsonElement>(
-            $"/api/config/scene/config/{configId}", config, cancellationToken);
+        await api.SaveSceneConfigAsync(configId, config, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "created", id = configId },
             () => AnsiConsole.MarkupLine($"[green]Created[/] [bold]{configId.EscapeMarkup()}[/]"),
@@ -57,7 +56,7 @@ public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
     {
         try
         {
-            await api.GetAsync<JsonElement>($"/api/config/scene/config/{configId}", cancellationToken);
+            await api.GetSceneConfigAsync<JsonElement>(configId, cancellationToken);
             return true;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

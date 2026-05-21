@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
@@ -53,8 +52,7 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
             data["entity_id"] = settings.EntityId;
         }
 
-        var result = await api.PostAsync<JsonElement>(
-            $"/api/services/{domain}/{service}", data, cancellationToken);
+        var result = await api.CallServiceAsync(domain, service, data, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { domain, service, result },
             () => AnsiConsole.MarkupLine($"[green]Called[/] [bold]{domain}.{service}[/]"),

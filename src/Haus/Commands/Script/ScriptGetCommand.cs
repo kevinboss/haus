@@ -22,7 +22,7 @@ public sealed class ScriptGetCommand(IAuthService auth, IHassApiClient api)
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var objectId = StripPrefix(settings.ScriptId);
-        var config = await api.GetAsync<ScriptConfig>($"/api/config/script/config/{objectId}", cancellationToken);
+        var config = await api.GetScriptConfigAsync<ScriptConfig>(objectId, cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteHumanOutput(settings.ScriptId, config),

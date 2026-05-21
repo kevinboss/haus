@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
@@ -32,8 +31,7 @@ public sealed class EventFireCommand(IAuthService auth, IHassApiClient api) : Ha
     {
         var data = ParseJsonData(TextInput.Resolve(settings.Data, settings.FromFile));
 
-        var result = await api.PostAsync<JsonElement>(
-            $"/api/events/{settings.EventType}", data, cancellationToken);
+        var result = await api.FireEventAsync(settings.EventType, data, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { event_type = settings.EventType, result },
             () => AnsiConsole.MarkupLine($"[green]Fired[/] [bold]{settings.EventType.EscapeMarkup()}[/]"),

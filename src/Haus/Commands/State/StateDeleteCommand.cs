@@ -18,7 +18,7 @@ public sealed class StateDeleteCommand(IAuthService auth, IHassApiClient api) : 
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        await api.DeleteAsync($"/api/states/{settings.EntityId}", cancellationToken);
+        await api.DeleteStateAsync(settings.EntityId, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { deleted = settings.EntityId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.EntityId.EscapeMarkup()}[/]"),

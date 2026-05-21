@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
@@ -31,7 +30,7 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetAsync<AutomationState>($"/api/states/{settings.AutomationId}", cancellationToken);
+        var state = await api.GetStateAsync<AutomationState>(settings.AutomationId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings, $"No config ID found for '{settings.AutomationId}'. Is it a valid automation?");
@@ -40,10 +39,9 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
 
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<AutomationConfig>(json);
-        var result = await api.PostAsync<JsonElement>(
-            $"/api/config/automation/config/{state.Attributes.Id}", config, cancellationToken);
+        await api.SaveAutomationConfigAsync(state.Attributes.Id, config, cancellationToken);
 
-        OutputHelper.WriteResult(settings, result,
+        OutputHelper.WriteResult(settings, new { action = "updated", id = settings.AutomationId },
             () => AnsiConsole.MarkupLine($"[green]Updated[/] [bold]{settings.AutomationId.EscapeMarkup()}[/]"),
             () => Console.WriteLine(settings.AutomationId));
 

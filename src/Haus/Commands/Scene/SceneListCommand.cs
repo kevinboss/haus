@@ -13,7 +13,7 @@ public sealed class SceneListCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.GetAsync<List<SceneState>>("/api/states", cancellationToken);
+        var states = await api.ListStatesAsync<SceneState>(cancellationToken);
         var scenes = states
             .Where(s => s.EntityId.StartsWith("scene.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

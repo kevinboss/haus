@@ -19,14 +19,14 @@ public sealed class AutomationDeleteCommand(IAuthService auth, IHassApiClient ap
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetAsync<AutomationState>($"/api/states/{settings.AutomationId}", cancellationToken);
+        var state = await api.GetStateAsync<AutomationState>(settings.AutomationId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings, $"No config ID found for '{settings.AutomationId}'. Is it a valid automation?");
             return 1;
         }
 
-        await api.DeleteAsync($"/api/config/automation/config/{state.Attributes.Id}", cancellationToken);
+        await api.DeleteAutomationConfigAsync(state.Attributes.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { deleted = settings.AutomationId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.AutomationId.EscapeMarkup()}[/]"),
