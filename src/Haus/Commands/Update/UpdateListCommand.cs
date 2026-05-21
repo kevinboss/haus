@@ -26,20 +26,21 @@ public sealed class UpdateListCommand(IAuthService auth, IHassApiClient api) : H
         return 0;
     }
 
+    private enum Status { UpToDate, Available, AvailableReadOnly, Installing, Skipped }
+
     private static bool IsAvailable(UpdateState s) =>
         string.Equals(s.State, "on", StringComparison.OrdinalIgnoreCase);
 
-    private static string StatusLabel(UpdateState s)
+    private static Status ClassifyStatus(UpdateState s)
     {
-        if (s.Attributes.InProgress) return "installing";
-        if (IsAvailable(s))
-        {
-            if (!string.IsNullOrEmpty(s.Attributes.SkippedVersion) &&
-                s.Attributes.SkippedVersion == s.Attributes.LatestVersion)
-                return "skipped";
-            return "available";
-        }
-        return "up to date";
+        if (s.Attributes.InProgress) return Status.Installing;
+        if (!IsAvailable(s)) return Status.UpToDate;
+        if (!string.IsNullOrEmpty(s.Attributes.SkippedVersion) &&
+            s.Attributes.SkippedVersion == s.Attributes.LatestVersion)
+            return Status.Skipped;
+        return (s.Attributes.SupportedFeatures & UpdateEntityFeature.Install) == 0
+            ? Status.AvailableReadOnly
+            : Status.Available;
     }
 
     private static string FormatVersion(UpdateState s)
@@ -51,12 +52,24 @@ public sealed class UpdateListCommand(IAuthService auth, IHassApiClient api) : H
         return installed;
     }
 
-    private static string StatusMarkup(UpdateState s) => StatusLabel(s) switch
+    private static string PorcelainLabel(Status s) => s switch
     {
-        "available" => "[yellow]available[/]",
-        "installing" => "[cyan]installing[/]",
-        "skipped" => "[dim]skipped[/]",
-        _ => "[green]up to date[/]"
+        Status.UpToDate => "up to date",
+        Status.Available => "available",
+        Status.AvailableReadOnly => "available (read-only)",
+        Status.Installing => "installing",
+        Status.Skipped => "skipped",
+        _ => throw new ArgumentOutOfRangeException(nameof(s), s, null)
+    };
+
+    private static string HumanMarkup(Status s) => s switch
+    {
+        Status.UpToDate => "[green]up to date[/]",
+        Status.Available => "[yellow]available[/]",
+        Status.AvailableReadOnly => "[yellow]available[/] [dim](read-only)[/]",
+        Status.Installing => "[cyan]installing[/]",
+        Status.Skipped => "[dim]skipped[/]",
+        _ => throw new ArgumentOutOfRangeException(nameof(s), s, null)
     };
 
     private static void WriteHumanOutput(List<UpdateState> updates)
@@ -80,7 +93,7 @@ public sealed class UpdateListCommand(IAuthService auth, IHassApiClient api) : H
                 u.EntityId.EscapeMarkup(),
                 (u.Attributes.Title ?? u.Attributes.FriendlyName ?? "").EscapeMarkup(),
                 FormatVersion(u).EscapeMarkup(),
-                StatusMarkup(u));
+                HumanMarkup(ClassifyStatus(u)));
         }
 
         AnsiConsole.Write(table);
@@ -101,7 +114,7 @@ public sealed class UpdateListCommand(IAuthService auth, IHassApiClient api) : H
                 u.Attributes.Title ?? u.Attributes.FriendlyName ?? "",
                 u.Attributes.InstalledVersion ?? "",
                 u.Attributes.LatestVersion ?? "",
-                StatusLabel(u)
+                PorcelainLabel(ClassifyStatus(u))
             }));
     }
 }
