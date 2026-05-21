@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Zone;
 
-public sealed class ZoneGetCommand(IAuthService auth, IHassApiClient api)
+public sealed class ZoneGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<ZoneGetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -20,7 +20,7 @@ public sealed class ZoneGetCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var zone = await api.GetStateAsync<ZoneState>(settings.ZoneId, cancellationToken);
+        var zone = await client.States.GetAsync<ZoneState>(settings.ZoneId, cancellationToken);
 
         OutputHelper.WriteResult(settings, zone,
             humanOutput: () => WriteHuman(zone),

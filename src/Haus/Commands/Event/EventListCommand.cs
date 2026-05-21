@@ -1,17 +1,17 @@
 using Haus.Auth;
-using Haus.Rest;
+using Haus.HassClient;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Event;
 
-public sealed class EventListCommand(IAuthService auth, IHassApiClient api) : HausCommand<EventListCommand.Settings>(auth)
+public sealed class EventListCommand(IAuthService auth, IHassClient client) : HausCommand<EventListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var events = await api.ListEventTypesAsync(cancellationToken);
+        var events = await client.Events.ListTypesAsync(cancellationToken);
 
         OutputHelper.WriteResult(settings, events,
             () =>

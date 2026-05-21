@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Haus.Rest;
+namespace Haus.HassClient;
 
 public interface IHassApiClient
 {

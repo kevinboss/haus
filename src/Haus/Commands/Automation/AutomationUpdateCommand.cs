@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Automation;
 
-public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient api)
+public sealed class AutomationUpdateCommand(IAuthService auth, IHassClient client)
     : HausCommand<AutomationUpdateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -30,7 +30,7 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetStateAsync<AutomationState>(settings.AutomationId, cancellationToken);
+        var state = await client.States.GetAsync<AutomationState>(settings.AutomationId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings, $"No config ID found for '{settings.AutomationId}'. Is it a valid automation?");
@@ -39,7 +39,7 @@ public sealed class AutomationUpdateCommand(IAuthService auth, IHassApiClient ap
 
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<AutomationConfig>(json);
-        await api.SaveAutomationConfigAsync(state.Attributes.Id, config, cancellationToken);
+        await client.AutomationConfig.SaveAsync(state.Attributes.Id, config, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "updated", id = settings.AutomationId },
             () => AnsiConsole.MarkupLine($"[green]Updated[/] [bold]{settings.AutomationId.EscapeMarkup()}[/]"),

@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Entity;
 
-public sealed class EntityUpdateCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class EntityUpdateCommand(IAuthService auth, IHassClient client)
     : HausCommand<EntityUpdateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -66,15 +66,15 @@ public sealed class EntityUpdateCommand(IAuthService auth, IHassWebSocketClient 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         if (settings.Name is not null || settings.Icon is not null || settings.AreaId is not null || settings.NewEntityId is not null)
-            await ws.UpdateEntityRegistryEntryAsync(
+            await client.EntityRegistry.UpdateAsync(
                 settings.EntityId,
                 new(Name: settings.Name, Icon: settings.Icon, AreaId: settings.AreaId, NewEntityId: settings.NewEntityId),
                 cancellationToken);
 
-        if (settings.Disable) await ws.SetEntityEnabledAsync(settings.EntityId, false, cancellationToken);
-        if (settings.Enable) await ws.SetEntityEnabledAsync(settings.EntityId, true, cancellationToken);
-        if (settings.Hide) await ws.SetEntityHiddenAsync(settings.EntityId, true, cancellationToken);
-        if (settings.Show) await ws.SetEntityHiddenAsync(settings.EntityId, false, cancellationToken);
+        if (settings.Disable) await client.EntityRegistry.SetEnabledAsync(settings.EntityId, false, cancellationToken);
+        if (settings.Enable) await client.EntityRegistry.SetEnabledAsync(settings.EntityId, true, cancellationToken);
+        if (settings.Hide) await client.EntityRegistry.SetHiddenAsync(settings.EntityId, true, cancellationToken);
+        if (settings.Show) await client.EntityRegistry.SetHiddenAsync(settings.EntityId, false, cancellationToken);
 
         var finalId = settings.NewEntityId ?? settings.EntityId;
 

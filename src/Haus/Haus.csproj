@@ -16,8 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Haus.Rest\Haus.Rest.csproj" />
-    <ProjectReference Include="..\Haus.Ws\Haus.Ws.csproj" />
+    <ProjectReference Include="..\Haus.HassClient\Haus.HassClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

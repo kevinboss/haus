@@ -1,15 +1,15 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Scene;
 
-public sealed class SceneGetCommand(IAuthService auth, IHassApiClient api)
+public sealed class SceneGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<SceneGetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -21,7 +21,7 @@ public sealed class SceneGetCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetStateAsync<SceneState>(settings.SceneId, cancellationToken);
+        var state = await client.States.GetAsync<SceneState>(settings.SceneId, cancellationToken);
 
         // Runtime scenes have no config endpoint — render from state only
         if (state.Attributes.Id is null)
@@ -32,7 +32,7 @@ public sealed class SceneGetCommand(IAuthService auth, IHassApiClient api)
             return 0;
         }
 
-        var config = await api.GetSceneConfigAsync<SceneConfig>(state.Attributes.Id, cancellationToken);
+        var config = await client.SceneConfig.GetAsync<SceneConfig>(state.Attributes.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteConfigHuman(state, config),

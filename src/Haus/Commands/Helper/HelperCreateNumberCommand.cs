@@ -1,12 +1,12 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using Haus.Auth;
-using Haus.Ws;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperCreateNumberCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class HelperCreateNumberCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperCreateNumberCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -60,6 +60,6 @@ public sealed class HelperCreateNumberCommand(IAuthService auth, IHassWebSocketC
         if (settings.Mode is not null) body["mode"] = settings.Mode;
         if (settings.Unit is not null) body["unit_of_measurement"] = settings.Unit;
 
-        return HelperCreator.CreateAsync(ws, HelperKind.Number, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
+        return HelperCreator.CreateAsync(client, HelperKind.Number, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
     }
 }

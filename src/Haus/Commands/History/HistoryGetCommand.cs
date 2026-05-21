@@ -1,16 +1,15 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.History;
 
-public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHassWebSocketClient ws)
+public sealed class HistoryGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<HistoryGetCommand.Settings>(auth)
 {
     private static readonly string[] StatisticsPeriods = ["5minute", "hour", "day", "week", "month"];
@@ -70,7 +69,7 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
         DateTimeOffset? endTime = settings.Until is not null
             ? DateTimeOffset.Parse(settings.Until, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
             : null;
-        var groups = await api.GetHistoryAsync(startTime, [settings.EntityId], endTime, settings.WithAttributes, cancellationToken);
+        var groups = await client.History.GetAsync(startTime, [settings.EntityId], endTime, settings.WithAttributes, cancellationToken);
         var states = groups.Count > 0 ? groups[0].ToList() : new List<HistoryState>();
 
         OutputHelper.WriteResult(settings, states,
@@ -82,7 +81,7 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
 
     private async Task<int> RunStatisticsAsync(Settings settings, DateTimeOffset startTime, DateTimeOffset endTime, CancellationToken cancellationToken)
     {
-        var byEntity = await ws.GetStatisticsDuringPeriodAsync(startTime, endTime, [settings.EntityId], settings.Statistics!, cancellationToken);
+        var byEntity = await client.Statistics.GetDuringPeriodAsync(startTime, endTime, [settings.EntityId], settings.Statistics!, cancellationToken);
         var rows = byEntity.TryGetValue(settings.EntityId, out var r) ? r.ToList() : [];
 
         OutputHelper.WriteResult(settings, rows,

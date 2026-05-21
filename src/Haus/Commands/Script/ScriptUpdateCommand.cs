@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Script;
 
-public sealed class ScriptUpdateCommand(IAuthService auth, IHassApiClient api)
+public sealed class ScriptUpdateCommand(IAuthService auth, IHassClient client)
     : HausCommand<ScriptUpdateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -34,7 +34,7 @@ public sealed class ScriptUpdateCommand(IAuthService auth, IHassApiClient api)
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<ScriptConfig>(json);
 
-        await api.SaveScriptConfigAsync(objectId, config, cancellationToken);
+        await client.ScriptConfig.SaveAsync(objectId, config, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "updated", id = settings.ScriptId },
             () => AnsiConsole.MarkupLine($"[green]Updated[/] [bold]{settings.ScriptId.EscapeMarkup()}[/]"),

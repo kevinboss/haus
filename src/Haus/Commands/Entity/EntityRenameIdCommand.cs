@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.RegularExpressions;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Entity;
 
-public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassClient client)
     : HausCommand<EntityRenameIdCommand.Settings>(auth)
 {
     [GeneratedRegex(@"^[a-z0-9_]+\.[a-z0-9_]+$")]
@@ -42,7 +42,7 @@ public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassWebSoc
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        await ws.UpdateEntityRegistryEntryAsync(settings.OldEntityId, new(NewEntityId: settings.NewEntityId), cancellationToken);
+        await client.EntityRegistry.UpdateAsync(settings.OldEntityId, new(NewEntityId: settings.NewEntityId), cancellationToken);
 
         OutputHelper.WriteResult(settings,
             new { action = "renamed", from = settings.OldEntityId, to = settings.NewEntityId },

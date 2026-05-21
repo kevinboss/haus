@@ -17,9 +17,7 @@ using Haus.Commands.State;
 using Haus.Commands.Template;
 using Haus.Commands.Update;
 using Haus.Commands.Zone;
-using Haus.Rest;
-using Haus.Hass;
-using Haus.Ws;
+using Haus.HassClient;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 
@@ -27,8 +25,7 @@ var services = new ServiceCollection();
 services.AddSingleton<AuthService>();
 services.AddSingleton<IAuthService>(sp => sp.GetRequiredService<AuthService>());
 services.AddSingleton<ITokenProvider>(sp => sp.GetRequiredService<AuthService>());
-services.AddSingleton<IHassApiClient, HassApiClient>();
-services.AddSingleton<IHassWebSocketClient, HassWebSocketClient>();
+services.AddHassClient();
 
 var registrar = new TypeRegistrar(services);
 var app = new CommandApp(registrar);

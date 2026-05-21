@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Script;
 
-public sealed class ScriptDeleteCommand(IAuthService auth, IHassApiClient api)
+public sealed class ScriptDeleteCommand(IAuthService auth, IHassClient client)
     : HausCommand<ScriptDeleteCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -20,7 +20,7 @@ public sealed class ScriptDeleteCommand(IAuthService auth, IHassApiClient api)
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var objectId = ScriptGetCommand.StripPrefix(settings.ScriptId);
-        await api.DeleteScriptConfigAsync(objectId, cancellationToken);
+        await client.ScriptConfig.DeleteAsync(objectId, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { deleted = settings.ScriptId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.ScriptId.EscapeMarkup()}[/]"),

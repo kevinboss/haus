@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Scene;
 
-public sealed class SceneActivateCommand(IAuthService auth, IHassApiClient api)
+public sealed class SceneActivateCommand(IAuthService auth, IHassClient client)
     : HausCommand<SceneActivateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -31,7 +31,7 @@ public sealed class SceneActivateCommand(IAuthService auth, IHassApiClient api)
         var payload = new Dictionary<string, object?> { ["entity_id"] = settings.SceneId };
         if (settings.Transition is not null) payload["transition"] = settings.Transition;
 
-        await api.CallServiceAsync("scene", "turn_on", payload, cancellationToken);
+        await client.Services.CallAsync("scene", "turn_on", payload, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { activated = settings.SceneId },
             () => AnsiConsole.MarkupLine($"[green]Activated[/] [bold]{settings.SceneId.EscapeMarkup()}[/]"),

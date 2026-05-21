@@ -1,19 +1,19 @@
 using Haus.Auth;
+using Haus.HassClient;
 using Haus.Commands.State;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Automation;
 
-public sealed class AutomationListCommand(IAuthService auth, IHassApiClient api)
+public sealed class AutomationListCommand(IAuthService auth, IHassClient client)
     : HausCommand<AutomationListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.ListStatesAsync<EntityState>(cancellationToken);
+        var states = await client.States.ListAsync<EntityState>(cancellationToken);
         var automations = states
             .Where(s => s.EntityId.StartsWith("automation.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

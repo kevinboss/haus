@@ -1,17 +1,17 @@
 using Haus.Auth;
-using Haus.Ws;
+using Haus.HassClient;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Dashboard;
 
-public sealed class DashboardListCommand(IAuthService auth, IHassWebSocketClient ws) : HausCommand<DashboardListCommand.Settings>(auth)
+public sealed class DashboardListCommand(IAuthService auth, IHassClient client) : HausCommand<DashboardListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var entries = await ws.ListDashboardsAsync(cancellationToken);
+        var entries = await client.Lovelace.ListDashboardsAsync(cancellationToken);
 
         OutputHelper.WriteResult(settings, entries,
             () => WriteHumanOutput(entries),

@@ -1,17 +1,17 @@
 using Haus.Auth;
-using Haus.Rest;
+using Haus.HassClient;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Service;
 
-public sealed class ServiceListCommand(IAuthService auth, IHassApiClient api) : HausCommand<ServiceListCommand.Settings>(auth)
+public sealed class ServiceListCommand(IAuthService auth, IHassClient client) : HausCommand<ServiceListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var domains = await api.ListServiceDomainsAsync(cancellationToken);
+        var domains = await client.Services.ListAsync(cancellationToken);
 
         OutputHelper.WriteResult(settings, domains,
             () =>

@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Hass;
+using Haus.HassClient;
 using Haus.Output;
 using JetBrains.Annotations;
 using Spectre.Console;

@@ -1,11 +1,11 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperCreateBooleanCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class HelperCreateBooleanCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperCreateBooleanCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -32,6 +32,6 @@ public sealed class HelperCreateBooleanCommand(IAuthService auth, IHassWebSocket
         var body = new Dictionary<string, object?>();
         if (settings.Initial is not null) body["initial"] = settings.Initial.Value;
 
-        return HelperCreator.CreateAsync(ws, HelperKind.Boolean, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
+        return HelperCreator.CreateAsync(client, HelperKind.Boolean, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
     }
 }

@@ -1,16 +1,15 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Net;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Automation;
 
-public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient api, IHassWebSocketClient ws)
+public sealed class AutomationCreateCommand(IAuthService auth, IHassClient client)
     : HausCommand<AutomationCreateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -45,7 +44,7 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
             return 1;
         }
 
-        await api.SaveAutomationConfigAsync(configId, config, cancellationToken);
+        await client.AutomationConfig.SaveAsync(configId, config, cancellationToken);
 
         var entityId = configIdProvided
             ? await AlignConfigIdAsync(configId, cancellationToken)
@@ -68,11 +67,11 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
         var desiredEntityId = $"automation.{configId}";
         for (var attempt = 0; attempt < 10; attempt++)
         {
-            var entries = await ws.ListEntityRegistryAsync(cancellationToken);
+            var entries = await client.EntityRegistry.ListAsync(cancellationToken);
             var entry = entries.SingleOrDefault(e => e.Platform == "automation" && e.UniqueId == configId);
             if (entry is not null)
             {
-                await ws.UpdateEntityRegistryEntryAsync(entry.EntityId, new(NewEntityId: desiredEntityId), cancellationToken);
+                await client.EntityRegistry.UpdateAsync(entry.EntityId, new(NewEntityId: desiredEntityId), cancellationToken);
                 return desiredEntityId;
             }
             await Task.Delay(200, cancellationToken);
@@ -84,7 +83,7 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
     {
         try
         {
-            await api.GetAutomationConfigAsync<JsonElement>(configId, cancellationToken);
+            await client.AutomationConfig.GetAsync<JsonElement>(configId, cancellationToken);
             return true;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

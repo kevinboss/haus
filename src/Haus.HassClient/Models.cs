@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
-namespace Haus.Rest;
+namespace Haus.HassClient;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record ApiStatus(

@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Dashboard;
 
-public sealed class DashboardConfigGetCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class DashboardConfigGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<DashboardConfigGetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -21,7 +21,7 @@ public sealed class DashboardConfigGetCommand(IAuthService auth, IHassWebSocketC
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var configUrlPath = string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal) ? null : settings.UrlPath;
-        var config = await ws.GetDashboardConfigAsync(configUrlPath, cancellationToken);
+        var config = await client.Lovelace.GetConfigAsync(configUrlPath, cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteHumanOutput(config, settings.UrlPath),

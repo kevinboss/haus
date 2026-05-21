@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Dashboard;
 
-public sealed class DashboardConfigSaveCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class DashboardConfigSaveCommand(IAuthService auth, IHassClient client)
     : HausCommand<DashboardConfigSaveCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -49,7 +49,7 @@ public sealed class DashboardConfigSaveCommand(IAuthService auth, IHassWebSocket
             return 1;
         }
 
-        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var dashboards = await client.Lovelace.ListDashboardsAsync(cancellationToken);
         var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
@@ -63,7 +63,7 @@ public sealed class DashboardConfigSaveCommand(IAuthService auth, IHassWebSocket
         }
 
         var configUrlPath = string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal) ? null : settings.UrlPath;
-        await ws.SaveDashboardConfigAsync(configUrlPath, config, cancellationToken);
+        await client.Lovelace.SaveConfigAsync(configUrlPath, config, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "saved", url_path = settings.UrlPath },
             () => AnsiConsole.MarkupLine($"[green]Saved[/] config for [bold]{settings.UrlPath.EscapeMarkup()}[/]"),

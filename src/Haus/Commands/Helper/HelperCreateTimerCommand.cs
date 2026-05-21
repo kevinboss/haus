@@ -1,11 +1,11 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperCreateTimerCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class HelperCreateTimerCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperCreateTimerCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -39,6 +39,6 @@ public sealed class HelperCreateTimerCommand(IAuthService auth, IHassWebSocketCl
         };
         if (settings.Restore) body["restore"] = true;
 
-        return HelperCreator.CreateAsync(ws, HelperKind.Timer, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
+        return HelperCreator.CreateAsync(client, HelperKind.Timer, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
     }
 }

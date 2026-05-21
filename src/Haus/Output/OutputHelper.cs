@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Haus.Hass;
+using Haus.HassClient;
 using Spectre.Console;
 
 namespace Haus.Output;

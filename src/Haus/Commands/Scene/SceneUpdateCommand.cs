@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Scene;
 
-public sealed class SceneUpdateCommand(IAuthService auth, IHassApiClient api)
+public sealed class SceneUpdateCommand(IAuthService auth, IHassClient client)
     : HausCommand<SceneUpdateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -30,7 +30,7 @@ public sealed class SceneUpdateCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetStateAsync<SceneState>(settings.SceneId, cancellationToken);
+        var state = await client.States.GetAsync<SceneState>(settings.SceneId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings,
@@ -41,7 +41,7 @@ public sealed class SceneUpdateCommand(IAuthService auth, IHassApiClient api)
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<SceneConfig>(json);
 
-        await api.SaveSceneConfigAsync(state.Attributes.Id, config, cancellationToken);
+        await client.SceneConfig.SaveAsync(state.Attributes.Id, config, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "updated", id = settings.SceneId },
             () => AnsiConsole.MarkupLine($"[green]Updated[/] [bold]{settings.SceneId.EscapeMarkup()}[/]"),

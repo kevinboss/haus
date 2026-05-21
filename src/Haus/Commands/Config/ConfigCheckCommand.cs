@@ -1,17 +1,17 @@
 using Haus.Auth;
-using Haus.Rest;
+using Haus.HassClient;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Config;
 
-public sealed class ConfigCheckCommand(IAuthService auth, IHassApiClient api) : HausCommand<ConfigCheckCommand.Settings>(auth)
+public sealed class ConfigCheckCommand(IAuthService auth, IHassClient client) : HausCommand<ConfigCheckCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var result = await api.CheckConfigAsync(cancellationToken);
+        var result = await client.Config.CheckAsync(cancellationToken);
         var valid = string.Equals(result.Result, "valid", StringComparison.OrdinalIgnoreCase);
 
         OutputHelper.WriteResult(settings, result,

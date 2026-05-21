@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Automation;
 
-public sealed class AutomationToggleCommand(IAuthService auth, IHassApiClient api)
+public sealed class AutomationToggleCommand(IAuthService auth, IHassClient client)
     : HausCommand<AutomationToggleCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -20,9 +20,9 @@ public sealed class AutomationToggleCommand(IAuthService auth, IHassApiClient ap
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        await api.CallServiceAsync("automation", "toggle", new { entity_id = settings.AutomationId }, cancellationToken);
+        await client.Services.CallAsync("automation", "toggle", new { entity_id = settings.AutomationId }, cancellationToken);
 
-        var state = await api.GetStateAsync<JsonElement>(settings.AutomationId, cancellationToken);
+        var state = await client.States.GetAsync<JsonElement>(settings.AutomationId, cancellationToken);
         var newState = state.GetProperty("state").GetString() ?? "unknown";
 
         OutputHelper.WriteResult(settings, new { entity_id = settings.AutomationId, state = newState },

@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Service;
 
-public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : HausCommand<ServiceCallCommand.Settings>(auth)
+public sealed class ServiceCallCommand(IAuthService auth, IHassClient client) : HausCommand<ServiceCallCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -52,7 +52,7 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
             data["entity_id"] = settings.EntityId;
         }
 
-        var result = await api.CallServiceAsync(domain, service, data, cancellationToken);
+        var result = await client.Services.CallAsync(domain, service, data, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { domain, service, result },
             () => AnsiConsole.MarkupLine($"[green]Called[/] [bold]{domain}.{service}[/]"),

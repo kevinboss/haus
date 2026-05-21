@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperDeleteCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class HelperDeleteCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperDeleteCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -21,14 +21,14 @@ public sealed class HelperDeleteCommand(IAuthService auth, IHassWebSocketClient 
     {
         var domain = settings.EntityId.Split('.', 2)[0];
 
-        var entry = await ws.GetEntityRegistryEntryAsync(settings.EntityId, cancellationToken);
+        var entry = await client.EntityRegistry.GetAsync(settings.EntityId, cancellationToken);
         if (entry?.UniqueId is null)
         {
             OutputHelper.WriteError(settings, $"Could not resolve unique_id for '{settings.EntityId}'.");
             return 1;
         }
 
-        await ws.DeleteHelperAsync(domain, entry.UniqueId, cancellationToken);
+        await client.Helper.DeleteAsync(domain, entry.UniqueId, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "deleted", entity_id = settings.EntityId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.EntityId.EscapeMarkup()}[/]"),

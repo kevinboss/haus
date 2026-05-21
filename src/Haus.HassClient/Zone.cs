@@ -1,4 +1,4 @@
-namespace Haus.Ws;
+namespace Haus.HassClient;
 
 public sealed record ZoneUpdate(
     string? Name = null,

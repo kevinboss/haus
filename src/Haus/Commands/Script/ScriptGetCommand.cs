@@ -1,15 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Script;
 
-public sealed class ScriptGetCommand(IAuthService auth, IHassApiClient api)
+public sealed class ScriptGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<ScriptGetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -22,7 +21,7 @@ public sealed class ScriptGetCommand(IAuthService auth, IHassApiClient api)
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var objectId = StripPrefix(settings.ScriptId);
-        var config = await api.GetScriptConfigAsync<ScriptConfig>(objectId, cancellationToken);
+        var config = await client.ScriptConfig.GetAsync<ScriptConfig>(objectId, cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteHumanOutput(settings.ScriptId, config),

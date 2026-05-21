@@ -1,17 +1,15 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Automation;
 
-public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api, IHassWebSocketClient ws)
+public sealed class AutomationTraceCommand(IAuthService auth, IHassClient client)
     : HausCommand<AutomationTraceCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -36,7 +34,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetStateAsync<AutomationState>(settings.AutomationId, cancellationToken);
+        var state = await client.States.GetAsync<AutomationState>(settings.AutomationId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings, $"No config ID found for '{settings.AutomationId}'.");
@@ -44,7 +42,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
         }
 
         var itemId = state.Attributes.Id;
-        var summaries = (await ws.ListTracesAsync("automation", itemId, cancellationToken)).ToList();
+        var summaries = (await client.Trace.ListAsync("automation", itemId, cancellationToken)).ToList();
 
         if (summaries.Count == 0)
         {
@@ -66,7 +64,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
             return 1;
         }
 
-        var trace = await ws.GetTraceAsync("automation", itemId, runId, cancellationToken);
+        var trace = await client.Trace.GetAsync("automation", itemId, runId, cancellationToken);
 
         return WriteRunDetails(settings, match, trace);
     }

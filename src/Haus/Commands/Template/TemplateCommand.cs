@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Template;
 
-public sealed class TemplateCommand(IAuthService auth, IHassApiClient api)
+public sealed class TemplateCommand(IAuthService auth, IHassClient client)
     : HausCommand<TemplateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -35,7 +35,7 @@ public sealed class TemplateCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        var rendered = await api.RenderTemplateAsync(template, cancellationToken: cancellationToken);
+        var rendered = await client.Template.RenderAsync(template, cancellationToken: cancellationToken);
 
         OutputHelper.WriteResult(settings, new { template, rendered },
             humanOutput: () => AnsiConsole.WriteLine(rendered),
