@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
@@ -35,8 +34,7 @@ public sealed class ScriptCreateCommand(IAuthService auth, IHassApiClient api)
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<ScriptConfig>(json);
 
-        await api.PostAsync<JsonElement>(
-            $"/api/config/script/config/{objectId}", config, cancellationToken);
+        await api.SaveScriptConfigAsync(objectId, config, cancellationToken);
 
         var entityId = $"script.{objectId}";
         OutputHelper.WriteResult(settings, new { action = "created", id = entityId },

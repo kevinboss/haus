@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
@@ -27,7 +26,7 @@ public sealed class UpdateInstallCommand(IAuthService auth, IHassApiClient api) 
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var preflight = await api.GetAsync<UpdateState>($"/api/states/{settings.EntityId}", cancellationToken);
+        var preflight = await api.GetStateAsync<UpdateState>(settings.EntityId, cancellationToken);
         if ((preflight.Attributes.SupportedFeatures & UpdateEntityFeature.Install) == 0)
         {
             OutputHelper.WriteError(settings,
@@ -54,9 +53,9 @@ public sealed class UpdateInstallCommand(IAuthService auth, IHassApiClient api) 
         if (!string.IsNullOrEmpty(settings.Version)) data["version"] = settings.Version;
         if (settings.Backup) data["backup"] = true;
 
-        await api.PostAsync<JsonElement>("/api/services/update/install", data, cancellationToken);
+        await api.CallServiceAsync("update", "install", data, cancellationToken);
 
-        var state = await api.GetAsync<UpdateState>($"/api/states/{settings.EntityId}", cancellationToken);
+        var state = await api.GetStateAsync<UpdateState>(settings.EntityId, cancellationToken);
         var title = state.Attributes.Title ?? state.Attributes.FriendlyName ?? settings.EntityId;
         var target = settings.Version ?? state.Attributes.LatestVersion ?? "latest";
 

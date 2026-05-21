@@ -11,7 +11,7 @@ public sealed class UpdateListCommand(IAuthService auth, IHassApiClient api) : H
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.GetAsync<List<UpdateState>>("/api/states", cancellationToken);
+        var states = await api.ListStatesAsync<UpdateState>(cancellationToken);
         var updates = states
             .Where(s => s.EntityId.StartsWith("update.", StringComparison.Ordinal))
             .OrderByDescending(IsAvailable)

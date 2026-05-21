@@ -13,7 +13,7 @@ public sealed class ScriptListCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.GetAsync<List<EntityState>>("/api/states", cancellationToken);
+        var states = await api.ListStatesAsync<EntityState>(cancellationToken);
         var scripts = states
             .Where(s => s.EntityId.StartsWith("script.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

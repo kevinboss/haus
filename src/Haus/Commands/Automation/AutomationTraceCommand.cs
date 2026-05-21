@@ -36,7 +36,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetAsync<AutomationState>($"/api/states/{settings.AutomationId}", cancellationToken);
+        var state = await api.GetStateAsync<AutomationState>(settings.AutomationId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings, $"No config ID found for '{settings.AutomationId}'.");

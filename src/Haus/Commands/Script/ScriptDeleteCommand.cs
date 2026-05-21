@@ -20,7 +20,7 @@ public sealed class ScriptDeleteCommand(IAuthService auth, IHassApiClient api)
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var objectId = ScriptGetCommand.StripPrefix(settings.ScriptId);
-        await api.DeleteAsync($"/api/config/script/config/{objectId}", cancellationToken);
+        await api.DeleteScriptConfigAsync(objectId, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { deleted = settings.ScriptId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.ScriptId.EscapeMarkup()}[/]"),

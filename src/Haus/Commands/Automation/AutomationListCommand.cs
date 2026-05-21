@@ -13,7 +13,7 @@ public sealed class AutomationListCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.GetAsync<List<EntityState>>("/api/states", cancellationToken);
+        var states = await api.ListStatesAsync<EntityState>(cancellationToken);
         var automations = states
             .Where(s => s.EntityId.StartsWith("automation.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

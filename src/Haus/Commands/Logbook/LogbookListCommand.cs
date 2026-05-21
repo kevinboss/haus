@@ -1,13 +1,11 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using JetBrains.Annotations;
 
 namespace Haus.Commands.Logbook;
 
@@ -43,24 +41,17 @@ public sealed class LogbookListCommand(IAuthService auth, IHassApiClient api) : 
     {
         var since = DurationParser.Parse(settings.Since);
         var startTime = DateTimeOffset.UtcNow - since;
-        var path = BuildPath(startTime, settings.EntityId, settings.Until);
+        DateTimeOffset? endTime = settings.Until is not null
+            ? DateTimeOffset.Parse(settings.Until, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+            : null;
 
-        var entries = await api.GetAsync<List<LogbookEntry>>(path, cancellationToken);
+        var entries = (await api.ListLogbookEntriesAsync(startTime, settings.EntityId, endTime, cancellationToken)).ToList();
 
         OutputHelper.WriteResult(settings, entries,
             humanOutput: () => WriteHumanOutput(entries),
             porcelainOutput: () => WritePorcelainOutput(entries));
 
         return 0;
-    }
-
-    private static string BuildPath(DateTimeOffset start, string? entity, string? until)
-    {
-        var basePath = $"/api/logbook/{Uri.EscapeDataString(start.ToString("o", CultureInfo.InvariantCulture))}";
-        var queryParts = new List<string>();
-        if (entity is not null) queryParts.Add($"entity={Uri.EscapeDataString(entity)}");
-        if (until is not null) queryParts.Add($"end_time={Uri.EscapeDataString(until)}");
-        return queryParts.Count == 0 ? basePath : $"{basePath}?{string.Join('&', queryParts)}";
     }
 
     private static void WriteHumanOutput(List<LogbookEntry> entries)
@@ -130,12 +121,3 @@ public sealed class LogbookListCommand(IAuthService auth, IHassApiClient api) : 
     }
 }
 
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-internal sealed record LogbookEntry(
-    [property: JsonPropertyName("when")] JsonElement When,
-    [property: JsonPropertyName("name")] string? Name,
-    [property: JsonPropertyName("message")] string? Message,
-    [property: JsonPropertyName("domain")] string? Domain,
-    [property: JsonPropertyName("entity_id")] string? EntityId,
-    [property: JsonPropertyName("state")] string? State,
-    [property: JsonPropertyName("context_user_id")] string? ContextUserId);

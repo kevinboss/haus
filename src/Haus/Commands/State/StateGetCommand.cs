@@ -19,7 +19,7 @@ public sealed class StateGetCommand(IAuthService auth, IHassApiClient api) : Hau
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetAsync<EntityState>($"/api/states/{settings.EntityId}", cancellationToken);
+        var state = await api.GetStateAsync<EntityState>(settings.EntityId, cancellationToken);
 
         OutputHelper.WriteResult(settings, state,
             () =>

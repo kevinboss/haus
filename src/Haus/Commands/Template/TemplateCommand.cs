@@ -35,7 +35,7 @@ public sealed class TemplateCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        var rendered = await api.PostAsync<string>("/api/template", new { template }, cancellationToken);
+        var rendered = await api.RenderTemplateAsync(template, cancellationToken: cancellationToken);
 
         OutputHelper.WriteResult(settings, new { template, rendered },
             humanOutput: () => AnsiConsole.WriteLine(rendered),

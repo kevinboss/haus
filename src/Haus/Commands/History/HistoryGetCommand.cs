@@ -67,9 +67,11 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
 
     private async Task<int> RunStateHistoryAsync(Settings settings, DateTimeOffset startTime, CancellationToken cancellationToken)
     {
-        var path = BuildPath(startTime, settings.EntityId, settings.Until, settings.WithAttributes);
-        var groups = await api.GetAsync<List<List<HistoryState>>>(path, cancellationToken);
-        var states = groups.Count > 0 ? groups[0] : [];
+        DateTimeOffset? endTime = settings.Until is not null
+            ? DateTimeOffset.Parse(settings.Until, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+            : null;
+        var groups = await api.GetHistoryAsync(startTime, [settings.EntityId], endTime, settings.WithAttributes, cancellationToken);
+        var states = groups.Count > 0 ? groups[0].ToList() : new List<HistoryState>();
 
         OutputHelper.WriteResult(settings, states,
             humanOutput: () => WriteHistoryHuman(states, settings.EntityId),
@@ -88,19 +90,6 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
             porcelainOutput: () => WriteStatisticsPorcelain(rows));
 
         return 0;
-    }
-
-    private static string BuildPath(DateTimeOffset start, string entity, string? until, bool withAttributes)
-    {
-        var basePath = $"/api/history/period/{Uri.EscapeDataString(start.ToString("o", CultureInfo.InvariantCulture))}";
-        var queryParts = new List<string> { $"filter_entity_id={Uri.EscapeDataString(entity)}" };
-        if (until is not null) queryParts.Add($"end_time={Uri.EscapeDataString(until)}");
-        if (!withAttributes)
-        {
-            queryParts.Add("minimal_response");
-            queryParts.Add("no_attributes");
-        }
-        return $"{basePath}?{string.Join('&', queryParts)}";
     }
 
     private static void WriteHistoryHuman(List<HistoryState> states, string entityId)

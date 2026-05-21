@@ -127,7 +127,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
             return parsed ?? throw new InvalidOperationException("--data deserialized to null.");
         }
 
-        var current = await api.GetAsync<ZoneState>($"/api/states/{settings.ZoneId}", cancellationToken);
+        var current = await api.GetStateAsync<ZoneState>(settings.ZoneId, cancellationToken);
         var a = current.Attributes;
 
         return new ZoneUpdate(

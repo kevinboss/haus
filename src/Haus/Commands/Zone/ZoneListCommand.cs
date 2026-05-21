@@ -13,7 +13,7 @@ public sealed class ZoneListCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.GetAsync<List<ZoneState>>("/api/states", cancellationToken);
+        var states = await api.ListStatesAsync<ZoneState>(cancellationToken);
         var zones = states
             .Where(s => s.EntityId.StartsWith("zone.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

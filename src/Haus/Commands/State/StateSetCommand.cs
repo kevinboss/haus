@@ -38,8 +38,7 @@ public sealed class StateSetCommand(IAuthService auth, IHassApiClient api) : Hau
                 payload["attributes"] = attrs;
         }
 
-        var result = await api.PostAsync<EntityState>(
-            $"/api/states/{settings.EntityId}", payload, cancellationToken);
+        var result = await api.SetStateAsync<EntityState>(settings.EntityId, payload, cancellationToken);
 
         OutputHelper.WriteResult(settings, result,
             () => AnsiConsole.MarkupLine($"[green]Set[/] [bold]{settings.EntityId.EscapeMarkup()}[/] to [bold]{result.State.EscapeMarkup()}[/]"),

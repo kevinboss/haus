@@ -19,7 +19,7 @@ public sealed class SceneDeleteCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetAsync<SceneState>($"/api/states/{settings.SceneId}", cancellationToken);
+        var state = await api.GetStateAsync<SceneState>(settings.SceneId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings,
@@ -27,7 +27,7 @@ public sealed class SceneDeleteCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        await api.DeleteAsync($"/api/config/scene/config/{state.Attributes.Id}", cancellationToken);
+        await api.DeleteSceneConfigAsync(state.Attributes.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { deleted = settings.SceneId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.SceneId.EscapeMarkup()}[/]"),

@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
@@ -35,10 +34,9 @@ public sealed class ScriptUpdateCommand(IAuthService auth, IHassApiClient api)
         var json = TextInput.Resolve(settings.Data, settings.FromFile)!;
         var config = ParseTyped<ScriptConfig>(json);
 
-        var result = await api.PostAsync<JsonElement>(
-            $"/api/config/script/config/{objectId}", config, cancellationToken);
+        await api.SaveScriptConfigAsync(objectId, config, cancellationToken);
 
-        OutputHelper.WriteResult(settings, result,
+        OutputHelper.WriteResult(settings, new { action = "updated", id = settings.ScriptId },
             () => AnsiConsole.MarkupLine($"[green]Updated[/] [bold]{settings.ScriptId.EscapeMarkup()}[/]"),
             () => Console.WriteLine(settings.ScriptId));
 
