@@ -42,11 +42,11 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
         }
 
         var itemId = state.Attributes.Id;
-        var list = await ws.SendCommandAsync(new
+        var list = await ws.SendCommandAsync(new Dictionary<string, object?>
         {
-            type = TraceCommands.List,
-            domain = "automation",
-            item_id = itemId
+            ["type"] = TraceCommands.List,
+            ["domain"] = "automation",
+            ["item_id"] = itemId
         }, cancellationToken);
         var summaries = list.Deserialize<List<TraceSummary>>() ?? [];
 
@@ -70,12 +70,12 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
             return 1;
         }
 
-        var trace = await ws.SendCommandAsync(new
+        var trace = await ws.SendCommandAsync(new Dictionary<string, object?>
         {
-            type = TraceCommands.Get,
-            domain = "automation",
-            item_id = itemId,
-            run_id = runId
+            ["type"] = TraceCommands.Get,
+            ["domain"] = "automation",
+            ["item_id"] = itemId,
+            ["run_id"] = runId
         }, cancellationToken);
 
         return WriteRunDetails(settings, match, trace);

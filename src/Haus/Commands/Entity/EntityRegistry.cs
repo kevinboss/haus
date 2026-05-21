@@ -15,7 +15,7 @@ internal static class EntityRegistry
     {
         for (var attempt = 0; attempt < attempts; attempt++)
         {
-            var result = await ws.SendCommandAsync(new { type = EntityRegistryCommands.List }, cancellationToken);
+            var result = await ws.SendCommandAsync(new Dictionary<string, object?> { ["type"] = EntityRegistryCommands.List }, cancellationToken);
             var entries = result.Deserialize<List<EntityRegistryEntry>>() ?? [];
             var entry = entries.SingleOrDefault(e => e.Platform == platform && e.UniqueId == uniqueId);
             if (entry is not null) return entry;
@@ -34,11 +34,11 @@ internal static class EntityRegistry
         var entry = await FindByUniqueIdAsync(ws, platform, uniqueId, cancellationToken);
         if (entry is null) return null;
 
-        await ws.SendCommandAsync(new
+        await ws.SendCommandAsync(new Dictionary<string, object?>
         {
-            type = EntityRegistryCommands.Update,
-            entity_id = entry.EntityId,
-            new_entity_id = desiredEntityId
+            ["type"] = EntityRegistryCommands.Update,
+            ["entity_id"] = entry.EntityId,
+            ["new_entity_id"] = desiredEntityId
         }, cancellationToken);
         return desiredEntityId;
     }
