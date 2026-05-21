@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Scene;
 
-public sealed class SceneDeleteCommand(IAuthService auth, IHassApiClient api)
+public sealed class SceneDeleteCommand(IAuthService auth, IHassClient client)
     : HausCommand<SceneDeleteCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -19,7 +19,7 @@ public sealed class SceneDeleteCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetStateAsync<SceneState>(settings.SceneId, cancellationToken);
+        var state = await client.States.GetAsync<SceneState>(settings.SceneId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings,
@@ -27,7 +27,7 @@ public sealed class SceneDeleteCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        await api.DeleteSceneConfigAsync(state.Attributes.Id, cancellationToken);
+        await client.SceneConfig.DeleteAsync(state.Attributes.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { deleted = settings.SceneId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.SceneId.EscapeMarkup()}[/]"),

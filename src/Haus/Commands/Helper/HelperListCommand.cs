@@ -1,19 +1,19 @@
 using System.Text.Json;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperListCommand(IAuthService auth, IHassApiClient api)
+public sealed class HelperListCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.ListStatesAsync<JsonElement>(cancellationToken);
+        var states = await client.States.ListAsync<JsonElement>(cancellationToken);
         var helpers = states
             .Where(s => HelperKinds.FromDomain(s.GetProperty("entity_id").GetString()!.Split('.', 2)[0]) is not null)
             .Select(HelperRow.From)

@@ -1,15 +1,15 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Net;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Scene;
 
-public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
+public sealed class SceneCreateCommand(IAuthService auth, IHassClient client)
     : HausCommand<SceneCreateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -43,7 +43,7 @@ public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
             return 1;
         }
 
-        await api.SaveSceneConfigAsync(configId, config, cancellationToken);
+        await client.SceneConfig.SaveAsync(configId, config, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "created", id = configId },
             () => AnsiConsole.MarkupLine($"[green]Created[/] [bold]{configId.EscapeMarkup()}[/]"),
@@ -56,7 +56,7 @@ public sealed class SceneCreateCommand(IAuthService auth, IHassApiClient api)
     {
         try
         {
-            await api.GetSceneConfigAsync<JsonElement>(configId, cancellationToken);
+            await client.SceneConfig.GetAsync<JsonElement>(configId, cancellationToken);
             return true;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

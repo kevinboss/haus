@@ -1,4 +1,4 @@
-namespace Haus.Hass;
+namespace Haus.HassClient;
 
 public interface ITokenProvider
 {

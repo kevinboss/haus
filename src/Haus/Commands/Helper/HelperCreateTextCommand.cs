@@ -1,11 +1,11 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperCreateTextCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class HelperCreateTextCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperCreateTextCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -52,6 +52,6 @@ public sealed class HelperCreateTextCommand(IAuthService auth, IHassWebSocketCli
         if (settings.Mode is not null) body["mode"] = settings.Mode;
         if (settings.Pattern is not null) body["pattern"] = settings.Pattern;
 
-        return HelperCreator.CreateAsync(ws, HelperKind.Text, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
+        return HelperCreator.CreateAsync(client, HelperKind.Text, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
     }
 }

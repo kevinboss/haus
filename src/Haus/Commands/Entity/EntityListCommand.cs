@@ -1,18 +1,18 @@
 using Haus.Auth;
-using Haus.Ws;
+using Haus.HassClient;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Entity;
 
-public sealed class EntityListCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class EntityListCommand(IAuthService auth, IHassClient client)
     : HausCommand<EntityListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var entries = await ws.ListEntityRegistryAsync(cancellationToken);
+        var entries = await client.EntityRegistry.ListAsync(cancellationToken);
         var sorted = entries.OrderBy(e => e.EntityId).ToList();
 
         OutputHelper.WriteResult(settings, sorted,

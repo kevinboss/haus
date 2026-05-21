@@ -1,16 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Zone;
 
-public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHassWebSocketClient ws)
+public sealed class ZoneUpdateCommand(IAuthService auth, IHassClient client)
     : HausCommand<ZoneUpdateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -88,7 +86,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
             return await UpdateHomeZoneAsync(settings, cancellationToken);
 
         var update = await BuildZoneUpdateAsync(settings, cancellationToken);
-        await ws.UpdateZoneAsync(objectId, update, cancellationToken);
+        await client.Zone.UpdateAsync(objectId, update, cancellationToken);
         return WriteSuccess(settings);
     }
 
@@ -102,7 +100,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
             return 1;
         }
 
-        await ws.UpdateCoreConfigAsync(
+        await client.Zone.UpdateCoreConfigAsync(
             latitude: settings.Latitude,
             longitude: settings.Longitude,
             radius: settings.Radius,
@@ -127,7 +125,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
             return parsed ?? throw new InvalidOperationException("--data deserialized to null.");
         }
 
-        var current = await api.GetStateAsync<ZoneState>(settings.ZoneId, cancellationToken);
+        var current = await client.States.GetAsync<ZoneState>(settings.ZoneId, cancellationToken);
         var a = current.Attributes;
 
         return new ZoneUpdate(

@@ -1,19 +1,19 @@
 using System.Globalization;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Zone;
 
-public sealed class ZoneListCommand(IAuthService auth, IHassApiClient api)
+public sealed class ZoneListCommand(IAuthService auth, IHassClient client)
     : HausCommand<ZoneListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.ListStatesAsync<ZoneState>(cancellationToken);
+        var states = await client.States.ListAsync<ZoneState>(cancellationToken);
         var zones = states
             .Where(s => s.EntityId.StartsWith("zone.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

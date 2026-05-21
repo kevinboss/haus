@@ -1,12 +1,12 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperCreateDatetimeCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class HelperCreateDatetimeCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperCreateDatetimeCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -50,6 +50,6 @@ public sealed class HelperCreateDatetimeCommand(IAuthService auth, IHassWebSocke
         };
         if (settings.Initial is not null) body["initial"] = settings.Initial;
 
-        return HelperCreator.CreateAsync(ws, HelperKind.Datetime, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
+        return HelperCreator.CreateAsync(client, HelperKind.Datetime, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
     }
 }

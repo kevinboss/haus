@@ -2,9 +2,8 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Haus.Hass;
 
-namespace Haus.Rest;
+namespace Haus.HassClient;
 
 public sealed class HassApiClient(ITokenProvider tokens) : IHassApiClient, IDisposable
 {

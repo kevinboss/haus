@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Dashboard;
 
-public sealed class DashboardDeleteCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class DashboardDeleteCommand(IAuthService auth, IHassClient client)
     : HausCommand<DashboardDeleteCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -19,7 +19,7 @@ public sealed class DashboardDeleteCommand(IAuthService auth, IHassWebSocketClie
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var dashboards = await client.Lovelace.ListDashboardsAsync(cancellationToken);
         var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
@@ -27,7 +27,7 @@ public sealed class DashboardDeleteCommand(IAuthService auth, IHassWebSocketClie
             return 1;
         }
 
-        await ws.DeleteDashboardAsync(entry.Id, cancellationToken);
+        await client.Lovelace.DeleteDashboardAsync(entry.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "deleted", url_path = settings.UrlPath },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.UrlPath.EscapeMarkup()}[/]"),

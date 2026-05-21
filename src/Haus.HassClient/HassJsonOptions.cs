@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Haus.Hass;
+namespace Haus.HassClient;
 
 public static class HassJsonOptions
 {

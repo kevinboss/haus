@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Dashboard;
 
-public sealed class DashboardUpdateCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class DashboardUpdateCommand(IAuthService auth, IHassClient client)
     : HausCommand<DashboardUpdateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -52,7 +52,7 @@ public sealed class DashboardUpdateCommand(IAuthService auth, IHassWebSocketClie
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var dashboards = await client.Lovelace.ListDashboardsAsync(cancellationToken);
         var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
@@ -68,7 +68,7 @@ public sealed class DashboardUpdateCommand(IAuthService auth, IHassWebSocketClie
         bool? showInSidebar = settings.HideFromSidebar ? false : settings.ShowInSidebar;
         bool? requireAdmin = settings.AllowNonAdmin ? false : settings.RequireAdmin;
 
-        await ws.UpdateDashboardAsync(
+        await client.Lovelace.UpdateDashboardAsync(
             entry.Id,
             new DashboardUpdate(
                 Title: settings.Title,

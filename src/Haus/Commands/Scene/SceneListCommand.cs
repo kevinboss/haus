@@ -1,19 +1,19 @@
 using System.Globalization;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Scene;
 
-public sealed class SceneListCommand(IAuthService auth, IHassApiClient api)
+public sealed class SceneListCommand(IAuthService auth, IHassClient client)
     : HausCommand<SceneListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.ListStatesAsync<SceneState>(cancellationToken);
+        var states = await client.States.ListAsync<SceneState>(cancellationToken);
         var scenes = states
             .Where(s => s.EntityId.StartsWith("scene.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

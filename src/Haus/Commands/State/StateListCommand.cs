@@ -1,19 +1,19 @@
 using System.Text.Json.Serialization;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using JetBrains.Annotations;
 
 namespace Haus.Commands.State;
 
-public sealed class StateListCommand(IAuthService auth, IHassApiClient api) : HausCommand<StateListCommand.Settings>(auth)
+public sealed class StateListCommand(IAuthService auth, IHassClient client) : HausCommand<StateListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.ListStatesAsync<EntityState>(cancellationToken);
+        var states = await client.States.ListAsync<EntityState>(cancellationToken);
         var sorted = states.OrderBy(s => s.EntityId).ToList();
 
         OutputHelper.WriteResult(settings, states,

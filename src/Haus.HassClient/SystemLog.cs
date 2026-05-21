@@ -1,7 +1,7 @@
 using System.Text.Json;
 using JetBrains.Annotations;
 
-namespace Haus.Ws;
+namespace Haus.HassClient;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record SystemLogEntry(

@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Entity;
 
-public sealed class EntityGetCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class EntityGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<EntityGetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -19,7 +19,7 @@ public sealed class EntityGetCommand(IAuthService auth, IHassWebSocketClient ws)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var entry = await ws.GetEntityRegistryEntryAsync(settings.EntityId, cancellationToken);
+        var entry = await client.EntityRegistry.GetAsync(settings.EntityId, cancellationToken);
         if (entry is null)
         {
             OutputHelper.WriteError(settings, $"Entity '{settings.EntityId}' not found in registry.");

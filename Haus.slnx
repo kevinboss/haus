@@ -1,8 +1,6 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Haus/Haus.csproj" />
-    <Project Path="src/Haus.Hass/Haus.Hass.csproj" />
-    <Project Path="src/Haus.Rest/Haus.Rest.csproj" />
-    <Project Path="src/Haus.Ws/Haus.Ws.csproj" />
+    <Project Path="src/Haus.HassClient/Haus.HassClient.csproj" />
   </Folder>
 </Solution>

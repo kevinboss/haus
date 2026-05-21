@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Log;
 
-public sealed class LogCommand(IAuthService auth, IHassWebSocketClient ws) : HausCommand<LogCommand.Settings>(auth)
+public sealed class LogCommand(IAuthService auth, IHassClient client) : HausCommand<LogCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -27,7 +27,7 @@ public sealed class LogCommand(IAuthService auth, IHassWebSocketClient ws) : Hau
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var entries = (await ws.ListSystemLogAsync(cancellationToken)).ToList();
+        var entries = (await client.SystemLog.ListAsync(cancellationToken)).ToList();
         entries.Sort((a, b) => b.Timestamp.CompareTo(a.Timestamp));
 
         if (settings.Level is { } level)

@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Dashboard;
 
-public sealed class DashboardCreateCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class DashboardCreateCommand(IAuthService auth, IHassClient client)
     : HausCommand<DashboardCreateCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -35,7 +35,7 @@ public sealed class DashboardCreateCommand(IAuthService auth, IHassWebSocketClie
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var created = await ws.CreateDashboardAsync(
+        var created = await client.Lovelace.CreateDashboardAsync(
             new NewDashboard(
                 UrlPath: settings.UrlPath,
                 Title: settings.Title,

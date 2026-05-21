@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Entity;
 
-public sealed class EntityRenameCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class EntityRenameCommand(IAuthService auth, IHassClient client)
     : HausCommand<EntityRenameCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -23,7 +23,7 @@ public sealed class EntityRenameCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        await ws.UpdateEntityRegistryEntryAsync(settings.EntityId, new(Name: settings.Name), cancellationToken);
+        await client.EntityRegistry.UpdateAsync(settings.EntityId, new(Name: settings.Name), cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "renamed", entity_id = settings.EntityId, name = settings.Name },
             () => AnsiConsole.MarkupLine($"[green]Renamed[/] [bold]{settings.EntityId.EscapeMarkup()}[/] to [bold]{settings.Name.EscapeMarkup()}[/]"),

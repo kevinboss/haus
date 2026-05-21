@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Event;
 
-public sealed class EventFireCommand(IAuthService auth, IHassApiClient api) : HausCommand<EventFireCommand.Settings>(auth)
+public sealed class EventFireCommand(IAuthService auth, IHassClient client) : HausCommand<EventFireCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -31,7 +31,7 @@ public sealed class EventFireCommand(IAuthService auth, IHassApiClient api) : Ha
     {
         var data = ParseJsonData(TextInput.Resolve(settings.Data, settings.FromFile));
 
-        var result = await api.FireEventAsync(settings.EventType, data, cancellationToken);
+        var result = await client.Events.FireAsync(settings.EventType, data, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { event_type = settings.EventType, result },
             () => AnsiConsole.MarkupLine($"[green]Fired[/] [bold]{settings.EventType.EscapeMarkup()}[/]"),

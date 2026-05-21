@@ -1,5 +1,5 @@
+using Haus.HassClient;
 using Haus.Output;
-using Haus.Ws;
 using Spectre.Console;
 
 namespace Haus.Commands.Helper;
@@ -7,7 +7,7 @@ namespace Haus.Commands.Helper;
 internal static class HelperCreator
 {
     public static async Task<int> CreateAsync(
-        IHassWebSocketClient ws,
+        IHassClient client,
         HelperKind kind,
         string name,
         string? objectId,
@@ -20,7 +20,7 @@ internal static class HelperCreator
         var fields = new Dictionary<string, object?>(bodyFields) { ["name"] = name };
         if (icon is not null) fields["icon"] = icon;
 
-        var created = await ws.CreateHelperAsync(domain, fields, cancellationToken);
+        var created = await client.Helper.CreateAsync(domain, fields, cancellationToken);
         var createdId = created.TryGetProperty("id", out var idEl) ? idEl.GetString() : null;
         if (createdId is null)
         {
@@ -28,12 +28,12 @@ internal static class HelperCreator
             return 1;
         }
 
-        var entry = await FindByUniqueIdAsync(ws, domain, createdId, cancellationToken);
+        var entry = await FindByUniqueIdAsync(client, domain, createdId, cancellationToken);
         string? entityId = entry?.EntityId;
         if (objectId is not null && entry is not null)
         {
             var desiredEntityId = $"{domain}.{objectId}";
-            await ws.UpdateEntityRegistryEntryAsync(entry.EntityId, new(NewEntityId: desiredEntityId), cancellationToken);
+            await client.EntityRegistry.UpdateAsync(entry.EntityId, new(NewEntityId: desiredEntityId), cancellationToken);
             entityId = desiredEntityId;
         }
 
@@ -46,7 +46,7 @@ internal static class HelperCreator
     }
 
     private static async Task<EntityRegistryEntry?> FindByUniqueIdAsync(
-        IHassWebSocketClient ws,
+        IHassClient client,
         string platform,
         string uniqueId,
         CancellationToken cancellationToken,
@@ -55,7 +55,7 @@ internal static class HelperCreator
     {
         for (var attempt = 0; attempt < attempts; attempt++)
         {
-            var entries = await ws.ListEntityRegistryAsync(cancellationToken);
+            var entries = await client.EntityRegistry.ListAsync(cancellationToken);
             var entry = entries.SingleOrDefault(e => e.Platform == platform && e.UniqueId == uniqueId);
             if (entry is not null) return entry;
             await Task.Delay(delayMs, cancellationToken);

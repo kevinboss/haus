@@ -1,9 +1,8 @@
 using System.Globalization;
 using System.Net.WebSockets;
 using System.Text.Json;
-using Haus.Hass;
 
-namespace Haus.Ws;
+namespace Haus.HassClient;
 
 public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketClient, IDisposable
 {

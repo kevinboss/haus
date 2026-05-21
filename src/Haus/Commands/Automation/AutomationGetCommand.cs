@@ -1,15 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Automation;
 
-public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
+public sealed class AutomationGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<AutomationGetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -21,14 +20,14 @@ public sealed class AutomationGetCommand(IAuthService auth, IHassApiClient api)
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var state = await api.GetStateAsync<AutomationState>(settings.AutomationId, cancellationToken);
+        var state = await client.States.GetAsync<AutomationState>(settings.AutomationId, cancellationToken);
         if (state.Attributes.Id is null)
         {
             OutputHelper.WriteError(settings, $"No config ID found for '{settings.AutomationId}'. Is it a valid automation?");
             return 1;
         }
 
-        var config = await api.GetAutomationConfigAsync<AutomationConfig>(state.Attributes.Id, cancellationToken);
+        var config = await client.AutomationConfig.GetAsync<AutomationConfig>(state.Attributes.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteHumanOutput(settings.AutomationId, state, config),

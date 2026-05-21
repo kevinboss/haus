@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Entity;
 
-public sealed class EntityDeleteCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class EntityDeleteCommand(IAuthService auth, IHassClient client)
     : HausCommand<EntityDeleteCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -19,7 +19,7 @@ public sealed class EntityDeleteCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        await ws.RemoveEntityRegistryEntryAsync(settings.EntityId, cancellationToken);
+        await client.EntityRegistry.RemoveAsync(settings.EntityId, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "removed", id = settings.EntityId },
             () => AnsiConsole.MarkupLine($"[green]Removed[/] [bold]{settings.EntityId.EscapeMarkup()}[/]"),

@@ -1,13 +1,13 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Update;
 
-public sealed class UpdateInstallCommand(IAuthService auth, IHassApiClient api) : HausCommand<UpdateInstallCommand.Settings>(auth)
+public sealed class UpdateInstallCommand(IAuthService auth, IHassClient client) : HausCommand<UpdateInstallCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -26,7 +26,7 @@ public sealed class UpdateInstallCommand(IAuthService auth, IHassApiClient api) 
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var preflight = await api.GetStateAsync<UpdateState>(settings.EntityId, cancellationToken);
+        var preflight = await client.States.GetAsync<UpdateState>(settings.EntityId, cancellationToken);
         if ((preflight.Attributes.SupportedFeatures & UpdateEntityFeature.Install) == 0)
         {
             OutputHelper.WriteError(settings,
@@ -53,9 +53,9 @@ public sealed class UpdateInstallCommand(IAuthService auth, IHassApiClient api) 
         if (!string.IsNullOrEmpty(settings.Version)) data["version"] = settings.Version;
         if (settings.Backup) data["backup"] = true;
 
-        await api.CallServiceAsync("update", "install", data, cancellationToken);
+        await client.Services.CallAsync("update", "install", data, cancellationToken);
 
-        var state = await api.GetStateAsync<UpdateState>(settings.EntityId, cancellationToken);
+        var state = await client.States.GetAsync<UpdateState>(settings.EntityId, cancellationToken);
         var title = state.Attributes.Title ?? state.Attributes.FriendlyName ?? settings.EntityId;
         var target = settings.Version ?? state.Attributes.LatestVersion ?? "latest";
 

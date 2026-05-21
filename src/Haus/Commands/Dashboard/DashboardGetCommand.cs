@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Dashboard;
 
-public sealed class DashboardGetCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class DashboardGetCommand(IAuthService auth, IHassClient client)
     : HausCommand<DashboardGetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -20,7 +20,7 @@ public sealed class DashboardGetCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var dashboards = await client.Lovelace.ListDashboardsAsync(cancellationToken);
         var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
@@ -33,7 +33,7 @@ public sealed class DashboardGetCommand(IAuthService auth, IHassWebSocketClient 
         var hasConfig = false;
         try
         {
-            config = await ws.GetDashboardConfigAsync(configUrlPath, cancellationToken);
+            config = await client.Lovelace.GetConfigAsync(configUrlPath, cancellationToken);
             hasConfig = config.ValueKind == JsonValueKind.Object;
         }
         catch (InvalidOperationException)

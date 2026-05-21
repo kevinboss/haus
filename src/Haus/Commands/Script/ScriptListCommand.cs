@@ -1,19 +1,19 @@
 using Haus.Auth;
+using Haus.HassClient;
 using Haus.Commands.State;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Script;
 
-public sealed class ScriptListCommand(IAuthService auth, IHassApiClient api)
+public sealed class ScriptListCommand(IAuthService auth, IHassClient client)
     : HausCommand<ScriptListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.ListStatesAsync<EntityState>(cancellationToken);
+        var states = await client.States.ListAsync<EntityState>(cancellationToken);
         var scripts = states
             .Where(s => s.EntityId.StartsWith("script.", StringComparison.Ordinal))
             .OrderBy(s => s.EntityId)

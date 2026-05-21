@@ -1,17 +1,17 @@
 using Haus.Auth;
-using Haus.Rest;
+using Haus.HassClient;
 using Haus.Output;
 using Spectre.Console;
 
 namespace Haus.Commands.Update;
 
-public sealed class UpdateListCommand(IAuthService auth, IHassApiClient api) : HausCommand<UpdateListCommand.Settings>(auth)
+public sealed class UpdateListCommand(IAuthService auth, IHassClient client) : HausCommand<UpdateListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings;
 
     protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var states = await api.ListStatesAsync<UpdateState>(cancellationToken);
+        var states = await client.States.ListAsync<UpdateState>(cancellationToken);
         var updates = states
             .Where(s => s.EntityId.StartsWith("update.", StringComparison.Ordinal))
             .OrderByDescending(IsAvailable)

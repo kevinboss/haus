@@ -1,12 +1,12 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using Haus.Auth;
-using Haus.Ws;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
-public sealed class HelperCreateCounterCommand(IAuthService auth, IHassWebSocketClient ws)
+public sealed class HelperCreateCounterCommand(IAuthService auth, IHassClient client)
     : HausCommand<HelperCreateCounterCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
@@ -53,6 +53,6 @@ public sealed class HelperCreateCounterCommand(IAuthService auth, IHassWebSocket
         if (settings.Step is not null) body["step"] = settings.Step.Value;
         if (settings.Restore) body["restore"] = true;
 
-        return HelperCreator.CreateAsync(ws, HelperKind.Counter, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
+        return HelperCreator.CreateAsync(client, HelperKind.Counter, settings.Name, settings.ObjectId, settings.Icon, body, settings, cancellationToken);
     }
 }

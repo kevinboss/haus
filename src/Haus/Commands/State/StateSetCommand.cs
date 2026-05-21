@@ -1,14 +1,14 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.State;
 
-public sealed class StateSetCommand(IAuthService auth, IHassApiClient api) : HausCommand<StateSetCommand.Settings>(auth)
+public sealed class StateSetCommand(IAuthService auth, IHassClient client) : HausCommand<StateSetCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -38,7 +38,7 @@ public sealed class StateSetCommand(IAuthService auth, IHassApiClient api) : Hau
                 payload["attributes"] = attrs;
         }
 
-        var result = await api.SetStateAsync<EntityState>(settings.EntityId, payload, cancellationToken);
+        var result = await client.States.SetAsync<EntityState>(settings.EntityId, payload, cancellationToken);
 
         OutputHelper.WriteResult(settings, result,
             () => AnsiConsole.MarkupLine($"[green]Set[/] [bold]{settings.EntityId.EscapeMarkup()}[/] to [bold]{result.State.EscapeMarkup()}[/]"),

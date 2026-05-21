@@ -1,15 +1,15 @@
 using System.ComponentModel;
+using Haus.HassClient;
 using System.Globalization;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Logbook;
 
-public sealed class LogbookListCommand(IAuthService auth, IHassApiClient api) : HausCommand<LogbookListCommand.Settings>(auth)
+public sealed class LogbookListCommand(IAuthService auth, IHassClient client) : HausCommand<LogbookListCommand.Settings>(auth)
 {
     public sealed class Settings : HausSettings
     {
@@ -45,7 +45,7 @@ public sealed class LogbookListCommand(IAuthService auth, IHassApiClient api) : 
             ? DateTimeOffset.Parse(settings.Until, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
             : null;
 
-        var entries = (await api.ListLogbookEntriesAsync(startTime, settings.EntityId, endTime, cancellationToken)).ToList();
+        var entries = (await client.Logbook.ListAsync(startTime, settings.EntityId, endTime, cancellationToken)).ToList();
 
         OutputHelper.WriteResult(settings, entries,
             humanOutput: () => WriteHumanOutput(entries),
