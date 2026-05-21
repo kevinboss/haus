@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Globalization;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;

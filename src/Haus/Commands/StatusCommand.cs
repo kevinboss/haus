@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;

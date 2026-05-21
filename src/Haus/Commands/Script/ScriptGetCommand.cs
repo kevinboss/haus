@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -25,7 +27,7 @@ public sealed class ScriptGetCommand(IAuthService auth, IHassApiClient api)
 
         OutputHelper.WriteResult(settings, config,
             () => WriteHumanOutput(settings.ScriptId, config),
-            () => Console.WriteLine(JsonSerializer.Serialize(config, HausJsonOptions.Default)));
+            () => Console.WriteLine(JsonSerializer.Serialize(config, HassJsonOptions.Default)));
 
         return 0;
     }

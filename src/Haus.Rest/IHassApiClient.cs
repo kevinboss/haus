@@ -1,4 +1,4 @@
-namespace Haus.Connection;
+namespace Haus.Rest;
 
 public interface IHassApiClient
 {

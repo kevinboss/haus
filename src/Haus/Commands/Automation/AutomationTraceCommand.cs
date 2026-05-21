@@ -2,7 +2,9 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -126,7 +128,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
     {
         if (settings.Json)
         {
-            Console.WriteLine(JsonSerializer.Serialize(trace, HausJsonOptions.Default));
+            Console.WriteLine(JsonSerializer.Serialize(trace, HassJsonOptions.Default));
             return 0;
         }
 

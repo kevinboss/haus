@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -48,7 +50,7 @@ public sealed class DashboardCreateCommand(IAuthService auth, IHassWebSocketClie
         if (settings.Icon is not null) payload["icon"] = settings.Icon;
 
         var result = await ws.SendCommandAsync(payload, cancellationToken);
-        var created = result.Deserialize<DashboardRegistryEntry>(HausJsonOptions.Default);
+        var created = result.Deserialize<DashboardRegistryEntry>(HassJsonOptions.Default);
 
         OutputHelper.WriteResult(settings, created ?? (object)result,
             () => AnsiConsole.MarkupLine(

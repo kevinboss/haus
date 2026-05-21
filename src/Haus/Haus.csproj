@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Haus.Rest\Haus.Rest.csproj" />
+    <ProjectReference Include="..\Haus.Ws\Haus.Ws.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="$(IntermediateOutputPath)haus.SKILL.md" LogicalName="Haus.Resources.SKILL.md" Visible="false" />
   </ItemGroup>
 

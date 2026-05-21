@@ -1,5 +1,7 @@
 using System.Text.Json;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 
 namespace Haus.Commands.Entity;
 

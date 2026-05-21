@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
