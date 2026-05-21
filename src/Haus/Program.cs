@@ -2,6 +2,7 @@ using Haus.Auth;
 using Haus.Commands;
 using Haus.Commands.Automation;
 using Haus.Commands.Config;
+using Haus.Commands.Dashboard;
 using Haus.Commands.Entity;
 using Haus.Commands.Event;
 using Haus.Commands.Helper;
@@ -183,6 +184,28 @@ app.Configure(config =>
             .WithDescription("List update entities and their availability");
         upd.AddCommand<UpdateInstallCommand>("install")
             .WithDescription("Install an available update");
+    });
+    config.AddBranch("dashboard", dash =>
+    {
+        dash.SetDescription("Manage Lovelace dashboards");
+        dash.AddCommand<DashboardListCommand>("list")
+            .WithDescription("List dashboards");
+        dash.AddCommand<DashboardGetCommand>("get")
+            .WithDescription("Get dashboard registry props and view summary");
+        dash.AddCommand<DashboardCreateCommand>("create")
+            .WithDescription("Create a new storage-mode dashboard");
+        dash.AddCommand<DashboardUpdateCommand>("update")
+            .WithDescription("Update a dashboard's registry props (title, icon, sidebar, admin)");
+        dash.AddCommand<DashboardDeleteCommand>("delete")
+            .WithDescription("Delete a dashboard");
+        dash.AddBranch("config", cfg =>
+        {
+            cfg.SetDescription("Read and write dashboard view configuration");
+            cfg.AddCommand<DashboardConfigGetCommand>("get")
+                .WithDescription("Get dashboard config (views/cards)");
+            cfg.AddCommand<DashboardConfigSaveCommand>("save")
+                .WithDescription("Replace a dashboard's config (views/cards)");
+        });
     });
     config.AddBranch("zone", zone =>
     {

@@ -33,6 +33,11 @@ haus automation create --from-file morning.json
 # Create a reusable script (e.g. fan out notifications to multiple phones)
 haus script create --id notify_all_phones --from-file notify_all.json
 
+# List Lovelace dashboards (and edit their view config via JSON)
+haus dashboard list
+haus dashboard config get my-dashboard --json > config.json
+haus dashboard config save my-dashboard --from-file config.json
+
 # List the entity registry (includes disabled/hidden entities)
 haus entity list
 

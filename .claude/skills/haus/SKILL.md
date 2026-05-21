@@ -292,6 +292,48 @@ dotnet run --project src/Haus -- scene activate <scene_id> [--transition <SECOND
 ```
 Wraps `scene.turn_on`. `--transition` applies to compatible entities (e.g. lights fade over N seconds).
 
+### dashboard list — List Lovelace dashboards
+```bash
+dotnet run --project src/Haus -- dashboard list
+```
+Shows every dashboard from the Lovelace registry (`lovelace/dashboards/list`), including the default "Overview" dashboard. Columns: url_path, title, icon, mode (storage/yaml), sidebar visibility, admin-only.
+
+### dashboard get — Show dashboard registry props and view summary
+```bash
+dotnet run --project src/Haus -- dashboard get <url_path>
+```
+Use `lovelace` for the default dashboard. Combines `lovelace/dashboards/list` (registry props) with `lovelace/config` (view summary). `--json` returns `{registry, config}`. For dashboards with no saved config yet, the view summary is omitted.
+
+### dashboard create — Create a new dashboard
+```bash
+dotnet run --project src/Haus -- dashboard create --url-path <PATH> --title <TITLE> [--icon <ICON>] [--show-in-sidebar] [--require-admin]
+```
+Creates a storage-mode dashboard via `lovelace/dashboards/create`. The new dashboard has an empty config — use `dashboard config save` to populate it. `--url-path` must be unique; HA requires it to contain a `-`.
+
+### dashboard update — Update a dashboard's registry props
+```bash
+dotnet run --project src/Haus -- dashboard update <url_path> [--title <T>] [--icon <I>] [--show-in-sidebar|--hide-from-sidebar] [--require-admin|--allow-non-admin]
+```
+Updates registry-level fields (sidebar appearance) via `lovelace/dashboards/update`. Pass an empty `--icon ""` to clear. At least one field is required. YAML-mode dashboards are rejected with a clear error.
+
+### dashboard delete — Delete a dashboard
+```bash
+dotnet run --project src/Haus -- dashboard delete <url_path>
+```
+Removes the dashboard registry entry via `lovelace/dashboards/delete`. HA may refuse to delete the default dashboard.
+
+### dashboard config get — Get a dashboard's view config
+```bash
+dotnet run --project src/Haus -- dashboard config get <url_path>
+```
+Returns the views/cards config via `lovelace/config`. Default: human-readable summary table of views (title, path, icon, card count). Use `--json` for the full config body — useful for piping into a script that mutates it before calling `dashboard config save`.
+
+### dashboard config save — Replace a dashboard's view config
+```bash
+dotnet run --project src/Haus -- dashboard config save <url_path> (--data '<JSON>' | --from-file <PATH>)
+```
+Replaces the views/cards wholesale via `lovelace/config/save`. The JSON must be an object with a `views` array. Use `--from-file=-` to pipe from stdin. Only storage-mode dashboards are editable; YAML-mode is rejected.
+
 ### update list — List update entities and their availability
 ```bash
 dotnet run --project src/Haus -- update list
