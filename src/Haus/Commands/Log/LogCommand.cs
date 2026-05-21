@@ -28,7 +28,7 @@ public sealed class LogCommand(IAuthService auth, IHassWebSocketClient ws) : Hau
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var result = await ws.SendCommandAsync(new { type = "system_log/list" }, cancellationToken);
+        var result = await ws.SendCommandAsync(new { type = SystemLogCommands.List }, cancellationToken);
 
         var entries = result.EnumerateArray().Select(SystemLogEntry.From).ToList();
         entries.Sort((a, b) => b.Timestamp.CompareTo(a.Timestamp));
@@ -111,27 +111,3 @@ public sealed class LogCommand(IAuthService auth, IHassWebSocketClient ws) : Hau
             .ToString("o", CultureInfo.InvariantCulture);
 }
 
-internal sealed record SystemLogEntry(
-    double Timestamp,
-    string Level,
-    string Name,
-    string Message,
-    string? Exception,
-    int Count)
-{
-    public static SystemLogEntry From(JsonElement el)
-    {
-        var msgEl = el.GetProperty("message");
-        var message = msgEl.ValueKind == JsonValueKind.Array
-            ? string.Join(" ", msgEl.EnumerateArray().Select(m => m.GetString() ?? ""))
-            : msgEl.GetString() ?? "";
-
-        return new SystemLogEntry(
-            Timestamp: el.GetProperty("timestamp").GetDouble(),
-            Level: el.TryGetProperty("level", out var lv) ? lv.GetString() ?? "" : "",
-            Name: el.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
-            Message: message,
-            Exception: el.TryGetProperty("exception", out var ex) ? ex.GetString() : null,
-            Count: el.TryGetProperty("count", out var c) && c.ValueKind == JsonValueKind.Number ? c.GetInt32() : 1);
-    }
-}

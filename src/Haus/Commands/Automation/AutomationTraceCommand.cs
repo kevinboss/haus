@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Haus.Auth;
 using Haus.Connection;
 using Haus.Output;
@@ -45,7 +44,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
         var itemId = state.Attributes.Id;
         var list = await ws.SendCommandAsync(new
         {
-            type = "trace/list",
+            type = TraceCommands.List,
             domain = "automation",
             item_id = itemId
         }, cancellationToken);
@@ -73,7 +72,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
 
         var trace = await ws.SendCommandAsync(new
         {
-            type = "trace/get",
+            type = TraceCommands.Get,
             domain = "automation",
             item_id = itemId,
             run_id = runId
@@ -339,13 +338,3 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
     }
 }
 
-internal sealed record TraceSummary(
-    [property: JsonPropertyName("run_id")] string RunId,
-    [property: JsonPropertyName("state")] string? State,
-    [property: JsonPropertyName("script_execution")] string? ScriptExecution,
-    [property: JsonPropertyName("trigger")] string? Trigger,
-    [property: JsonPropertyName("timestamp")] TraceTimestamp Timestamp);
-
-internal sealed record TraceTimestamp(
-    [property: JsonPropertyName("start")] string? Start,
-    [property: JsonPropertyName("finish")] string? Finish);

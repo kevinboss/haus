@@ -39,7 +39,7 @@ public sealed class HelperDeleteCommand(IAuthService auth, IHassWebSocketClient 
 
         var payload = new Dictionary<string, object?>
         {
-            ["type"] = $"{domain}/delete",
+            ["type"] = HelperCommands.Delete(domain),
             [$"{domain}_id"] = uniqueId
         };
         await ws.SendCommandAsync(payload, cancellationToken);
