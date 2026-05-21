@@ -296,7 +296,7 @@ Wraps `scene.turn_on`. `--transition` applies to compatible entities (e.g. light
 ```bash
 dotnet run --project src/Haus -- update list
 ```
-Shows all `update.*` entities with installed version, latest version, and status (available/installing/skipped/up to date). Updates with state `on` are sorted first.
+Shows all `update.*` entities with installed version, latest version, and status (available/available (read-only)/installing/skipped/up to date). Updates with state `on` are sorted first. `available (read-only)` means HA detected a new version but the integration doesn't expose an install action — upgrade has to happen on the device itself (e.g. `pihole -up`).
 
 ### zone list — List geofence zones
 ```bash
