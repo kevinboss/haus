@@ -34,7 +34,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
                 : ValidationResult.Success();
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var state = await api.GetAsync<AutomationState>($"/api/states/{settings.AutomationId}", cancellationToken);
         if (state.Attributes.Id is null)
@@ -291,7 +291,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
     private static string FormatDurationPlain(string? start, string? finish) =>
         FormatDuration(start, finish);
 
-    private static string FormatResultMarkup(string? script_execution) => script_execution switch
+    private static string FormatResultMarkup(string? scriptExecution) => scriptExecution switch
     {
         "finished" => "[green]finished[/]",
         "failed" => "[red]failed[/]",
@@ -299,7 +299,7 @@ public sealed class AutomationTraceCommand(IAuthService auth, IHassApiClient api
         "aborted" => "[yellow]aborted[/]",
         "condition-skipped" or "condition_skipped" => "[dim]skipped (condition)[/]",
         null => "—",
-        _ => script_execution
+        _ => scriptExecution
     };
 
     private static string StackRunId(string runId)

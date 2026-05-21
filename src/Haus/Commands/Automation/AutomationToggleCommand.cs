@@ -18,9 +18,9 @@ public sealed class AutomationToggleCommand(IAuthService auth, IHassApiClient ap
         public required string AutomationId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
-        var result = await api.PostAsync<JsonElement>(
+        await api.PostAsync<JsonElement>(
             "/api/services/automation/toggle",
             new { entity_id = settings.AutomationId },
             cancellationToken);

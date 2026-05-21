@@ -18,7 +18,7 @@ public sealed class ZoneGetCommand(IAuthService auth, IHassApiClient api)
         public required string ZoneId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var zone = await api.GetAsync<ZoneState>($"/api/states/{settings.ZoneId}", cancellationToken);
 

@@ -270,7 +270,7 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         } while (!result.EndOfMessage);
 
         ms.Position = 0;
-        var doc = JsonDocument.Parse(ms);
+        using var doc = await JsonDocument.ParseAsync(ms, cancellationToken: cancellationToken);
         return doc.RootElement.Clone();
     }
 

@@ -3,7 +3,6 @@ using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Hass;
-using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -20,7 +19,7 @@ public sealed class ScriptGetCommand(IAuthService auth, IHassApiClient api)
         public required string ScriptId { get; init; }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var objectId = StripPrefix(settings.ScriptId);
         var config = await api.GetAsync<ScriptConfig>($"/api/config/script/config/{objectId}", cancellationToken);

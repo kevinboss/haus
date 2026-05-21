@@ -3,7 +3,7 @@ using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
-using Spectre.Console.Cli;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Event;
 
@@ -11,15 +11,9 @@ public sealed class EventListCommand(IAuthService auth, IHassApiClient api) : Ha
 {
     public sealed class Settings : HausSettings;
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var events = await api.GetAsync<List<EventType>>("/api/events", cancellationToken);
-
-        if (events is null)
-        {
-            OutputHelper.WriteError(settings, "Empty response from Home Assistant API.");
-            return 1;
-        }
 
         OutputHelper.WriteResult(settings, events,
             () =>
@@ -53,6 +47,7 @@ public sealed class EventListCommand(IAuthService auth, IHassApiClient api) : Ha
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record EventType(
     [property: JsonPropertyName("event")] string Event,
     [property: JsonPropertyName("listener_count")] int ListenerCount);

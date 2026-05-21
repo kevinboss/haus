@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
@@ -53,7 +52,7 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
         }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var since = DurationParser.Parse(settings.Since);
         var startTime = DateTimeOffset.UtcNow - since;

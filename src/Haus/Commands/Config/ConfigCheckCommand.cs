@@ -3,7 +3,7 @@ using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
-using Spectre.Console.Cli;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Config;
 
@@ -11,7 +11,7 @@ public sealed class ConfigCheckCommand(IAuthService auth, IHassApiClient api) : 
 {
     public sealed class Settings : HausSettings;
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var result = await api.PostAsync<ConfigCheckResult>("/api/config/core/check_config", null, cancellationToken);
         var valid = string.Equals(result.Result, "valid", StringComparison.OrdinalIgnoreCase);
@@ -40,6 +40,7 @@ public sealed class ConfigCheckCommand(IAuthService auth, IHassApiClient api) : 
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record ConfigCheckResult(
     [property: JsonPropertyName("result")] string? Result,
     [property: JsonPropertyName("errors")] string? Errors);

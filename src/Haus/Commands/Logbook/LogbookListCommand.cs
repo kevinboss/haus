@@ -7,6 +7,7 @@ using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Logbook;
 
@@ -38,7 +39,7 @@ public sealed class LogbookListCommand(IAuthService auth, IHassApiClient api) : 
         }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var since = DurationParser.Parse(settings.Since);
         var startTime = DateTimeOffset.UtcNow - since;
@@ -129,6 +130,7 @@ public sealed class LogbookListCommand(IAuthService auth, IHassApiClient api) : 
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record LogbookEntry(
     [property: JsonPropertyName("when")] JsonElement When,
     [property: JsonPropertyName("name")] string? Name,

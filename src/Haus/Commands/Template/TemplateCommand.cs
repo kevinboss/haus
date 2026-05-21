@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using Haus.Auth;
-using Haus.Commands;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
@@ -27,7 +26,7 @@ public sealed class TemplateCommand(IAuthService auth, IHassApiClient api)
                 : ValidationResult.Success();
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var template = TextInput.Resolve(settings.Template, settings.FromFile);
         if (string.IsNullOrWhiteSpace(template))

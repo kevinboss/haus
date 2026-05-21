@@ -1,8 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Script;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record ScriptConfig
 {
     [JsonRequired]
@@ -23,6 +25,7 @@ internal sealed record ScriptConfig
     public Dictionary<string, JsonElement>? AdditionalProperties { get; init; }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal enum ScriptMode
 {
     Single,

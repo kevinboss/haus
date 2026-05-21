@@ -27,7 +27,7 @@ public sealed class SceneActivateCommand(IAuthService auth, IHassApiClient api)
                 : ValidationResult.Success();
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var payload = new Dictionary<string, object?> { ["entity_id"] = settings.SceneId };
         if (settings.Transition is not null) payload["transition"] = settings.Transition;

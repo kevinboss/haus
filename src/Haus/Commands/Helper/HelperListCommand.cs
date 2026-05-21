@@ -1,10 +1,8 @@
-using System.Globalization;
 using System.Text.Json;
 using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
-using Spectre.Console.Cli;
 
 namespace Haus.Commands.Helper;
 
@@ -13,7 +11,7 @@ public sealed class HelperListCommand(IAuthService auth, IHassApiClient api)
 {
     public sealed class Settings : HausSettings;
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var states = await api.GetAsync<List<JsonElement>>("/api/states", cancellationToken);
         var helpers = states

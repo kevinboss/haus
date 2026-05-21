@@ -27,7 +27,7 @@ public sealed class StateSetCommand(IAuthService auth, IHassApiClient api) : Hau
         public override ValidationResult Validate() => ValidateJsonData(Attributes);
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var payload = new Dictionary<string, object> { ["state"] = settings.State };
 

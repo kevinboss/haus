@@ -1,7 +1,5 @@
 using System.ComponentModel;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -43,7 +41,7 @@ public sealed class HelperCreateDatetimeCommand(IAuthService auth, IHassWebSocke
                 : ValidationResult.Error("Pass --has-date and/or --has-time.");
     }
 
-    protected override Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var body = new Dictionary<string, object?>
         {

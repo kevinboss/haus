@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Update;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record UpdateAttributes(
     [property: JsonPropertyName("friendly_name")] string? FriendlyName,
     [property: JsonPropertyName("title")] string? Title,
@@ -17,11 +19,10 @@ internal static class UpdateEntityFeature
 {
     public const int Install = 1;
     public const int SpecificVersion = 2;
-    public const int Progress = 4;
     public const int Backup = 8;
-    public const int ReleaseNotes = 16;
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record UpdateState(
     [property: JsonPropertyName("entity_id")] string EntityId,
     [property: JsonPropertyName("state")] string State,

@@ -3,7 +3,7 @@ using Haus.Auth;
 using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
-using Spectre.Console.Cli;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Service;
 
@@ -11,7 +11,7 @@ public sealed class ServiceListCommand(IAuthService auth, IHassApiClient api) : 
 {
     public sealed class Settings : HausSettings;
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var domains = await api.GetAsync<List<ServiceDomain>>("/api/services", cancellationToken);
 
@@ -48,6 +48,7 @@ public sealed class ServiceListCommand(IAuthService auth, IHassApiClient api) : 
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record ServiceDomain(
     [property: JsonPropertyName("domain")] string Domain,
     [property: JsonPropertyName("services")] Dictionary<string, object> Services);

@@ -12,6 +12,7 @@
     <PackageReference Include="Spectre.Console" Version="0.55.0" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.55.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
+    <PackageReference Include="JetBrains.Annotations" Version="2024.*" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

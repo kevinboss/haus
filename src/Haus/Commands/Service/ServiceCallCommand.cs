@@ -41,7 +41,7 @@ public sealed class ServiceCallCommand(IAuthService auth, IHassApiClient api) : 
         }
     }
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var domain = settings.Domain;
         var service = settings.ServiceName;

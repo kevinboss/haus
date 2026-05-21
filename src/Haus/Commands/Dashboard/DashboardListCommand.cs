@@ -1,11 +1,7 @@
-using System.Text.Json;
 using Haus.Auth;
-using Haus.Rest;
-using Haus.Hass;
 using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
-using Spectre.Console.Cli;
 
 namespace Haus.Commands.Dashboard;
 
@@ -13,7 +9,7 @@ public sealed class DashboardListCommand(IAuthService auth, IHassWebSocketClient
 {
     public sealed class Settings : HausSettings;
 
-    protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    protected override async Task<int> RunAsync(Settings settings, CancellationToken cancellationToken)
     {
         var entries = await ws.ListDashboardsAsync(cancellationToken);
 

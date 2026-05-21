@@ -1,8 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Haus.Commands.Automation;
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal sealed record AutomationConfig
 {
     public string? Id { get; init; }
@@ -26,6 +28,7 @@ internal sealed record AutomationConfig
     public Dictionary<string, JsonElement>? AdditionalProperties { get; init; }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 internal enum AutomationMode
 {
     Single,
