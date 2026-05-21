@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Haus.Auth;
 using Haus.Connection;
 using Haus.Output;
@@ -82,7 +81,7 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
     {
         var result = await ws.SendCommandAsync(new
         {
-            type = "recorder/statistics_during_period",
+            type = RecorderCommands.StatisticsDuringPeriod,
             start_time = startTime.ToString("o", CultureInfo.InvariantCulture),
             end_time = endTime.ToString("o", CultureInfo.InvariantCulture),
             statistic_ids = new[] { settings.EntityId },
@@ -221,15 +220,3 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
             : iso ?? "";
 }
 
-internal sealed record HistoryState(
-    [property: JsonPropertyName("state")] string? State,
-    [property: JsonPropertyName("last_changed")] string? LastChanged,
-    [property: JsonPropertyName("last_updated")] string? LastUpdated,
-    [property: JsonPropertyName("entity_id")] string? EntityId);
-
-internal sealed record StatisticsRow(
-    [property: JsonPropertyName("start")] JsonElement Start,
-    [property: JsonPropertyName("mean")] double? Mean,
-    [property: JsonPropertyName("min")] double? Min,
-    [property: JsonPropertyName("max")] double? Max,
-    [property: JsonPropertyName("sum")] double? Sum);

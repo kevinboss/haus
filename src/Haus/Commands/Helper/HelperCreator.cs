@@ -20,7 +20,7 @@ internal static class HelperCreator
         var domain = kind.Domain();
         var payload = new Dictionary<string, object?>(bodyFields)
         {
-            ["type"] = $"{domain}/create",
+            ["type"] = HelperCommands.Create(domain),
             ["name"] = name
         };
         if (icon is not null) payload["icon"] = icon;
