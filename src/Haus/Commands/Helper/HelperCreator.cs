@@ -1,8 +1,5 @@
-using Haus.Commands.Entity;
-using Haus.Rest;
-using Haus.Hass;
-using Haus.Ws;
 using Haus.Output;
+using Haus.Ws;
 using Spectre.Console;
 
 namespace Haus.Commands.Helper;
@@ -20,14 +17,10 @@ internal static class HelperCreator
         CancellationToken cancellationToken)
     {
         var domain = kind.Domain();
-        var payload = new Dictionary<string, object?>(bodyFields)
-        {
-            ["type"] = HelperCommands.Create(domain),
-            ["name"] = name
-        };
-        if (icon is not null) payload["icon"] = icon;
+        var fields = new Dictionary<string, object?>(bodyFields) { ["name"] = name };
+        if (icon is not null) fields["icon"] = icon;
 
-        var created = await ws.SendCommandAsync(payload, cancellationToken);
+        var created = await ws.CreateHelperAsync(domain, fields, cancellationToken);
         var createdId = created.TryGetProperty("id", out var idEl) ? idEl.GetString() : null;
         if (createdId is null)
         {
@@ -35,15 +28,13 @@ internal static class HelperCreator
             return 1;
         }
 
-        string? entityId;
-        if (objectId is null)
+        var entry = await FindByUniqueIdAsync(ws, domain, createdId, cancellationToken);
+        string? entityId = entry?.EntityId;
+        if (objectId is not null && entry is not null)
         {
-            var entry = await EntityRegistry.FindByUniqueIdAsync(ws, domain, createdId, cancellationToken);
-            entityId = entry?.EntityId;
-        }
-        else
-        {
-            entityId = await EntityRegistry.AlignEntityIdAsync(ws, domain, createdId, $"{domain}.{objectId}", cancellationToken);
+            var desiredEntityId = $"{domain}.{objectId}";
+            await ws.UpdateEntityRegistryEntryAsync(entry.EntityId, new(NewEntityId: desiredEntityId), cancellationToken);
+            entityId = desiredEntityId;
         }
 
         var finalId = entityId ?? $"{domain}.{createdId}";
@@ -52,5 +43,23 @@ internal static class HelperCreator
             () => Console.WriteLine(finalId));
 
         return 0;
+    }
+
+    private static async Task<EntityRegistryEntry?> FindByUniqueIdAsync(
+        IHassWebSocketClient ws,
+        string platform,
+        string uniqueId,
+        CancellationToken cancellationToken,
+        int attempts = 10,
+        int delayMs = 200)
+    {
+        for (var attempt = 0; attempt < attempts; attempt++)
+        {
+            var entries = await ws.ListEntityRegistryAsync(cancellationToken);
+            var entry = entries.SingleOrDefault(e => e.Platform == platform && e.UniqueId == uniqueId);
+            if (entry is not null) return entry;
+            await Task.Delay(delayMs, cancellationToken);
+        }
+        return null;
     }
 }

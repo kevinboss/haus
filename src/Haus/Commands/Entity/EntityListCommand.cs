@@ -16,8 +16,7 @@ public sealed class EntityListCommand(IAuthService auth, IHassWebSocketClient ws
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var result = await ws.SendCommandAsync(new Dictionary<string, object?> { ["type"] = EntityRegistryCommands.List }, cancellationToken);
-        var entries = result.Deserialize<List<EntityRegistryEntry>>() ?? [];
+        var entries = await ws.ListEntityRegistryAsync(cancellationToken);
         var sorted = entries.OrderBy(e => e.EntityId).ToList();
 
         OutputHelper.WriteResult(settings, sorted,

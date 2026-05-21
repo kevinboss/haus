@@ -30,9 +30,7 @@ public sealed class LogCommand(IAuthService auth, IHassWebSocketClient ws) : Hau
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var result = await ws.SendCommandAsync(new Dictionary<string, object?> { ["type"] = SystemLogCommands.List }, cancellationToken);
-
-        var entries = result.EnumerateArray().Select(SystemLogEntry.From).ToList();
+        var entries = (await ws.ListSystemLogAsync(cancellationToken)).ToList();
         entries.Sort((a, b) => b.Timestamp.CompareTo(a.Timestamp));
 
         if (settings.Level is { } level)

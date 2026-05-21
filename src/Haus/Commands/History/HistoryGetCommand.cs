@@ -81,17 +81,8 @@ public sealed class HistoryGetCommand(IAuthService auth, IHassApiClient api, IHa
 
     private async Task<int> RunStatisticsAsync(Settings settings, DateTimeOffset startTime, DateTimeOffset endTime, CancellationToken cancellationToken)
     {
-        var result = await ws.SendCommandAsync(new Dictionary<string, object?>
-        {
-            ["type"] = RecorderCommands.StatisticsDuringPeriod,
-            ["start_time"] = startTime.ToString("o", CultureInfo.InvariantCulture),
-            ["end_time"] = endTime.ToString("o", CultureInfo.InvariantCulture),
-            ["statistic_ids"] = new[] { settings.EntityId },
-            ["period"] = settings.Statistics
-        }, cancellationToken);
-
-        var byEntity = result.Deserialize<Dictionary<string, List<StatisticsRow>>>() ?? [];
-        var rows = byEntity.TryGetValue(settings.EntityId, out var r) ? r : [];
+        var byEntity = await ws.GetStatisticsDuringPeriodAsync(startTime, endTime, [settings.EntityId], settings.Statistics!, cancellationToken);
+        var rows = byEntity.TryGetValue(settings.EntityId, out var r) ? r.ToList() : [];
 
         OutputHelper.WriteResult(settings, rows,
             humanOutput: () => WriteStatisticsHuman(rows, settings.EntityId, settings.Statistics!),

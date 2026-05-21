@@ -25,14 +25,9 @@ public sealed class EntityRenameCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var result = await ws.SendCommandAsync(new Dictionary<string, object?>
-        {
-            ["type"] = EntityRegistryCommands.Update,
-            ["entity_id"] = settings.EntityId,
-            ["name"] = settings.Name
-        }, cancellationToken);
+        await ws.UpdateEntityRegistryEntryAsync(settings.EntityId, new(Name: settings.Name), cancellationToken);
 
-        OutputHelper.WriteResult(settings, result,
+        OutputHelper.WriteResult(settings, new { action = "renamed", entity_id = settings.EntityId, name = settings.Name },
             () => AnsiConsole.MarkupLine($"[green]Renamed[/] [bold]{settings.EntityId.EscapeMarkup()}[/] to [bold]{settings.Name.EscapeMarkup()}[/]"),
             () => Console.WriteLine($"{settings.EntityId}\t{settings.Name}"));
 

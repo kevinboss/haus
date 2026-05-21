@@ -22,22 +22,20 @@ public sealed class DashboardGetCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var entry = await DashboardRegistry.FindByUrlPathAsync(ws, settings.UrlPath, cancellationToken);
+        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
             OutputHelper.WriteError(settings, $"No dashboard with url_path '{settings.UrlPath}'.");
             return 1;
         }
 
-        var configPayload = new Dictionary<string, object?> { ["type"] = LovelaceCommands.Config };
-        if (!string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal))
-            configPayload["url_path"] = settings.UrlPath;
-
+        var configUrlPath = string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal) ? null : settings.UrlPath;
         JsonElement config = default;
         var hasConfig = false;
         try
         {
-            config = await ws.SendCommandAsync(configPayload, cancellationToken);
+            config = await ws.GetDashboardConfigAsync(configUrlPath, cancellationToken);
             hasConfig = config.ValueKind == JsonValueKind.Object;
         }
         catch (InvalidOperationException)

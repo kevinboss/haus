@@ -25,26 +25,14 @@ public sealed class HelperDeleteCommand(IAuthService auth, IHassWebSocketClient 
     {
         var domain = settings.EntityId.Split('.', 2)[0];
 
-        var entry = await ws.SendCommandAsync(new Dictionary<string, object?>
-        {
-            ["type"] = EntityRegistryCommands.Get,
-            ["entity_id"] = settings.EntityId
-        }, cancellationToken);
-        var uniqueId = entry.TryGetProperty("entity_entry", out var e) && e.TryGetProperty("unique_id", out var u)
-            ? u.GetString()
-            : entry.TryGetProperty("unique_id", out var u2) ? u2.GetString() : null;
-        if (uniqueId is null)
+        var entry = await ws.GetEntityRegistryEntryAsync(settings.EntityId, cancellationToken);
+        if (entry?.UniqueId is null)
         {
             OutputHelper.WriteError(settings, $"Could not resolve unique_id for '{settings.EntityId}'.");
             return 1;
         }
 
-        var payload = new Dictionary<string, object?>
-        {
-            ["type"] = HelperCommands.Delete(domain),
-            [$"{domain}_id"] = uniqueId
-        };
-        await ws.SendCommandAsync(payload, cancellationToken);
+        await ws.DeleteHelperAsync(domain, entry.UniqueId, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "deleted", entity_id = settings.EntityId },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.EntityId.EscapeMarkup()}[/]"),

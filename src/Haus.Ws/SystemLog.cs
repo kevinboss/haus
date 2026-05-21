@@ -1,13 +1,8 @@
 using System.Text.Json;
 
-namespace Haus.Commands.Log;
+namespace Haus.Ws;
 
-internal static class SystemLogCommands
-{
-    public const string List = "system_log/list";
-}
-
-internal sealed record SystemLogEntry(
+public sealed record SystemLogEntry(
     double Timestamp,
     string Level,
     string Name,

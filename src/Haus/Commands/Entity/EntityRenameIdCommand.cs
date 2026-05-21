@@ -44,12 +44,7 @@ public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassWebSoc
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        await ws.SendCommandAsync(new Dictionary<string, object?>
-        {
-            ["type"] = EntityRegistryCommands.Update,
-            ["entity_id"] = settings.OldEntityId,
-            ["new_entity_id"] = settings.NewEntityId
-        }, cancellationToken);
+        await ws.UpdateEntityRegistryEntryAsync(settings.OldEntityId, new(NewEntityId: settings.NewEntityId), cancellationToken);
 
         OutputHelper.WriteResult(settings,
             new { action = "renamed", from = settings.OldEntityId, to = settings.NewEntityId },

@@ -51,7 +51,8 @@ public sealed class DashboardConfigSaveCommand(IAuthService auth, IHassWebSocket
             return 1;
         }
 
-        var entry = await DashboardRegistry.FindByUrlPathAsync(ws, settings.UrlPath, cancellationToken);
+        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
             OutputHelper.WriteError(settings, $"No dashboard with url_path '{settings.UrlPath}'.");
@@ -63,15 +64,8 @@ public sealed class DashboardConfigSaveCommand(IAuthService auth, IHassWebSocket
             return 1;
         }
 
-        var payload = new Dictionary<string, object?>
-        {
-            ["type"] = LovelaceCommands.ConfigSave,
-            ["config"] = config
-        };
-        if (!string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal))
-            payload["url_path"] = settings.UrlPath;
-
-        await ws.SendCommandAsync(payload, cancellationToken);
+        var configUrlPath = string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal) ? null : settings.UrlPath;
+        await ws.SaveDashboardConfigAsync(configUrlPath, config, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "saved", url_path = settings.UrlPath },
             () => AnsiConsole.MarkupLine($"[green]Saved[/] config for [bold]{settings.UrlPath.EscapeMarkup()}[/]"),

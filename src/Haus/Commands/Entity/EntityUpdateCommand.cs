@@ -67,22 +67,17 @@ public sealed class EntityUpdateCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var payload = new Dictionary<string, object?>
-        {
-            ["type"] = EntityRegistryCommands.Update,
-            ["entity_id"] = settings.EntityId
-        };
+        if (settings.Name is not null || settings.Icon is not null || settings.AreaId is not null || settings.NewEntityId is not null)
+            await ws.UpdateEntityRegistryEntryAsync(
+                settings.EntityId,
+                new(Name: settings.Name, Icon: settings.Icon, AreaId: settings.AreaId, NewEntityId: settings.NewEntityId),
+                cancellationToken);
 
-        if (settings.Name is not null) payload["name"] = settings.Name;
-        if (settings.Icon is not null) payload["icon"] = settings.Icon;
-        if (settings.AreaId is not null) payload["area_id"] = settings.AreaId;
-        if (settings.NewEntityId is not null) payload["new_entity_id"] = settings.NewEntityId;
-        if (settings.Disable) payload["disabled_by"] = "user";
-        if (settings.Enable) payload["disabled_by"] = null;
-        if (settings.Hide) payload["hidden_by"] = "user";
-        if (settings.Show) payload["hidden_by"] = null;
+        if (settings.Disable) await ws.SetEntityEnabledAsync(settings.EntityId, false, cancellationToken);
+        if (settings.Enable) await ws.SetEntityEnabledAsync(settings.EntityId, true, cancellationToken);
+        if (settings.Hide) await ws.SetEntityHiddenAsync(settings.EntityId, true, cancellationToken);
+        if (settings.Show) await ws.SetEntityHiddenAsync(settings.EntityId, false, cancellationToken);
 
-        await ws.SendCommandAsync(payload, cancellationToken);
         var finalId = settings.NewEntityId ?? settings.EntityId;
 
         OutputHelper.WriteResult(settings, new { action = "updated", id = finalId },
