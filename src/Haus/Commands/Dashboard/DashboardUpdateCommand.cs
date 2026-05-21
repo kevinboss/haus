@@ -54,7 +54,8 @@ public sealed class DashboardUpdateCommand(IAuthService auth, IHassWebSocketClie
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var entry = await DashboardRegistry.FindByUrlPathAsync(ws, settings.UrlPath, cancellationToken);
+        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
             OutputHelper.WriteError(settings, $"No dashboard with url_path '{settings.UrlPath}'.");
@@ -66,19 +67,17 @@ public sealed class DashboardUpdateCommand(IAuthService auth, IHassWebSocketClie
             return 1;
         }
 
-        var payload = new Dictionary<string, object?>
-        {
-            ["type"] = LovelaceCommands.DashboardsUpdate,
-            ["dashboard_id"] = entry.Id
-        };
-        if (settings.Title is not null) payload["title"] = settings.Title;
-        if (settings.Icon is not null) payload["icon"] = settings.Icon.Length == 0 ? null : settings.Icon;
-        if (settings.ShowInSidebar is true) payload["show_in_sidebar"] = true;
-        if (settings.HideFromSidebar) payload["show_in_sidebar"] = false;
-        if (settings.RequireAdmin is true) payload["require_admin"] = true;
-        if (settings.AllowNonAdmin) payload["require_admin"] = false;
+        bool? showInSidebar = settings.HideFromSidebar ? false : settings.ShowInSidebar;
+        bool? requireAdmin = settings.AllowNonAdmin ? false : settings.RequireAdmin;
 
-        await ws.SendCommandAsync(payload, cancellationToken);
+        await ws.UpdateDashboardAsync(
+            entry.Id,
+            new DashboardUpdate(
+                Title: settings.Title,
+                Icon: settings.Icon,
+                ShowInSidebar: showInSidebar,
+                RequireAdmin: requireAdmin),
+            cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "updated", url_path = settings.UrlPath },
             () => AnsiConsole.MarkupLine($"[green]Updated[/] [bold]{settings.UrlPath.EscapeMarkup()}[/]"),

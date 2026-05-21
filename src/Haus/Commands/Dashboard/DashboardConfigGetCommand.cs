@@ -22,11 +22,8 @@ public sealed class DashboardConfigGetCommand(IAuthService auth, IHassWebSocketC
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var payload = new Dictionary<string, object?> { ["type"] = LovelaceCommands.Config };
-        if (!string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal))
-            payload["url_path"] = settings.UrlPath;
-
-        var config = await ws.SendCommandAsync(payload, cancellationToken);
+        var configUrlPath = string.Equals(settings.UrlPath, "lovelace", StringComparison.Ordinal) ? null : settings.UrlPath;
+        var config = await ws.GetDashboardConfigAsync(configUrlPath, cancellationToken);
 
         OutputHelper.WriteResult(settings, config,
             () => WriteHumanOutput(config, settings.UrlPath),

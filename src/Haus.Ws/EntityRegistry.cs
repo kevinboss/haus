@@ -1,16 +1,14 @@
 using System.Text.Json.Serialization;
 
-namespace Haus.Commands.Entity;
+namespace Haus.Ws;
 
-internal static class EntityRegistryCommands
-{
-    public const string List = "config/entity_registry/list";
-    public const string Get = "config/entity_registry/get";
-    public const string Update = "config/entity_registry/update";
-    public const string Remove = "config/entity_registry/remove";
-}
+public sealed record EntityRegistryUpdate(
+    string? Name = null,
+    string? Icon = null,
+    string? AreaId = null,
+    string? NewEntityId = null);
 
-internal sealed record EntityRegistryEntry(
+public sealed record EntityRegistryEntry(
     [property: JsonPropertyName("entity_id")] string EntityId,
     [property: JsonPropertyName("unique_id")] string? UniqueId,
     [property: JsonPropertyName("platform")] string? Platform,

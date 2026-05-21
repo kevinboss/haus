@@ -15,8 +15,7 @@ public sealed class DashboardListCommand(IAuthService auth, IHassWebSocketClient
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var raw = await ws.SendCommandAsync(new Dictionary<string, object?> { ["type"] = LovelaceCommands.DashboardsList }, cancellationToken);
-        var entries = raw.Deserialize<List<DashboardRegistryEntry>>(HassJsonOptions.Default) ?? [];
+        var entries = await ws.ListDashboardsAsync(cancellationToken);
 
         OutputHelper.WriteResult(settings, entries,
             () => WriteHumanOutput(entries),
@@ -25,7 +24,7 @@ public sealed class DashboardListCommand(IAuthService auth, IHassWebSocketClient
         return 0;
     }
 
-    private static void WriteHumanOutput(List<DashboardRegistryEntry> entries)
+    private static void WriteHumanOutput(IReadOnlyList<DashboardRegistryEntry> entries)
     {
         if (entries.Count == 0)
         {
@@ -57,7 +56,7 @@ public sealed class DashboardListCommand(IAuthService auth, IHassWebSocketClient
         AnsiConsole.MarkupLine($"[dim]{entries.Count} dashboard{(entries.Count == 1 ? "" : "s")}[/]");
     }
 
-    private static void WritePorcelainOutput(List<DashboardRegistryEntry> entries)
+    private static void WritePorcelainOutput(IReadOnlyList<DashboardRegistryEntry> entries)
     {
         OutputHelper.WriteColumns(
             ["URL_PATH", "TITLE", "ICON", "MODE", "SIDEBAR", "ADMIN_ONLY"],

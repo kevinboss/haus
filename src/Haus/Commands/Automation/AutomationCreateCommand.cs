@@ -66,8 +66,22 @@ public sealed class AutomationCreateCommand(IAuthService auth, IHassApiClient ap
         return 0;
     }
 
-    private Task<string?> AlignConfigIdAsync(string configId, CancellationToken cancellationToken) =>
-        EntityRegistry.AlignEntityIdAsync(ws, platform: "automation", uniqueId: configId, desiredEntityId: $"automation.{configId}", cancellationToken);
+    private async Task<string?> AlignConfigIdAsync(string configId, CancellationToken cancellationToken)
+    {
+        var desiredEntityId = $"automation.{configId}";
+        for (var attempt = 0; attempt < 10; attempt++)
+        {
+            var entries = await ws.ListEntityRegistryAsync(cancellationToken);
+            var entry = entries.SingleOrDefault(e => e.Platform == "automation" && e.UniqueId == configId);
+            if (entry is not null)
+            {
+                await ws.UpdateEntityRegistryEntryAsync(entry.EntityId, new(NewEntityId: desiredEntityId), cancellationToken);
+                return desiredEntityId;
+            }
+            await Task.Delay(200, cancellationToken);
+        }
+        return null;
+    }
 
     private async Task<bool> ConfigIdExists(string configId, CancellationToken cancellationToken)
     {

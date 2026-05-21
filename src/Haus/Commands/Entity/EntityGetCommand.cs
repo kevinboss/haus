@@ -22,13 +22,7 @@ public sealed class EntityGetCommand(IAuthService auth, IHassWebSocketClient ws)
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var result = await ws.SendCommandAsync(new Dictionary<string, object?>
-        {
-            ["type"] = EntityRegistryCommands.Get,
-            ["entity_id"] = settings.EntityId
-        }, cancellationToken);
-
-        var entry = result.Deserialize<EntityRegistryEntry>();
+        var entry = await ws.GetEntityRegistryEntryAsync(settings.EntityId, cancellationToken);
         if (entry is null)
         {
             OutputHelper.WriteError(settings, $"Entity '{settings.EntityId}' not found in registry.");

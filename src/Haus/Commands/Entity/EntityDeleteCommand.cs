@@ -21,11 +21,7 @@ public sealed class EntityDeleteCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        await ws.SendCommandAsync(new Dictionary<string, object?>
-        {
-            ["type"] = EntityRegistryCommands.Remove,
-            ["entity_id"] = settings.EntityId
-        }, cancellationToken);
+        await ws.RemoveEntityRegistryEntryAsync(settings.EntityId, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "removed", id = settings.EntityId },
             () => AnsiConsole.MarkupLine($"[green]Removed[/] [bold]{settings.EntityId.EscapeMarkup()}[/]"),

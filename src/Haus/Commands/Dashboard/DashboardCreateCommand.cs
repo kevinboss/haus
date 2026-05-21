@@ -38,21 +38,16 @@ public sealed class DashboardCreateCommand(IAuthService auth, IHassWebSocketClie
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var payload = new Dictionary<string, object?>
-        {
-            ["type"] = LovelaceCommands.DashboardsCreate,
-            ["url_path"] = settings.UrlPath,
-            ["title"] = settings.Title,
-            ["mode"] = "storage",
-            ["require_admin"] = settings.RequireAdmin,
-            ["show_in_sidebar"] = settings.ShowInSidebar ?? true
-        };
-        if (settings.Icon is not null) payload["icon"] = settings.Icon;
+        var created = await ws.CreateDashboardAsync(
+            new NewDashboard(
+                UrlPath: settings.UrlPath,
+                Title: settings.Title,
+                Icon: settings.Icon,
+                ShowInSidebar: settings.ShowInSidebar ?? true,
+                RequireAdmin: settings.RequireAdmin),
+            cancellationToken);
 
-        var result = await ws.SendCommandAsync(payload, cancellationToken);
-        var created = result.Deserialize<DashboardRegistryEntry>(HassJsonOptions.Default);
-
-        OutputHelper.WriteResult(settings, created ?? (object)result,
+        OutputHelper.WriteResult(settings, created,
             () => AnsiConsole.MarkupLine(
                 $"[green]Created[/] [bold]{settings.UrlPath.EscapeMarkup()}[/] — \"{settings.Title.EscapeMarkup()}\""),
             () => Console.WriteLine(settings.UrlPath));

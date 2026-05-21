@@ -87,14 +87,8 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
         if (objectId == "home")
             return await UpdateHomeZoneAsync(settings, cancellationToken);
 
-        var fields = await BuildFieldsAsync(settings, cancellationToken);
-        var payload = new Dictionary<string, object?>(fields)
-        {
-            ["type"] = ZoneCommands.Update,
-            ["zone_id"] = objectId
-        };
-
-        await ws.SendCommandAsync(payload, cancellationToken);
+        var update = await BuildZoneUpdateAsync(settings, cancellationToken);
+        await ws.UpdateZoneAsync(objectId, update, cancellationToken);
         return WriteSuccess(settings);
     }
 
@@ -108,12 +102,11 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
             return 1;
         }
 
-        var payload = new Dictionary<string, object?> { ["type"] = ZoneCommands.CoreConfigUpdate };
-        if (settings.Radius is not null) payload["radius"] = settings.Radius;
-        if (settings.Latitude is not null) payload["latitude"] = settings.Latitude;
-        if (settings.Longitude is not null) payload["longitude"] = settings.Longitude;
-
-        await ws.SendCommandAsync(payload, cancellationToken);
+        await ws.UpdateCoreConfigAsync(
+            latitude: settings.Latitude,
+            longitude: settings.Longitude,
+            radius: settings.Radius,
+            cancellationToken: cancellationToken);
         return WriteSuccess(settings);
     }
 
@@ -125,27 +118,25 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
         return 0;
     }
 
-    private async Task<Dictionary<string, object?>> BuildFieldsAsync(Settings settings, CancellationToken cancellationToken)
+    private async Task<ZoneUpdate> BuildZoneUpdateAsync(Settings settings, CancellationToken cancellationToken)
     {
         var rawJson = TextInput.Resolve(settings.Data, settings.FromFile);
         if (rawJson is not null)
         {
-            var parsed = JsonSerializer.Deserialize<Dictionary<string, object?>>(rawJson, HassJsonOptions.Default);
+            var parsed = JsonSerializer.Deserialize<ZoneUpdate>(rawJson, HassJsonOptions.Default);
             return parsed ?? throw new InvalidOperationException("--data deserialized to null.");
         }
 
         var current = await api.GetAsync<ZoneState>($"/api/states/{settings.ZoneId}", cancellationToken);
         var a = current.Attributes;
 
-        return new Dictionary<string, object?>
-        {
-            ["name"] = a.FriendlyName ?? StripPrefix(settings.ZoneId),
-            ["latitude"] = settings.Latitude ?? a.Latitude,
-            ["longitude"] = settings.Longitude ?? a.Longitude,
-            ["radius"] = settings.Radius ?? a.Radius,
-            ["icon"] = settings.Icon ?? a.Icon,
-            ["passive"] = settings.Passive ? true : settings.Active ? false : a.Passive
-        };
+        return new ZoneUpdate(
+            Name: a.FriendlyName ?? StripPrefix(settings.ZoneId),
+            Latitude: settings.Latitude ?? a.Latitude,
+            Longitude: settings.Longitude ?? a.Longitude,
+            Radius: settings.Radius ?? a.Radius,
+            Icon: settings.Icon ?? a.Icon,
+            Passive: settings.Passive ? true : settings.Active ? false : a.Passive);
     }
 
     private static string StripPrefix(string entityId) =>

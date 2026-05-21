@@ -21,18 +21,15 @@ public sealed class DashboardDeleteCommand(IAuthService auth, IHassWebSocketClie
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var entry = await DashboardRegistry.FindByUrlPathAsync(ws, settings.UrlPath, cancellationToken);
+        var dashboards = await ws.ListDashboardsAsync(cancellationToken);
+        var entry = dashboards.FirstOrDefault(d => d.UrlPath == settings.UrlPath);
         if (entry is null)
         {
             OutputHelper.WriteError(settings, $"No dashboard with url_path '{settings.UrlPath}'.");
             return 1;
         }
 
-        await ws.SendCommandAsync(new Dictionary<string, object?>
-        {
-            ["type"] = LovelaceCommands.DashboardsDelete,
-            ["dashboard_id"] = entry.Id
-        }, cancellationToken);
+        await ws.DeleteDashboardAsync(entry.Id, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "deleted", url_path = settings.UrlPath },
             () => AnsiConsole.MarkupLine($"[green]Deleted[/] [bold]{settings.UrlPath.EscapeMarkup()}[/]"),
