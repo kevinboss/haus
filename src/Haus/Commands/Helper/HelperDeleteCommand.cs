@@ -23,10 +23,10 @@ public sealed class HelperDeleteCommand(IAuthService auth, IHassWebSocketClient 
     {
         var domain = settings.EntityId.Split('.', 2)[0];
 
-        var entry = await ws.SendCommandAsync(new
+        var entry = await ws.SendCommandAsync(new Dictionary<string, object?>
         {
-            type = EntityRegistryCommands.Get,
-            entity_id = settings.EntityId
+            ["type"] = EntityRegistryCommands.Get,
+            ["entity_id"] = settings.EntityId
         }, cancellationToken);
         var uniqueId = entry.TryGetProperty("entity_entry", out var e) && e.TryGetProperty("unique_id", out var u)
             ? u.GetString()

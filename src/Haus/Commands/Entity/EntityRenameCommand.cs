@@ -23,11 +23,11 @@ public sealed class EntityRenameCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        var result = await ws.SendCommandAsync(new
+        var result = await ws.SendCommandAsync(new Dictionary<string, object?>
         {
-            type = EntityRegistryCommands.Update,
-            entity_id = settings.EntityId,
-            name = settings.Name
+            ["type"] = EntityRegistryCommands.Update,
+            ["entity_id"] = settings.EntityId,
+            ["name"] = settings.Name
         }, cancellationToken);
 
         OutputHelper.WriteResult(settings, result,

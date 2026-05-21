@@ -19,10 +19,10 @@ public sealed class EntityDeleteCommand(IAuthService auth, IHassWebSocketClient 
 
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        await ws.SendCommandAsync(new
+        await ws.SendCommandAsync(new Dictionary<string, object?>
         {
-            type = EntityRegistryCommands.Remove,
-            entity_id = settings.EntityId
+            ["type"] = EntityRegistryCommands.Remove,
+            ["entity_id"] = settings.EntityId
         }, cancellationToken);
 
         OutputHelper.WriteResult(settings, new { action = "removed", id = settings.EntityId },
