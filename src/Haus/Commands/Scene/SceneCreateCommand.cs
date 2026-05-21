@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Net;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;

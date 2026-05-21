@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -60,7 +62,7 @@ public abstract class HausCommand<TSettings>(IAuthService auth) : AsyncCommand<T
     {
         try
         {
-            return JsonSerializer.Deserialize<T>(json, HausJsonOptions.Default)
+            return JsonSerializer.Deserialize<T>(json, HassJsonOptions.Default)
                 ?? throw new InvalidOperationException($"--data deserialized to null for {typeof(T).Name}.");
         }
         catch (JsonException ex)

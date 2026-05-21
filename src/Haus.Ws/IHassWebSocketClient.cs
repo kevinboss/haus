@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Haus.Connection;
+namespace Haus.Ws;
 
 public interface IHassWebSocketClient
 {

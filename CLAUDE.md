@@ -15,7 +15,7 @@ dotnet format
 
 - **Runtime**: .NET 10 (C# 14)
 - **CLI**: `Spectre.Console.Cli` + `Spectre.Console`
-- **HA Communication**: `HassClient.WS` (WebSocket), `IHassApiClient` (REST)
+- **HA Communication**: in-house `IHassApiClient` (REST, in `Haus.Rest`) + `IHassWebSocketClient` (WebSocket, in `Haus.Ws`). No third-party HA SDK.
 - **Serialization**: `System.Text.Json`
 - **DI**: `Microsoft.Extensions.DependencyInjection`
 - **Testing**: xUnit v3
@@ -23,21 +23,27 @@ dotnet format
 ## Project Structure
 
 ```
-src/Haus/
-├── Auth/                    # OAuth2 PKCE, token storage, browser helper
-├── Connection/              # IHassApiClient (REST), IHassConnection (WS)
-├── Commands/                # CLI commands, grouped by API domain
-│   ├── State/               #   haus state list|get|set|delete
-│   └── ...                  #   (future: Service/, Event/, Device/, etc.)
-├── Output/                  # OutputHelper (table vs JSON rendering)
-└── Program.cs               # DI + command registration
+src/
+├── Haus.Hass/               # Shared: ITokenProvider, HassJsonOptions
+├── Haus.Rest/               # IHassApiClient + HassApiClient (HTTP wrapper)
+├── Haus.Ws/                 # IHassWebSocketClient + HassWebSocketClient (WS wrapper)
+└── Haus/                    # CLI orchestrator
+    ├── Auth/                #   OAuth2 PKCE, token storage, browser helper
+    │                        #   AuthService implements both IAuthService and ITokenProvider
+    ├── Commands/            #   CLI commands, grouped by API domain
+    │   ├── State/           #     haus state list|get|set|delete
+    │   └── ...
+    ├── Output/              #   OutputHelper (table vs JSON rendering)
+    └── Program.cs           #   DI + command registration
 ```
+
+Dependency direction: `Haus → {Haus.Rest, Haus.Ws} → Haus.Hass`. Both libraries take an `ITokenProvider` (not `IAuthService`) so they don't know about the CLI's OAuth2 flow.
 
 ## Architecture Rules
 
 - **Mirror nearby components.** Before adding or modifying a command, read 1-2 similar ones in the same or an adjacent folder. Match their flag names (`--from-file`, `--config-id`, `--object-id`), Settings structure, validation style, error messages, and output shape. New components should look like they belong next to the existing ones — divergences should be intentional, not accidental.
 - **Commands** inherit `AsyncCommand<TSettings>` with nested `Settings` class. Thin handlers — delegate to services.
-- **Use shared infrastructure.** REST commands use `IHassApiClient`, WebSocket commands use `IHassConnection`. Never create raw `HttpClient` or `HassWSApi` in a command.
+- **Use shared infrastructure.** REST commands inject `IHassApiClient` (from `Haus.Rest`), WebSocket commands inject `IHassWebSocketClient` (from `Haus.Ws`). Never create raw `HttpClient` or `ClientWebSocket` in a command.
 - **No in-memory filtering via flags.** Don't expose CLI flags/options that imply API-level filtering when the API doesn't support it. Domain-scoped list commands (e.g. `automation list`, `script list` filtering `/api/states` to a single domain) are fine — the command name itself defines the scope, not a user-supplied filter.
 - **Each entity-management branch exposes `list`.** Branches that manage configurable entities (`automation`, `script`, `entity`, `state`, ...) should offer a `list` subcommand alongside `get`/`create`/`update`/`delete`. Browsing the inventory is a primary use case and shouldn't require piping `state list` through `grep`.
 - **Output**: three modes via `OutputHelper.WriteResult(settings, data, humanOutput, porcelainOutput)`:
@@ -62,15 +68,6 @@ src/Haus/
 - No `#region` blocks
 - Constants over magic strings/numbers
 - C# 14 `field` keyword where it reduces boilerplate
-
-## HassClient API Reference
-
-- `HassWSApi.ConnectAsync(connectionParams)` — connect and authenticate
-- `HassWSApi.ListStatesAsync()` — all entity states
-- `HassWSApi.AddEventHandlerSubscriptionAsync(handler, "state_changed")` — real-time events
-- `HassWSApi.CallServiceAsync(domain, service, data)` — control entities
-- `HassWSApi.GetEntityRegistryEntriesAsync()` — entity metadata
-- `HassWSApi.GetAreasAsync()` / `GetDevicesAsync()` — organizational data
 
 ## Skills
 

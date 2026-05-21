@@ -1,5 +1,7 @@
 using Haus.Commands.Entity;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 

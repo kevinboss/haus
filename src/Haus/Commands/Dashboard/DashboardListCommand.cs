@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -14,7 +16,7 @@ public sealed class DashboardListCommand(IAuthService auth, IHassWebSocketClient
     protected override async Task<int> RunAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var raw = await ws.SendCommandAsync(new Dictionary<string, object?> { ["type"] = LovelaceCommands.DashboardsList }, cancellationToken);
-        var entries = raw.Deserialize<List<DashboardRegistryEntry>>(HausJsonOptions.Default) ?? [];
+        var entries = raw.Deserialize<List<DashboardRegistryEntry>>(HassJsonOptions.Default) ?? [];
 
         OutputHelper.WriteResult(settings, entries,
             () => WriteHumanOutput(entries),

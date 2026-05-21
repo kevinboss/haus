@@ -1,5 +1,7 @@
 using System.Text.Json;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Spectre.Console;
 
 namespace Haus.Output;
@@ -12,7 +14,7 @@ public interface IOutputSettings
 
 public static class OutputHelper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(HausJsonOptions.Default) { WriteIndented = true };
+    private static readonly JsonSerializerOptions JsonOptions = new(HassJsonOptions.Default) { WriteIndented = true };
 
     public static void WriteResult<T>(IOutputSettings settings, T data, Action humanOutput, Action porcelainOutput)
     {

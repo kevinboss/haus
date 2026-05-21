@@ -1,10 +1,10 @@
 using System.Net.WebSockets;
 using System.Text.Json;
-using Haus.Auth;
+using Haus.Hass;
 
-namespace Haus.Connection;
+namespace Haus.Ws;
 
-public sealed class HassWebSocketClient(IAuthService authService) : IHassWebSocketClient, IDisposable
+public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketClient, IDisposable
 {
     private ClientWebSocket? _ws;
     private int _messageId;
@@ -28,7 +28,7 @@ public sealed class HassWebSocketClient(IAuthService authService) : IHassWebSock
         if (_ws is { State: WebSocketState.Open })
             return _ws;
 
-        var (url, token) = await authService.GetAccessTokenAsync(cancellationToken);
+        var (url, token) = await tokens.GetAccessTokenAsync(cancellationToken);
         var wsUrl = url.Replace("http://", "ws://").Replace("https://", "wss://") + "/api/websocket";
 
         _ws = new ClientWebSocket();

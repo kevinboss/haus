@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Haus.Connection;
+namespace Haus.Hass;
 
-public static class HausJsonOptions
+public static class HassJsonOptions
 {
     public static readonly JsonSerializerOptions Default = new()
     {

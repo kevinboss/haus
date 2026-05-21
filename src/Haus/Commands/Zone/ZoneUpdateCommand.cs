@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Haus.Auth;
-using Haus.Connection;
+using Haus.Rest;
+using Haus.Hass;
+using Haus.Ws;
 using Haus.Output;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -128,7 +130,7 @@ public sealed class ZoneUpdateCommand(IAuthService auth, IHassApiClient api, IHa
         var rawJson = TextInput.Resolve(settings.Data, settings.FromFile);
         if (rawJson is not null)
         {
-            var parsed = JsonSerializer.Deserialize<Dictionary<string, object?>>(rawJson, HausJsonOptions.Default);
+            var parsed = JsonSerializer.Deserialize<Dictionary<string, object?>>(rawJson, HassJsonOptions.Default);
             return parsed ?? throw new InvalidOperationException("--data deserialized to null.");
         }
 
