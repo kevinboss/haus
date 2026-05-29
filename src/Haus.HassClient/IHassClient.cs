@@ -27,4 +27,5 @@ public interface IHassClient
     IStatisticsClient Statistics { get; }
     IHelperClient Helper { get; }
     IZoneClient Zone { get; }
+    IIntegrationClient Integration { get; }
 }

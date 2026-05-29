@@ -7,6 +7,7 @@ using Haus.Commands.Entity;
 using Haus.Commands.Event;
 using Haus.Commands.Helper;
 using Haus.Commands.History;
+using Haus.Commands.Integration;
 using Haus.Commands.Log;
 using Haus.Commands.Logbook;
 using Haus.Commands.Scene;
@@ -217,6 +218,16 @@ app.Configure(config =>
             .WithDescription("Show full zone details");
         zone.AddCommand<ZoneUpdateCommand>("update")
             .WithDescription("Update a zone (radius, coordinates, icon, passive flag)");
+    });
+    config.AddBranch("integration", integ =>
+    {
+        integ.SetDescription("Manage integration config entries (Settings → Devices & Services)");
+        integ.AddCommand<IntegrationListCommand>("list")
+            .WithDescription("List all integration config entries");
+        integ.AddCommand<IntegrationGetCommand>("get")
+            .WithDescription("Show config entry details and its options schema");
+        integ.AddCommand<IntegrationConfigureCommand>("configure")
+            .WithDescription("Submit options for an integration config entry");
     });
     config.AddBranch("skill", skill =>
     {

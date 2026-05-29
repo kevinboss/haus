@@ -218,6 +218,12 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         return SendAsync(payload, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<ConfigEntry>> ListConfigEntriesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "config_entries/get" }, cancellationToken);
+        return result.Deserialize<List<ConfigEntry>>(HassJsonOptions.Default) ?? [];
+    }
+
     private async Task<JsonElement> SendAsync(Dictionary<string, object?> command, CancellationToken cancellationToken)
     {
         var ws = await EnsureConnectedAsync(cancellationToken);

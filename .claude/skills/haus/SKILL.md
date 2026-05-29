@@ -362,6 +362,24 @@ Partial flags merge with the current zone state; `--data`/`--from-file` replace 
 
 YAML-configured zones are not editable via this command (HA's storage backend doesn't expose them).
 
+### integration list — List integration config entries
+```bash
+dotnet run --project src/Haus -- integration list
+```
+Shows every config entry (an instance of an integration, e.g. one Dreame vacuum, one MQTT broker). Columns: entry_id, domain, title, state (`loaded`/`not_loaded`/`setup_error`/`setup_retry`), and whether the entry exposes an options flow.
+
+### integration get — Show config entry details and options schema
+```bash
+dotnet run --project src/Haus -- integration get <entry_id>
+```
+Shows entry metadata (domain, title, state, source, supports_options) and, if the entry supports an options flow, initialises it to surface the schema (field name, type, default, required). The defaults reflect the entry's current options. The probe flow is aborted server-side after reading — no changes made.
+
+### integration configure — Submit options for a config entry
+```bash
+dotnet run --project src/Haus -- integration configure <entry_id> (--data '<JSON>' | --from-file <PATH>)
+```
+Replaces the entry's options wholesale (HA's options flow is set-all-or-nothing). Use `integration get` first to discover required fields; pass them all back, with the ones you want to change. Use `--from-file=-` to pipe from stdin. Returns the saved options on success.
+
 ### update install — Install an available update
 ```bash
 dotnet run --project src/Haus -- update install <entity_id> [--version <VERSION>] [--backup]
