@@ -116,6 +116,17 @@ public sealed class HassApiClient(ITokenProvider tokens) : IHassApiClient, IDisp
         return await GetAsync<List<LogbookEntry>>(url, cancellationToken);
     }
 
+    public Task<OptionsFlowStep> InitOptionsFlowAsync(string entryId, CancellationToken cancellationToken = default) =>
+        PostAsync<OptionsFlowStep>("/api/config/config_entries/options/flow",
+            new { handler = entryId, show_advanced_options = true }, cancellationToken);
+
+    public Task<OptionsFlowStep> ConfigureOptionsFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default) =>
+        PostAsync<OptionsFlowStep>($"/api/config/config_entries/options/flow/{Uri.EscapeDataString(flowId)}",
+            userInput, cancellationToken);
+
+    public Task AbortOptionsFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
+        DeleteAsync($"/api/config/config_entries/options/flow/{Uri.EscapeDataString(flowId)}", cancellationToken);
+
     private async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken)
     {
         await EnsureAuthenticatedAsync(cancellationToken);

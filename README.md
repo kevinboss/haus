@@ -50,6 +50,11 @@ haus update list
 # Install an update
 haus update install update.home_assistant_core_update
 
+# List integrations (config entries) and tweak their options
+haus integration list
+haus integration get 01KKCVMQESC1RV1YQ39ANVHT78          # entry details + options schema
+haus integration configure 01KKCVMQESC1RV1YQ39ANVHT78 --data '{"notify": [], ...}'
+
 # See what just changed (logbook entries from the last hour)
 haus logbook list
 

@@ -78,4 +78,13 @@ public interface IHassApiClient
         string? entityId = null,
         DateTimeOffset? end = null,
         CancellationToken cancellationToken = default);
+
+    // POST /api/config/config_entries/options/flow {"handler": entry_id}
+    Task<OptionsFlowStep> InitOptionsFlowAsync(string entryId, CancellationToken cancellationToken = default);
+
+    // POST /api/config/config_entries/options/flow/{flow_id} body=user_input
+    Task<OptionsFlowStep> ConfigureOptionsFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default);
+
+    // DELETE /api/config/config_entries/options/flow/{flow_id}
+    Task AbortOptionsFlowAsync(string flowId, CancellationToken cancellationToken = default);
 }

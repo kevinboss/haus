@@ -72,4 +72,7 @@ public interface IHassWebSocketClient
         double? longitude = null,
         double? radius = null,
         CancellationToken cancellationToken = default);
+
+    // config_entries/get
+    Task<IReadOnlyList<ConfigEntry>> ListConfigEntriesAsync(CancellationToken cancellationToken = default);
 }

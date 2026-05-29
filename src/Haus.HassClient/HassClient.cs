@@ -22,4 +22,5 @@ public sealed class HassClient(IHassApiClient rest, IHassWebSocketClient ws) : I
     public IStatisticsClient Statistics { get; } = new StatisticsClient(ws);
     public IHelperClient Helper { get; } = new HelperClient(ws);
     public IZoneClient Zone { get; } = new ZoneClient(ws);
+    public IIntegrationClient Integration { get; } = new IntegrationClient(ws, rest);
 }
