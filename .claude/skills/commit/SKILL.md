@@ -58,6 +58,7 @@ Format: `<type>(<scope>): <short description>`
 - `history` — state history command
 - `config` — DI registration, hosting setup, config check command
 - `hass` — hass lifecycle commands (restart/stop/reload)
+- `backup` — backup list/get/create/delete commands (core backup API)
 - `skill` — skill install command
 
 Scope is optional — omit if the change spans many areas.

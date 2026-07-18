@@ -589,6 +589,29 @@ dotnet run --project src/Haus -- hass stop
 ```
 Wraps `homeassistant.stop`. On a Supervisor/OS install the supervisor restarts it; on a bare Container install it stays down.
 
+### backup list — List backups
+```bash
+dotnet run --project src/Haus -- backup list
+```
+Uses the core backup API (works on any install, not just Supervisor). Columns: backup ID, name, date, HA version, size (MB), protected. Sorted newest first.
+
+### backup get — Show backup manifest
+```bash
+dotnet run --project src/Haus -- backup get <backup_id>
+```
+Shows what the backup contains (HA version, database, add-ons, folders, storage agents). Use `--json` for the full manifest.
+
+### backup create — Start a backup
+```bash
+dotnet run --project src/Haus -- backup create [--name <NAME>] [--partial]
+```
+Starts a backup on all configured storage agents and returns a job ID; **the backup runs in the background** — poll `backup list` for completion. `--partial` backs up Home Assistant config only (no database or add-ons), which is fast; the default is a full backup. Great as a pre-change safety step in scripts.
+
+### backup delete — Delete a backup
+```bash
+dotnet run --project src/Haus -- backup delete <backup_id>
+```
+
 ## Usage Notes
 
 - Requires prior `haus login` or env vars `HASS_URL`/`HASS_TOKEN`

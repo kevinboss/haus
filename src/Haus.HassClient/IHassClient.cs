@@ -24,6 +24,7 @@ public interface IHassClient
     IAreaRegistryClient Area { get; }
     ILabelRegistryClient Label { get; }
     IDeviceRegistryClient Device { get; }
+    IBackupClient Backup { get; }
     ILovelaceClient Lovelace { get; }
     ITraceClient Trace { get; }
     ISystemLogClient SystemLog { get; }
