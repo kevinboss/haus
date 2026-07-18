@@ -285,6 +285,8 @@ app.Configure(config =>
             .WithDescription("Complete a pending reauthentication flow (fixes credential/401 failures)");
         integ.AddCommand<IntegrationReconfigureCommand>("reconfigure")
             .WithDescription("Change a config entry's connection settings (host, credentials)");
+        integ.AddCommand<IntegrationDiagnosticsCommand>("diagnostics")
+            .WithDescription("Dump the integration's redacted diagnostics JSON");
     });
     config.AddBranch("skill", skill =>
     {

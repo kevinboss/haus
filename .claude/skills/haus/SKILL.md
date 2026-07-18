@@ -485,6 +485,12 @@ dotnet run --project src/Haus -- integration reconfigure <entry_id> [--data '<JS
 ```
 The user-startable sibling of reauth — proactively change an entry's host, credentials, or other connection settings (for integrations that support it). Run without `--data` to inspect the fields; submit with `--data`. Fails with `Reconfigure not available` if the integration has no reconfigure step.
 
+### integration diagnostics — Dump redacted diagnostics JSON
+```bash
+dotnet run --project src/Haus -- integration diagnostics <entry_id>
+```
+Downloads the integration's redacted diagnostics document (the UI's "Download diagnostics"). Default output summarizes the top-level keys; use `--json` for the full document (ideal for attaching to a bug report or handing to an AI for analysis). Exits non-zero if the integration doesn't provide diagnostics.
+
 ### update install — Install an available update
 ```bash
 dotnet run --project src/Haus -- update install <entity_id> [--version <VERSION>] [--backup]

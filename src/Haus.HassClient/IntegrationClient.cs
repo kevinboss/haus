@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Haus.HassClient;
 
 public interface IIntegrationClient
@@ -14,6 +16,7 @@ public interface IIntegrationClient
     Task<OptionsFlowStep> GetFlowAsync(string flowId, CancellationToken cancellationToken = default);
     Task<OptionsFlowStep> SubmitFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default);
     Task AbortFlowAsync(string flowId, CancellationToken cancellationToken = default);
+    Task<JsonElement> GetDiagnosticsAsync(string entryId, CancellationToken cancellationToken = default);
 }
 
 internal sealed class IntegrationClient(IHassWebSocketClient ws, IHassApiClient rest) : IIntegrationClient
@@ -53,4 +56,7 @@ internal sealed class IntegrationClient(IHassWebSocketClient ws, IHassApiClient 
 
     public Task AbortFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
         rest.AbortConfigFlowAsync(flowId, cancellationToken);
+
+    public Task<JsonElement> GetDiagnosticsAsync(string entryId, CancellationToken cancellationToken = default) =>
+        rest.GetConfigEntryDiagnosticsAsync(entryId, cancellationToken);
 }

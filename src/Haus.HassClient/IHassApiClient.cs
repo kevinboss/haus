@@ -106,4 +106,7 @@ public interface IHassApiClient
 
     // DELETE /api/config/config_entries/flow/{flow_id}
     Task AbortConfigFlowAsync(string flowId, CancellationToken cancellationToken = default);
+
+    // GET /api/diagnostics/config_entry/{entry_id} — redacted diagnostics document
+    Task<JsonElement> GetConfigEntryDiagnosticsAsync(string entryId, CancellationToken cancellationToken = default);
 }
