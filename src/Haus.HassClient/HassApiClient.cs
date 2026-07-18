@@ -152,6 +152,9 @@ public sealed class HassApiClient(ITokenProvider tokens) : IHassApiClient, IDisp
     public Task AbortConfigFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
         DeleteAsync($"/api/config/config_entries/flow/{Uri.EscapeDataString(flowId)}", cancellationToken);
 
+    public Task<JsonElement> GetConfigEntryDiagnosticsAsync(string entryId, CancellationToken cancellationToken = default) =>
+        GetAsync<JsonElement>($"/api/diagnostics/config_entry/{Uri.EscapeDataString(entryId)}", cancellationToken);
+
     private async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken)
     {
         await EnsureAuthenticatedAsync(cancellationToken);
