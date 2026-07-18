@@ -53,6 +53,10 @@ haus area update living_room --floor ground_floor
 haus label create --name "Critical" --color red --icon mdi:alert
 haus label assign critical --entity sensor.front_door --entity sensor.back_door --area garage
 
+# Apply config changes without a full restart
+haus hass reload automation
+haus hass restart
+
 # Check for available updates
 haus update list
 

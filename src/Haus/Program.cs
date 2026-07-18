@@ -6,6 +6,7 @@ using Haus.Commands.Config;
 using Haus.Commands.Dashboard;
 using Haus.Commands.Entity;
 using Haus.Commands.Event;
+using Haus.Commands.Hass;
 using Haus.Commands.Helper;
 using Haus.Commands.History;
 using Haus.Commands.Integration;
@@ -62,6 +63,16 @@ app.Configure(config =>
         cfg.SetDescription("Inspect Home Assistant configuration");
         cfg.AddCommand<ConfigCheckCommand>("check")
             .WithDescription("Validate the current configuration");
+    });
+    config.AddBranch("hass", hass =>
+    {
+        hass.SetDescription("Control the Home Assistant instance (restart, stop, reload)");
+        hass.AddCommand<HassRestartCommand>("restart")
+            .WithDescription("Restart Home Assistant (homeassistant.restart)");
+        hass.AddCommand<HassStopCommand>("stop")
+            .WithDescription("Stop Home Assistant (homeassistant.stop)");
+        hass.AddCommand<HassReloadCommand>("reload")
+            .WithDescription("Reload a domain's config (automation, script, template, ...), 'all', or 'core'");
     });
     config.AddBranch("automation", auto =>
     {
