@@ -21,6 +21,19 @@ public sealed record ConfigEntry(
 public sealed record ConfigEntryOperationResult(
     [property: JsonPropertyName("require_restart")] bool RequireRestart);
 
+// One entry from config_entries/flow/progress — a flow HA started on its own
+// (reauth after an auth failure, or a discovered device awaiting confirmation).
+public sealed record ConfigFlowProgress(
+    [property: JsonPropertyName("flow_id")] string FlowId,
+    [property: JsonPropertyName("handler")] string Handler,
+    [property: JsonPropertyName("step_id")] string? StepId,
+    [property: JsonPropertyName("context")] FlowContext? Context);
+
+public sealed record FlowContext(
+    [property: JsonPropertyName("source")] string? Source,
+    [property: JsonPropertyName("entry_id")] string? EntryId,
+    [property: JsonPropertyName("title_placeholders")] JsonElement? TitlePlaceholders);
+
 public sealed record OptionsFlowStep(
     [property: JsonPropertyName("flow_id")] string FlowId,
     [property: JsonPropertyName("handler")] JsonElement? Handler,
@@ -33,4 +46,5 @@ public sealed record OptionsFlowStep(
     [property: JsonPropertyName("title")] string? Title,
     [property: JsonPropertyName("data")] JsonElement? Data,
     [property: JsonPropertyName("description")] string? Description,
-    [property: JsonPropertyName("reason")] string? Reason);
+    [property: JsonPropertyName("reason")] string? Reason,
+    [property: JsonPropertyName("url")] string? Url = null);

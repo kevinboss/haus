@@ -9,6 +9,11 @@ public interface IIntegrationClient
     Task<ConfigEntryOperationResult> ReloadAsync(string entryId, CancellationToken cancellationToken = default);
     Task<ConfigEntryOperationResult> SetEnabledAsync(string entryId, bool enabled, CancellationToken cancellationToken = default);
     Task<ConfigEntryOperationResult> RemoveAsync(string entryId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ConfigFlowProgress>> ListInProgressFlowsAsync(CancellationToken cancellationToken = default);
+    Task<OptionsFlowStep> StartReconfigureAsync(string handler, string entryId, CancellationToken cancellationToken = default);
+    Task<OptionsFlowStep> GetFlowAsync(string flowId, CancellationToken cancellationToken = default);
+    Task<OptionsFlowStep> SubmitFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default);
+    Task AbortFlowAsync(string flowId, CancellationToken cancellationToken = default);
 }
 
 internal sealed class IntegrationClient(IHassWebSocketClient ws, IHassApiClient rest) : IIntegrationClient
@@ -33,4 +38,19 @@ internal sealed class IntegrationClient(IHassWebSocketClient ws, IHassApiClient 
 
     public Task<ConfigEntryOperationResult> RemoveAsync(string entryId, CancellationToken cancellationToken = default) =>
         rest.RemoveConfigEntryAsync(entryId, cancellationToken);
+
+    public Task<IReadOnlyList<ConfigFlowProgress>> ListInProgressFlowsAsync(CancellationToken cancellationToken = default) =>
+        ws.ListFlowsInProgressAsync(cancellationToken);
+
+    public Task<OptionsFlowStep> StartReconfigureAsync(string handler, string entryId, CancellationToken cancellationToken = default) =>
+        rest.StartConfigFlowAsync(handler, entryId, cancellationToken);
+
+    public Task<OptionsFlowStep> GetFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
+        rest.GetConfigFlowAsync(flowId, cancellationToken);
+
+    public Task<OptionsFlowStep> SubmitFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default) =>
+        rest.ConfigureConfigFlowAsync(flowId, userInput, cancellationToken);
+
+    public Task AbortFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
+        rest.AbortConfigFlowAsync(flowId, cancellationToken);
 }

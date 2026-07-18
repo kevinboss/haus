@@ -90,4 +90,7 @@ public interface IHassWebSocketClient
 
     // config_entries/disable — disabled_by "user" to disable, null to re-enable
     Task<ConfigEntryOperationResult> SetConfigEntryDisabledAsync(string entryId, bool disabled, CancellationToken cancellationToken = default);
+
+    // config_entries/flow/progress — flows HA started itself (reauth, discovery)
+    Task<IReadOnlyList<ConfigFlowProgress>> ListFlowsInProgressAsync(CancellationToken cancellationToken = default);
 }

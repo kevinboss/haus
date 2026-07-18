@@ -433,6 +433,18 @@ dotnet run --project src/Haus -- integration remove <entry_id>
 ```
 Destructive. Fully uninstalls the config entry (equivalent to deleting the integration instance in the UI). Devices and entities it created are removed.
 
+### integration reauth — Complete a pending reauthentication
+```bash
+dotnet run --project src/Haus -- integration reauth <entry_id> [--data '<JSON>' | --from-file <PATH>]
+```
+Fixes credential failures (e.g. a 401 after a password change). Reauth flows are **started by HA automatically** when an integration's credentials fail — this command finds that pending flow and completes it; it cannot start one. Run without `--data` to see which fields the flow wants (usually username/password), then submit them with `--data`. Errors with `No reauth flow is pending` when nothing needs re-authentication. OAuth integrations use a browser step that can't be finished from the CLI (the command prints the URL to open).
+
+### integration reconfigure — Change connection settings
+```bash
+dotnet run --project src/Haus -- integration reconfigure <entry_id> [--data '<JSON>' | --from-file <PATH>]
+```
+The user-startable sibling of reauth — proactively change an entry's host, credentials, or other connection settings (for integrations that support it). Run without `--data` to inspect the fields; submit with `--data`. Fails with `Reconfigure not available` if the integration has no reconfigure step.
+
 ### update install — Install an available update
 ```bash
 dotnet run --project src/Haus -- update install <entity_id> [--version <VERSION>] [--backup]

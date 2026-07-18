@@ -61,6 +61,8 @@ haus integration get 01KKCVMQESC1RV1YQ39ANVHT78          # entry details + optio
 haus integration configure 01KKCVMQESC1RV1YQ39ANVHT78 --data '{"notify": [], ...}'
 haus integration reload 01KKCVMQESC1RV1YQ39ANVHT78         # the UI's reload button
 haus integration disable 01KKCVMQESC1RV1YQ39ANVHT78        # unload without deleting (enable to restore)
+haus integration reauth 01K68HW3ZFF0B0X3XQ0ZZKNYJP         # complete a pending reauth (fixes 401s)
+haus integration reconfigure 01K68HW3ZFF0B0X3XQ0ZZKNYJP    # change host/credentials proactively
 
 # See what just changed (logbook entries from the last hour)
 haus logbook list

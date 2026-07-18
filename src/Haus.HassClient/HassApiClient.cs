@@ -135,6 +135,23 @@ public sealed class HassApiClient(ITokenProvider tokens) : IHassApiClient, IDisp
         DeleteAsync<ConfigEntryOperationResult>(
             $"/api/config/config_entries/entry/{Uri.EscapeDataString(entryId)}", cancellationToken);
 
+    public Task<OptionsFlowStep> StartConfigFlowAsync(string handler, string? entryId, CancellationToken cancellationToken = default)
+    {
+        var body = entryId is null
+            ? (object)new { handler }
+            : new { handler, entry_id = entryId };
+        return PostAsync<OptionsFlowStep>("/api/config/config_entries/flow", body, cancellationToken);
+    }
+
+    public Task<OptionsFlowStep> GetConfigFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
+        GetAsync<OptionsFlowStep>($"/api/config/config_entries/flow/{Uri.EscapeDataString(flowId)}", cancellationToken);
+
+    public Task<OptionsFlowStep> ConfigureConfigFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default) =>
+        PostAsync<OptionsFlowStep>($"/api/config/config_entries/flow/{Uri.EscapeDataString(flowId)}", userInput, cancellationToken);
+
+    public Task AbortConfigFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
+        DeleteAsync($"/api/config/config_entries/flow/{Uri.EscapeDataString(flowId)}", cancellationToken);
+
     private async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken)
     {
         await EnsureAuthenticatedAsync(cancellationToken);

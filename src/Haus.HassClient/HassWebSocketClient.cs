@@ -277,6 +277,12 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
             ?? new ConfigEntryOperationResult(false);
     }
 
+    public async Task<IReadOnlyList<ConfigFlowProgress>> ListFlowsInProgressAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "config_entries/flow/progress" }, cancellationToken);
+        return result.Deserialize<List<ConfigFlowProgress>>(HassJsonOptions.Default) ?? [];
+    }
+
     private async Task<JsonElement> SendAsync(Dictionary<string, object?> command, CancellationToken cancellationToken)
     {
         var ws = await EnsureConnectedAsync(cancellationToken);

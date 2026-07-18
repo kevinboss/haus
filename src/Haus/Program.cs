@@ -251,6 +251,10 @@ app.Configure(config =>
             .WithDescription("Disable a config entry without removing it");
         integ.AddCommand<IntegrationRemoveCommand>("remove")
             .WithDescription("Uninstall a config entry");
+        integ.AddCommand<IntegrationReauthCommand>("reauth")
+            .WithDescription("Complete a pending reauthentication flow (fixes credential/401 failures)");
+        integ.AddCommand<IntegrationReconfigureCommand>("reconfigure")
+            .WithDescription("Change a config entry's connection settings (host, credentials)");
     });
     config.AddBranch("skill", skill =>
     {
