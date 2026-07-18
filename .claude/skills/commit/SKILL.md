@@ -48,7 +48,7 @@ Format: `<type>(<scope>): <short description>`
 - `script` — script get/create/update/delete commands
 - `scene` — scene list/get/create/update/delete/activate commands
 - `zone` — zone list/get/update commands
-- `integration` — integration list/get/configure commands (config-entry options flow)
+- `integration` — integration list/get/configure/reload/enable/disable/remove commands (config-entry lifecycle)
 - `dashboard` — Lovelace dashboard list/get/create/update/delete + config get/save commands
 - `update` — update list command (Home Assistant update entities)
 - `log` — error log command

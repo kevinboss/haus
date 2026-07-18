@@ -87,4 +87,10 @@ public interface IHassApiClient
 
     // DELETE /api/config/config_entries/options/flow/{flow_id}
     Task AbortOptionsFlowAsync(string flowId, CancellationToken cancellationToken = default);
+
+    // POST /api/config/config_entries/entry/{entry_id}/reload
+    Task<ConfigEntryOperationResult> ReloadConfigEntryAsync(string entryId, CancellationToken cancellationToken = default);
+
+    // DELETE /api/config/config_entries/entry/{entry_id}
+    Task<ConfigEntryOperationResult> RemoveConfigEntryAsync(string entryId, CancellationToken cancellationToken = default);
 }

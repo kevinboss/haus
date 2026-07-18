@@ -87,4 +87,7 @@ public interface IHassWebSocketClient
 
     // config_entries/get
     Task<IReadOnlyList<ConfigEntry>> ListConfigEntriesAsync(CancellationToken cancellationToken = default);
+
+    // config_entries/disable — disabled_by "user" to disable, null to re-enable
+    Task<ConfigEntryOperationResult> SetConfigEntryDisabledAsync(string entryId, bool disabled, CancellationToken cancellationToken = default);
 }

@@ -127,6 +127,14 @@ public sealed class HassApiClient(ITokenProvider tokens) : IHassApiClient, IDisp
     public Task AbortOptionsFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
         DeleteAsync($"/api/config/config_entries/options/flow/{Uri.EscapeDataString(flowId)}", cancellationToken);
 
+    public Task<ConfigEntryOperationResult> ReloadConfigEntryAsync(string entryId, CancellationToken cancellationToken = default) =>
+        PostAsync<ConfigEntryOperationResult>(
+            $"/api/config/config_entries/entry/{Uri.EscapeDataString(entryId)}/reload", null, cancellationToken);
+
+    public Task<ConfigEntryOperationResult> RemoveConfigEntryAsync(string entryId, CancellationToken cancellationToken = default) =>
+        DeleteAsync<ConfigEntryOperationResult>(
+            $"/api/config/config_entries/entry/{Uri.EscapeDataString(entryId)}", cancellationToken);
+
     private async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken)
     {
         await EnsureAuthenticatedAsync(cancellationToken);
@@ -155,6 +163,20 @@ public sealed class HassApiClient(ITokenProvider tokens) : IHassApiClient, IDisp
         await EnsureAuthenticatedAsync(cancellationToken);
         var response = await _httpClient.DeleteAsync(path, cancellationToken);
         response.EnsureSuccessStatusCode();
+    }
+
+    private async Task<T> DeleteAsync<T>(string path, CancellationToken cancellationToken)
+    {
+        await EnsureAuthenticatedAsync(cancellationToken);
+        var response = await _httpClient.DeleteAsync(path, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new InvalidOperationException(
+                string.IsNullOrWhiteSpace(body) ? $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}" : body);
+        }
+        return await response.Content.ReadFromJsonAsync<T>(HassJsonOptions.Default, cancellationToken)
+            ?? throw new InvalidOperationException("Empty response from Home Assistant API.");
     }
 
     private async Task EnsureAuthenticatedAsync(CancellationToken cancellationToken)
