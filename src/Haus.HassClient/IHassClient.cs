@@ -23,6 +23,7 @@ public interface IHassClient
     IEntityRegistryClient EntityRegistry { get; }
     IAreaRegistryClient Area { get; }
     ILabelRegistryClient Label { get; }
+    IDeviceRegistryClient Device { get; }
     ILovelaceClient Lovelace { get; }
     ITraceClient Trace { get; }
     ISystemLogClient SystemLog { get; }

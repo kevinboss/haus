@@ -46,6 +46,12 @@ public interface IHassWebSocketClient
     // config/label_registry/delete
     Task DeleteLabelAsync(string labelId, CancellationToken cancellationToken = default);
 
+    // config/device_registry/list
+    Task<IReadOnlyList<DeviceRegistryEntry>> ListDeviceRegistryAsync(CancellationToken cancellationToken = default);
+
+    // config/device_registry/update — null fields are not sent; empty area clears
+    Task UpdateDeviceAsync(string deviceId, DeviceRegistryUpdate update, CancellationToken cancellationToken = default);
+
     // lovelace/dashboards/list
     Task<IReadOnlyList<DashboardRegistryEntry>> ListDashboardsAsync(CancellationToken cancellationToken = default);
 

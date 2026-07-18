@@ -42,6 +42,7 @@ Format: `<type>(<scope>): <short description>`
 - `state` — state list/get/set/delete commands
 - `service` — service list/call commands
 - `event` — event list/fire commands
+- `device` — device registry list/get/update commands
 - `entity` — entity registry list/get/rename/rename-id/update/delete commands
 - `area` — area registry list/get/create/update/delete commands
 - `label` — label registry list/get/create/update/delete + assign/remove commands

@@ -77,6 +77,24 @@ dotnet run --project src/Haus -- event fire <event_type> [--data '<JSON>' | --fr
 ```
 Example: `event fire my_event --data '{"key":"value"}'`. Use `--from-file=-` to read JSON from stdin.
 
+### device list — List all devices
+```bash
+dotnet run --project src/Haus -- device list
+```
+Lists the device registry (physical/logical devices, distinct from their entities), sorted by name. Columns: device ID, name, manufacturer, model, area, status (active/disabled).
+
+### device get — Show device registry details
+```bash
+dotnet run --project src/Haus -- device get <device_id>
+```
+Shows manufacturer/model, versions, area, config entries, labels, and the user-set vs. integration-supplied name.
+
+### device update — Update a device
+```bash
+dotnet run --project src/Haus -- device update <device_id> [--name <NAME>] [--area <AREA_ID>] [--disable|--enable]
+```
+At least one field is required. `--name` sets the user-facing name (pass empty to revert to the integration's name); `--area` empty clears it. `--disable`/`--enable` are mutually exclusive. (Device deletion isn't exposed — HA removes a device only by detaching it from its config entries.)
+
 ### entity list — List all registered entities
 ```bash
 dotnet run --project src/Haus -- entity list

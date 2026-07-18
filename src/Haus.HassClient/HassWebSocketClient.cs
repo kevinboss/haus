@@ -109,6 +109,26 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
             ["area_id"] = areaId
         }, cancellationToken);
 
+    public async Task<IReadOnlyList<DeviceRegistryEntry>> ListDeviceRegistryAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "config/device_registry/list" }, cancellationToken);
+        return result.Deserialize<List<DeviceRegistryEntry>>(HassJsonOptions.Default) ?? [];
+    }
+
+    public Task UpdateDeviceAsync(string deviceId, DeviceRegistryUpdate update, CancellationToken cancellationToken = default)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["type"] = "config/device_registry/update",
+            ["device_id"] = deviceId
+        };
+        if (update.NameByUser is not null) payload["name_by_user"] = update.NameByUser.Length == 0 ? null : update.NameByUser;
+        if (update.AreaId is not null) payload["area_id"] = update.AreaId.Length == 0 ? null : update.AreaId;
+        if (update.Disabled is not null) payload["disabled_by"] = update.Disabled.Value ? "user" : null;
+        if (update.Labels is not null) payload["labels"] = update.Labels;
+        return SendAsync(payload, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<LabelEntry>> ListLabelRegistryAsync(CancellationToken cancellationToken = default)
     {
         var result = await SendAsync(new() { ["type"] = "config/label_registry/list" }, cancellationToken);
