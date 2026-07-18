@@ -547,6 +547,24 @@ dotnet run --project src/Haus -- config check
 ```
 Calls `/api/config/core/check_config`. Exits 0 if valid, 1 if invalid. Requires admin auth.
 
+### hass reload — Reload configuration without restarting
+```bash
+dotnet run --project src/Haus -- hass reload <domain>
+```
+`<domain>` is what to reload: a domain like `automation`, `script`, `scene`, `template`, `group`, `input_boolean`; `all` (reload everything reloadable); or `core` (core config). Maps to `<domain>.reload`, or `homeassistant.reload_all`/`reload_core_config` for `all`/`core`. **This is the "apply my change" step** — after editing an automation/script/template via haus, reload for it to take effect. Errors if the domain has no reload service.
+
+### hass restart — Restart Home Assistant
+```bash
+dotnet run --project src/Haus -- hass restart
+```
+Wraps `homeassistant.restart`. The API is briefly unavailable while it comes back.
+
+### hass stop — Stop Home Assistant
+```bash
+dotnet run --project src/Haus -- hass stop
+```
+Wraps `homeassistant.stop`. On a Supervisor/OS install the supervisor restarts it; on a bare Container install it stays down.
+
 ## Usage Notes
 
 - Requires prior `haus login` or env vars `HASS_URL`/`HASS_TOKEN`
