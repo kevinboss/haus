@@ -410,6 +410,29 @@ dotnet run --project src/Haus -- integration configure <entry_id> (--data '<JSON
 ```
 Replaces the entry's options wholesale (HA's options flow is set-all-or-nothing). Use `integration get` first to discover required fields; pass them all back, with the ones you want to change. Use `--from-file=-` to pipe from stdin. Returns the saved options on success.
 
+### integration reload — Reload a config entry
+```bash
+dotnet run --project src/Haus -- integration reload <entry_id>
+```
+The UI's reload button. Applies to entries in `loaded`/`setup_error`/`setup_retry` state. If the integration can't hot-unload, HA reports that a restart is required (the command tells you). Errors with `Entry cannot be reloaded` when the entry isn't in a reloadable state.
+
+### integration enable — Enable a disabled config entry
+```bash
+dotnet run --project src/Haus -- integration enable <entry_id>
+```
+
+### integration disable — Disable a config entry without removing it
+```bash
+dotnet run --project src/Haus -- integration disable <entry_id>
+```
+Unloads the entry and its entities without deleting its configuration; re-enable to restore. May report that a restart is required.
+
+### integration remove — Uninstall a config entry
+```bash
+dotnet run --project src/Haus -- integration remove <entry_id>
+```
+Destructive. Fully uninstalls the config entry (equivalent to deleting the integration instance in the UI). Devices and entities it created are removed.
+
 ### update install — Install an available update
 ```bash
 dotnet run --project src/Haus -- update install <entity_id> [--version <VERSION>] [--backup]

@@ -18,6 +18,9 @@ public sealed record ConfigEntry(
     [property: JsonPropertyName("pref_disable_new_entities")] bool PrefDisableNewEntities,
     [property: JsonPropertyName("pref_disable_polling")] bool PrefDisablePolling);
 
+public sealed record ConfigEntryOperationResult(
+    [property: JsonPropertyName("require_restart")] bool RequireRestart);
+
 public sealed record OptionsFlowStep(
     [property: JsonPropertyName("flow_id")] string FlowId,
     [property: JsonPropertyName("handler")] JsonElement? Handler,

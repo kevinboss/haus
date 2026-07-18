@@ -243,6 +243,14 @@ app.Configure(config =>
             .WithDescription("Show config entry details and its options schema");
         integ.AddCommand<IntegrationConfigureCommand>("configure")
             .WithDescription("Submit options for an integration config entry");
+        integ.AddCommand<IntegrationReloadCommand>("reload")
+            .WithDescription("Reload a config entry (the UI's reload button)");
+        integ.AddCommand<IntegrationEnableCommand>("enable")
+            .WithDescription("Enable a disabled config entry");
+        integ.AddCommand<IntegrationDisableCommand>("disable")
+            .WithDescription("Disable a config entry without removing it");
+        integ.AddCommand<IntegrationRemoveCommand>("remove")
+            .WithDescription("Uninstall a config entry");
     });
     config.AddBranch("skill", skill =>
     {

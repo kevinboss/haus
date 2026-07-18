@@ -265,6 +265,18 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         return result.Deserialize<List<ConfigEntry>>(HassJsonOptions.Default) ?? [];
     }
 
+    public async Task<ConfigEntryOperationResult> SetConfigEntryDisabledAsync(string entryId, bool disabled, CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new()
+        {
+            ["type"] = "config_entries/disable",
+            ["entry_id"] = entryId,
+            ["disabled_by"] = disabled ? "user" : null
+        }, cancellationToken);
+        return result.Deserialize<ConfigEntryOperationResult>(HassJsonOptions.Default)
+            ?? new ConfigEntryOperationResult(false);
+    }
+
     private async Task<JsonElement> SendAsync(Dictionary<string, object?> command, CancellationToken cancellationToken)
     {
         var ws = await EnsureConnectedAsync(cancellationToken);
