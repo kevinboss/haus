@@ -4,6 +4,7 @@ using Haus.Commands.Area;
 using Haus.Commands.Automation;
 using Haus.Commands.Config;
 using Haus.Commands.Dashboard;
+using Haus.Commands.Device;
 using Haus.Commands.Entity;
 using Haus.Commands.Event;
 using Haus.Commands.Hass;
@@ -145,6 +146,16 @@ app.Configure(config =>
             .WithDescription("List event types");
         evt.AddCommand<EventFireCommand>("fire")
             .WithDescription("Fire a custom event");
+    });
+    config.AddBranch("device", dev =>
+    {
+        dev.SetDescription("Manage the device registry");
+        dev.AddCommand<DeviceListCommand>("list")
+            .WithDescription("List all devices");
+        dev.AddCommand<DeviceGetCommand>("get")
+            .WithDescription("Show device registry details");
+        dev.AddCommand<DeviceUpdateCommand>("update")
+            .WithDescription("Update a device (name, area, disable/enable)");
     });
     config.AddBranch("entity", ent =>
     {
