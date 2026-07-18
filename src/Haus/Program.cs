@@ -1,5 +1,6 @@
 using Haus.Auth;
 using Haus.Commands;
+using Haus.Commands.Area;
 using Haus.Commands.Automation;
 using Haus.Commands.Config;
 using Haus.Commands.Dashboard;
@@ -148,6 +149,20 @@ app.Configure(config =>
             .WithDescription("Update an entity's registry fields (name, icon, area, disable, hide, new ID)");
         ent.AddCommand<EntityDeleteCommand>("delete")
             .WithDescription("Remove an entity from the registry");
+    });
+    config.AddBranch("area", area =>
+    {
+        area.SetDescription("Manage areas (Settings → Areas & Zones)");
+        area.AddCommand<AreaListCommand>("list")
+            .WithDescription("List all areas");
+        area.AddCommand<AreaGetCommand>("get")
+            .WithDescription("Show area registry details");
+        area.AddCommand<AreaCreateCommand>("create")
+            .WithDescription("Create a new area");
+        area.AddCommand<AreaUpdateCommand>("update")
+            .WithDescription("Update an area (name, icon, floor)");
+        area.AddCommand<AreaDeleteCommand>("delete")
+            .WithDescription("Delete an area");
     });
     config.AddBranch("helper", h =>
     {

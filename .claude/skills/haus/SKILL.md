@@ -113,6 +113,36 @@ dotnet run --project src/Haus -- entity delete <entity_id>
 ```
 Destructive. Removes the entity from the registry; some integrations will recreate it on next discovery.
 
+### area list — List all areas
+```bash
+dotnet run --project src/Haus -- area list
+```
+Lists every area in the area registry, sorted by name. Each row shows area ID, name, floor, icon, and labels.
+
+### area get — Show area registry details
+```bash
+dotnet run --project src/Haus -- area get <area_id>
+```
+Shows the area's name, floor, icon, picture, aliases, and labels. Exits non-zero if the area does not exist.
+
+### area create — Create a new area
+```bash
+dotnet run --project src/Haus -- area create --name <NAME> [--icon <ICON>] [--floor <FLOOR_ID>]
+```
+HA assigns the `area_id` from the name (returned on create). Example: `area create --name "Living Room" --icon mdi:sofa`.
+
+### area update — Update an area
+```bash
+dotnet run --project src/Haus -- area update <area_id> [--name <NAME>] [--icon <ICON>] [--floor <FLOOR_ID>]
+```
+At least one field is required. Pass an empty string to `--icon`/`--floor` to clear it.
+
+### area delete — Delete an area
+```bash
+dotnet run --project src/Haus -- area delete <area_id>
+```
+Removes the area from the registry. Entities and devices assigned to it become unassigned.
+
 ### helper list — List all UI helpers
 ```bash
 dotnet run --project src/Haus -- helper list

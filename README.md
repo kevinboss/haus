@@ -44,6 +44,11 @@ haus entity list
 # Disable a noisy entity
 haus entity update sensor.unused --disable
 
+# Manage areas (Settings → Areas & Zones)
+haus area list
+haus area create --name "Living Room" --icon mdi:sofa
+haus area update living_room --floor ground_floor
+
 # Check for available updates
 haus update list
 

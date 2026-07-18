@@ -22,6 +22,18 @@ public interface IHassWebSocketClient
     // config/entity_registry/remove
     Task RemoveEntityRegistryEntryAsync(string entityId, CancellationToken cancellationToken = default);
 
+    // config/area_registry/list
+    Task<IReadOnlyList<AreaRegistryEntry>> ListAreaRegistryAsync(CancellationToken cancellationToken = default);
+
+    // config/area_registry/create — returns the created area (area_id is server-assigned)
+    Task<AreaRegistryEntry> CreateAreaAsync(NewArea area, CancellationToken cancellationToken = default);
+
+    // config/area_registry/update — null fields are not sent; empty icon/floor clears
+    Task UpdateAreaAsync(string areaId, AreaRegistryUpdate update, CancellationToken cancellationToken = default);
+
+    // config/area_registry/delete
+    Task DeleteAreaAsync(string areaId, CancellationToken cancellationToken = default);
+
     // lovelace/dashboards/list
     Task<IReadOnlyList<DashboardRegistryEntry>> ListDashboardsAsync(CancellationToken cancellationToken = default);
 
