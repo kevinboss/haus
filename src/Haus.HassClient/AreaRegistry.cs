@@ -13,7 +13,8 @@ public sealed record NewArea(
 public sealed record AreaRegistryUpdate(
     string? Name = null,
     string? Icon = null,
-    string? FloorId = null);
+    string? FloorId = null,
+    IReadOnlyList<string>? Labels = null);
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record AreaRegistryEntry(

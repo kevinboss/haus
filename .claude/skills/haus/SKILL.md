@@ -143,6 +143,46 @@ dotnet run --project src/Haus -- area delete <area_id>
 ```
 Removes the area from the registry. Entities and devices assigned to it become unassigned.
 
+### label list — List all labels
+```bash
+dotnet run --project src/Haus -- label list
+```
+Lists every label (HA 2024.4+), sorted by name. Columns: label ID, name, color, icon, description.
+
+### label get — Show label registry details
+```bash
+dotnet run --project src/Haus -- label get <label_id>
+```
+
+### label create — Create a new label
+```bash
+dotnet run --project src/Haus -- label create --name <NAME> [--color <COLOR>] [--icon <ICON>] [--description <TEXT>]
+```
+HA assigns the `label_id` from the name (returned on create). Example: `label create --name "Critical" --color red --icon mdi:alert`.
+
+### label update — Update a label
+```bash
+dotnet run --project src/Haus -- label update <label_id> [--name <NAME>] [--color <COLOR>] [--icon <ICON>] [--description <TEXT>]
+```
+At least one field is required. Pass an empty string to `--color`/`--icon`/`--description` to clear it.
+
+### label delete — Delete a label
+```bash
+dotnet run --project src/Haus -- label delete <label_id>
+```
+
+### label assign — Attach a label to entities/areas
+```bash
+dotnet run --project src/Haus -- label assign <label_id> [--entity <ENTITY_ID>]... [--area <AREA_ID>]...
+```
+`--entity` and `--area` are repeatable, so one call can label many targets at once (the bulk win over the UI). Idempotent — targets that already carry the label are left unchanged. Fails if the label doesn't exist (create it first) or a named entity/area isn't in the registry. Device assignment isn't available yet (the `device` branch doesn't exist).
+
+### label remove — Detach a label from entities/areas
+```bash
+dotnet run --project src/Haus -- label remove <label_id> [--entity <ENTITY_ID>]... [--area <AREA_ID>]...
+```
+Mirror of `assign`. Works even for a deleted label ID (useful for cleaning up stale references).
+
 ### helper list — List all UI helpers
 ```bash
 dotnet run --project src/Haus -- helper list

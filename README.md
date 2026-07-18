@@ -49,6 +49,10 @@ haus area list
 haus area create --name "Living Room" --icon mdi:sofa
 haus area update living_room --floor ground_floor
 
+# Labels: create once, bulk-assign across many entities/areas
+haus label create --name "Critical" --color red --icon mdi:alert
+haus label assign critical --entity sensor.front_door --entity sensor.back_door --area garage
+
 # Check for available updates
 haus update list
 

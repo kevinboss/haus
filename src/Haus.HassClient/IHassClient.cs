@@ -22,6 +22,7 @@ public interface IHassClient
     // WebSocket topics
     IEntityRegistryClient EntityRegistry { get; }
     IAreaRegistryClient Area { get; }
+    ILabelRegistryClient Label { get; }
     ILovelaceClient Lovelace { get; }
     ITraceClient Trace { get; }
     ISystemLogClient SystemLog { get; }
