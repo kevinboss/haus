@@ -66,6 +66,47 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
             ["entity_id"] = entityId
         }, cancellationToken);
 
+    public async Task<IReadOnlyList<AreaRegistryEntry>> ListAreaRegistryAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "config/area_registry/list" }, cancellationToken);
+        return result.Deserialize<List<AreaRegistryEntry>>(HassJsonOptions.Default) ?? [];
+    }
+
+    public async Task<AreaRegistryEntry> CreateAreaAsync(NewArea area, CancellationToken cancellationToken = default)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["type"] = "config/area_registry/create",
+            ["name"] = area.Name
+        };
+        if (area.Icon is not null) payload["icon"] = area.Icon;
+        if (area.FloorId is not null) payload["floor_id"] = area.FloorId;
+
+        var result = await SendAsync(payload, cancellationToken);
+        return result.Deserialize<AreaRegistryEntry>(HassJsonOptions.Default)
+            ?? throw new InvalidOperationException("Empty response from config/area_registry/create.");
+    }
+
+    public Task UpdateAreaAsync(string areaId, AreaRegistryUpdate update, CancellationToken cancellationToken = default)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["type"] = "config/area_registry/update",
+            ["area_id"] = areaId
+        };
+        if (update.Name is not null) payload["name"] = update.Name;
+        if (update.Icon is not null) payload["icon"] = update.Icon.Length == 0 ? null : update.Icon;
+        if (update.FloorId is not null) payload["floor_id"] = update.FloorId.Length == 0 ? null : update.FloorId;
+        return SendAsync(payload, cancellationToken);
+    }
+
+    public Task DeleteAreaAsync(string areaId, CancellationToken cancellationToken = default) =>
+        SendAsync(new()
+        {
+            ["type"] = "config/area_registry/delete",
+            ["area_id"] = areaId
+        }, cancellationToken);
+
     public async Task<IReadOnlyList<DashboardRegistryEntry>> ListDashboardsAsync(CancellationToken cancellationToken = default)
     {
         var result = await SendAsync(new() { ["type"] = "lovelace/dashboards/list" }, cancellationToken);

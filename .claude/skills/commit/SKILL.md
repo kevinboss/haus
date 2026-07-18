@@ -43,6 +43,7 @@ Format: `<type>(<scope>): <short description>`
 - `service` — service list/call commands
 - `event` — event list/fire commands
 - `entity` — entity registry list/get/rename/rename-id/update/delete commands
+- `area` — area registry list/get/create/update/delete commands
 - `automation` — automation get/toggle/create/update/delete commands
 - `script` — script get/create/update/delete commands
 - `scene` — scene list/get/create/update/delete/activate commands
