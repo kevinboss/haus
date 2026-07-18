@@ -2,6 +2,7 @@ using Haus.Auth;
 using Haus.Commands;
 using Haus.Commands.Area;
 using Haus.Commands.Automation;
+using Haus.Commands.Backup;
 using Haus.Commands.Config;
 using Haus.Commands.Dashboard;
 using Haus.Commands.Device;
@@ -298,6 +299,18 @@ app.Configure(config =>
             .WithDescription("Change a config entry's connection settings (host, credentials)");
         integ.AddCommand<IntegrationDiagnosticsCommand>("diagnostics")
             .WithDescription("Dump the integration's redacted diagnostics JSON");
+    });
+    config.AddBranch("backup", backup =>
+    {
+        backup.SetDescription("Manage Home Assistant backups");
+        backup.AddCommand<BackupListCommand>("list")
+            .WithDescription("List all backups");
+        backup.AddCommand<BackupGetCommand>("get")
+            .WithDescription("Show backup manifest details");
+        backup.AddCommand<BackupCreateCommand>("create")
+            .WithDescription("Create a backup (--partial for config-only, else full)");
+        backup.AddCommand<BackupDeleteCommand>("delete")
+            .WithDescription("Delete a backup");
     });
     config.AddBranch("skill", skill =>
     {

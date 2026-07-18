@@ -52,6 +52,21 @@ public interface IHassWebSocketClient
     // config/device_registry/update — null fields are not sent; empty area clears
     Task UpdateDeviceAsync(string deviceId, DeviceRegistryUpdate update, CancellationToken cancellationToken = default);
 
+    // backup/info — core backup integration (works without Supervisor)
+    Task<IReadOnlyList<BackupInfo>> ListBackupsAsync(CancellationToken cancellationToken = default);
+
+    // backup/details {backup_id} — returns the `backup` object
+    Task<JsonElement> GetBackupAsync(string backupId, CancellationToken cancellationToken = default);
+
+    // backup/agents/info — storage agents a backup can be written to
+    Task<IReadOnlyList<BackupAgent>> ListBackupAgentsAsync(CancellationToken cancellationToken = default);
+
+    // backup/generate — starts a backup on the given agents (runs in the background)
+    Task<BackupGenerateResult> GenerateBackupAsync(IReadOnlyList<string> agentIds, string? name, bool full, CancellationToken cancellationToken = default);
+
+    // backup/delete {backup_id}
+    Task DeleteBackupAsync(string backupId, CancellationToken cancellationToken = default);
+
     // lovelace/dashboards/list
     Task<IReadOnlyList<DashboardRegistryEntry>> ListDashboardsAsync(CancellationToken cancellationToken = default);
 

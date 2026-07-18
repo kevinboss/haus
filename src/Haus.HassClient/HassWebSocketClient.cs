@@ -129,6 +129,52 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         return SendAsync(payload, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<BackupInfo>> ListBackupsAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "backup/info" }, cancellationToken);
+        return result.Deserialize<BackupInfoResult>(HassJsonOptions.Default)?.Backups ?? [];
+    }
+
+    public async Task<JsonElement> GetBackupAsync(string backupId, CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new()
+        {
+            ["type"] = "backup/details",
+            ["backup_id"] = backupId
+        }, cancellationToken);
+        return result.TryGetProperty("backup", out var b) ? b.Clone() : result;
+    }
+
+    public async Task<IReadOnlyList<BackupAgent>> ListBackupAgentsAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "backup/agents/info" }, cancellationToken);
+        return result.Deserialize<BackupAgentsResult>(HassJsonOptions.Default)?.Agents ?? [];
+    }
+
+    public async Task<BackupGenerateResult> GenerateBackupAsync(IReadOnlyList<string> agentIds, string? name, bool full, CancellationToken cancellationToken = default)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["type"] = "backup/generate",
+            ["agent_ids"] = agentIds,
+            ["include_homeassistant"] = true,
+            ["include_database"] = full,
+            ["include_all_addons"] = full,
+            ["include_folders"] = Array.Empty<string>()
+        };
+        if (name is not null) payload["name"] = name;
+
+        var result = await SendAsync(payload, cancellationToken);
+        return result.Deserialize<BackupGenerateResult>(HassJsonOptions.Default) ?? new BackupGenerateResult(null);
+    }
+
+    public Task DeleteBackupAsync(string backupId, CancellationToken cancellationToken = default) =>
+        SendAsync(new()
+        {
+            ["type"] = "backup/delete",
+            ["backup_id"] = backupId
+        }, cancellationToken);
+
     public async Task<IReadOnlyList<LabelEntry>> ListLabelRegistryAsync(CancellationToken cancellationToken = default)
     {
         var result = await SendAsync(new() { ["type"] = "config/label_registry/list" }, cancellationToken);
