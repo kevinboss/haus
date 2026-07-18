@@ -93,4 +93,17 @@ public interface IHassApiClient
 
     // DELETE /api/config/config_entries/entry/{entry_id}
     Task<ConfigEntryOperationResult> RemoveConfigEntryAsync(string entryId, CancellationToken cancellationToken = default);
+
+    // POST /api/config/config_entries/flow {"handler": domain, "entry_id": entry_id} — passing
+    // entry_id makes HA start a reconfigure flow for that entry
+    Task<OptionsFlowStep> StartConfigFlowAsync(string handler, string? entryId, CancellationToken cancellationToken = default);
+
+    // GET /api/config/config_entries/flow/{flow_id} — current step of an in-progress flow
+    Task<OptionsFlowStep> GetConfigFlowAsync(string flowId, CancellationToken cancellationToken = default);
+
+    // POST /api/config/config_entries/flow/{flow_id} body=user_input
+    Task<OptionsFlowStep> ConfigureConfigFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default);
+
+    // DELETE /api/config/config_entries/flow/{flow_id}
+    Task AbortConfigFlowAsync(string flowId, CancellationToken cancellationToken = default);
 }
