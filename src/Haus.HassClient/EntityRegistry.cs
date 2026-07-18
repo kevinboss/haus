@@ -8,7 +8,8 @@ public sealed record EntityRegistryUpdate(
     string? Name = null,
     string? Icon = null,
     string? AreaId = null,
-    string? NewEntityId = null);
+    string? NewEntityId = null,
+    IReadOnlyList<string>? Labels = null);
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public sealed record EntityRegistryEntry(

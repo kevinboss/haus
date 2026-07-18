@@ -40,6 +40,7 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         if (update.Icon is not null) payload["icon"] = update.Icon;
         if (update.AreaId is not null) payload["area_id"] = update.AreaId;
         if (update.NewEntityId is not null) payload["new_entity_id"] = update.NewEntityId;
+        if (update.Labels is not null) payload["labels"] = update.Labels;
         return SendAsync(payload, cancellationToken);
     }
 
@@ -97,6 +98,7 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         if (update.Name is not null) payload["name"] = update.Name;
         if (update.Icon is not null) payload["icon"] = update.Icon.Length == 0 ? null : update.Icon;
         if (update.FloorId is not null) payload["floor_id"] = update.FloorId.Length == 0 ? null : update.FloorId;
+        if (update.Labels is not null) payload["labels"] = update.Labels;
         return SendAsync(payload, cancellationToken);
     }
 
@@ -105,6 +107,49 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         {
             ["type"] = "config/area_registry/delete",
             ["area_id"] = areaId
+        }, cancellationToken);
+
+    public async Task<IReadOnlyList<LabelEntry>> ListLabelRegistryAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "config/label_registry/list" }, cancellationToken);
+        return result.Deserialize<List<LabelEntry>>(HassJsonOptions.Default) ?? [];
+    }
+
+    public async Task<LabelEntry> CreateLabelAsync(NewLabel label, CancellationToken cancellationToken = default)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["type"] = "config/label_registry/create",
+            ["name"] = label.Name
+        };
+        if (label.Color is not null) payload["color"] = label.Color;
+        if (label.Icon is not null) payload["icon"] = label.Icon;
+        if (label.Description is not null) payload["description"] = label.Description;
+
+        var result = await SendAsync(payload, cancellationToken);
+        return result.Deserialize<LabelEntry>(HassJsonOptions.Default)
+            ?? throw new InvalidOperationException("Empty response from config/label_registry/create.");
+    }
+
+    public Task UpdateLabelAsync(string labelId, LabelUpdate update, CancellationToken cancellationToken = default)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["type"] = "config/label_registry/update",
+            ["label_id"] = labelId
+        };
+        if (update.Name is not null) payload["name"] = update.Name;
+        if (update.Color is not null) payload["color"] = update.Color.Length == 0 ? null : update.Color;
+        if (update.Icon is not null) payload["icon"] = update.Icon.Length == 0 ? null : update.Icon;
+        if (update.Description is not null) payload["description"] = update.Description.Length == 0 ? null : update.Description;
+        return SendAsync(payload, cancellationToken);
+    }
+
+    public Task DeleteLabelAsync(string labelId, CancellationToken cancellationToken = default) =>
+        SendAsync(new()
+        {
+            ["type"] = "config/label_registry/delete",
+            ["label_id"] = labelId
         }, cancellationToken);
 
     public async Task<IReadOnlyList<DashboardRegistryEntry>> ListDashboardsAsync(CancellationToken cancellationToken = default)

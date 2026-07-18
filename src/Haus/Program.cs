@@ -9,6 +9,7 @@ using Haus.Commands.Event;
 using Haus.Commands.Helper;
 using Haus.Commands.History;
 using Haus.Commands.Integration;
+using Haus.Commands.Label;
 using Haus.Commands.Log;
 using Haus.Commands.Logbook;
 using Haus.Commands.Scene;
@@ -163,6 +164,24 @@ app.Configure(config =>
             .WithDescription("Update an area (name, icon, floor)");
         area.AddCommand<AreaDeleteCommand>("delete")
             .WithDescription("Delete an area");
+    });
+    config.AddBranch("label", label =>
+    {
+        label.SetDescription("Manage labels and assign them to entities and areas");
+        label.AddCommand<LabelListCommand>("list")
+            .WithDescription("List all labels");
+        label.AddCommand<LabelGetCommand>("get")
+            .WithDescription("Show label registry details");
+        label.AddCommand<LabelCreateCommand>("create")
+            .WithDescription("Create a new label");
+        label.AddCommand<LabelUpdateCommand>("update")
+            .WithDescription("Update a label (name, color, icon, description)");
+        label.AddCommand<LabelDeleteCommand>("delete")
+            .WithDescription("Delete a label");
+        label.AddCommand<LabelAssignCommand>("assign")
+            .WithDescription("Assign a label to entities and/or areas");
+        label.AddCommand<LabelRemoveCommand>("remove")
+            .WithDescription("Remove a label from entities and/or areas");
     });
     config.AddBranch("helper", h =>
     {

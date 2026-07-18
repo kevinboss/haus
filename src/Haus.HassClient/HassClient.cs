@@ -17,6 +17,7 @@ public sealed class HassClient(IHassApiClient rest, IHassWebSocketClient ws) : I
 
     public IEntityRegistryClient EntityRegistry { get; } = new EntityRegistryClient(ws);
     public IAreaRegistryClient Area { get; } = new AreaRegistryClient(ws);
+    public ILabelRegistryClient Label { get; } = new LabelRegistryClient(ws);
     public ILovelaceClient Lovelace { get; } = new LovelaceClient(ws);
     public ITraceClient Trace { get; } = new TraceClient(ws);
     public ISystemLogClient SystemLog { get; } = new SystemLogClient(ws);

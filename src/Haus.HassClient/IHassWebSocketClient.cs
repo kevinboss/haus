@@ -34,6 +34,18 @@ public interface IHassWebSocketClient
     // config/area_registry/delete
     Task DeleteAreaAsync(string areaId, CancellationToken cancellationToken = default);
 
+    // config/label_registry/list
+    Task<IReadOnlyList<LabelEntry>> ListLabelRegistryAsync(CancellationToken cancellationToken = default);
+
+    // config/label_registry/create — returns the created label (label_id is server-assigned)
+    Task<LabelEntry> CreateLabelAsync(NewLabel label, CancellationToken cancellationToken = default);
+
+    // config/label_registry/update — null fields are not sent; empty color/icon/description clears
+    Task UpdateLabelAsync(string labelId, LabelUpdate update, CancellationToken cancellationToken = default);
+
+    // config/label_registry/delete
+    Task DeleteLabelAsync(string labelId, CancellationToken cancellationToken = default);
+
     // lovelace/dashboards/list
     Task<IReadOnlyList<DashboardRegistryEntry>> ListDashboardsAsync(CancellationToken cancellationToken = default);
 
