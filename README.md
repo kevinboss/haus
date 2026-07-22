@@ -5,9 +5,11 @@
 </p>
 
 <p align="center">
-  <a href="https://aur.archlinux.org/packages/haus-bin"><img src="https://img.shields.io/aur/version/haus-bin?label=AUR" alt="AUR version"></a>
-  <a href="https://github.com/kevinboss/haus/actions/workflows/publish.yaml"><img src="https://github.com/kevinboss/haus/actions/workflows/publish.yaml/badge.svg" alt="Build"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/kevinboss/haus" alt="License: GPL-3.0"></a>
+  <img src="https://img.shields.io/badge/.NET-512BD4?logo=dotnet&logoColor=white" alt=".NET">
+  <a href="https://aur.archlinux.org/packages/haus-bin"><img src="https://img.shields.io/aur/version/haus-bin?label=AUR" alt="AUR"></a>
+  <a href="https://github.com/microsoft/winget-pkgs/tree/master/manifests/k/kevinboss/haus"><img src="https://img.shields.io/badge/winget-kevinboss.haus-0078D4?logo=windows&logoColor=white" alt="winget"></a>
+  <a href="https://github.com/kevinboss/haus/actions/workflows/publish.yaml"><img src="https://img.shields.io/github/actions/workflow/status/kevinboss/haus/publish.yaml?label=CI" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/kevinboss/haus" alt="License"></a>
   <a href="https://github.com/kevinboss/heartbeat"><img src="https://raw.githubusercontent.com/kevinboss/heartbeat/main/badges/kevinboss_haus.svg" alt="Heartbeat"></a>
 </p>
 
