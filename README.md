@@ -1,10 +1,21 @@
-# Haus
+<h1 align="center">Haus</h1>
+
+<p align="center">
+  Scriptable command-line interface for <a href="https://www.home-assistant.io/">Home Assistant</a>.
+</p>
+
+<p align="center">
+  <a href="https://aur.archlinux.org/packages/haus-bin"><img src="https://img.shields.io/aur/version/haus-bin?label=AUR" alt="AUR version"></a>
+  <a href="https://github.com/kevinboss/haus/actions/workflows/publish.yaml"><img src="https://github.com/kevinboss/haus/actions/workflows/publish.yaml/badge.svg" alt="Build"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/kevinboss/haus" alt="License: GPL-3.0"></a>
+  <a href="https://github.com/kevinboss/heartbeat"><img src="https://raw.githubusercontent.com/kevinboss/heartbeat/main/badges/kevinboss_haus.svg" alt="Heartbeat"></a>
+</p>
 
 > This project is being developed using AI development tools. However, every line of code is reviewed and approved by a human before being committed.
 
-Scriptable command-line interface for [Home Assistant](https://www.home-assistant.io/).
-
-![haus demo](docs/haus-demo.gif)
+<p align="center">
+  <img src="docs/haus-demo.gif" alt="haus demo">
+</p>
 
 ## Usage
 
