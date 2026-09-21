@@ -155,6 +155,16 @@ public sealed class HassApiClient(ITokenProvider tokens) : IHassApiClient, IDisp
     public Task<JsonElement> GetConfigEntryDiagnosticsAsync(string entryId, CancellationToken cancellationToken = default) =>
         GetAsync<JsonElement>($"/api/diagnostics/config_entry/{Uri.EscapeDataString(entryId)}", cancellationToken);
 
+    public Task<OptionsFlowStep> StartRepairFlowAsync(string domain, string issueId, CancellationToken cancellationToken = default) =>
+        PostAsync<OptionsFlowStep>("/api/repairs/issues/fix",
+            new { handler = domain, issue_id = issueId }, cancellationToken);
+
+    public Task<OptionsFlowStep> ConfigureRepairFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default) =>
+        PostAsync<OptionsFlowStep>($"/api/repairs/issues/fix/{Uri.EscapeDataString(flowId)}", userInput, cancellationToken);
+
+    public Task AbortRepairFlowAsync(string flowId, CancellationToken cancellationToken = default) =>
+        DeleteAsync($"/api/repairs/issues/fix/{Uri.EscapeDataString(flowId)}", cancellationToken);
+
     private async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken)
     {
         await EnsureAuthenticatedAsync(cancellationToken);

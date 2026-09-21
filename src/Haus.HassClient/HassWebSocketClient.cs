@@ -394,6 +394,53 @@ public sealed class HassWebSocketClient(ITokenProvider tokens) : IHassWebSocketC
         return result.Deserialize<List<ConfigFlowProgress>>(HassJsonOptions.Default) ?? [];
     }
 
+    public async Task<IReadOnlyList<RepairIssue>> ListRepairIssuesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new() { ["type"] = "repairs/list_issues" }, cancellationToken);
+        return result.TryGetProperty("issues", out var issues)
+            ? issues.Deserialize<List<RepairIssue>>(HassJsonOptions.Default) ?? []
+            : [];
+    }
+
+    public async Task<JsonElement> GetRepairIssueDataAsync(string domain, string issueId, CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new()
+        {
+            ["type"] = "repairs/get_issue_data",
+            ["domain"] = domain,
+            ["issue_id"] = issueId
+        }, cancellationToken);
+        return result.TryGetProperty("issue_data", out var data) ? data.Clone() : default;
+    }
+
+    public Task SetRepairIssueIgnoredAsync(string domain, string issueId, bool ignored, CancellationToken cancellationToken = default) =>
+        SendAsync(new()
+        {
+            ["type"] = "repairs/ignore_issue",
+            ["domain"] = domain,
+            ["issue_id"] = issueId,
+            ["ignore"] = ignored
+        }, cancellationToken);
+
+    public async Task<IReadOnlyDictionary<string, string>> GetTranslationsAsync(
+        string language,
+        string category,
+        IEnumerable<string> integrations,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await SendAsync(new()
+        {
+            ["type"] = "frontend/get_translations",
+            ["language"] = language,
+            ["category"] = category,
+            ["integration"] = integrations.ToArray()
+        }, cancellationToken);
+
+        return result.TryGetProperty("resources", out var resources)
+            ? resources.Deserialize<Dictionary<string, string>>() ?? []
+            : [];
+    }
+
     private async Task<JsonElement> SendAsync(Dictionary<string, object?> command, CancellationToken cancellationToken)
     {
         var ws = await EnsureConnectedAsync(cancellationToken);

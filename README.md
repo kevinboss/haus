@@ -85,6 +85,12 @@ haus integration disable 01KKCVMQESC1RV1YQ39ANVHT78        # unload without dele
 haus integration reauth 01K68HW3ZFF0B0X3XQ0ZZKNYJP         # complete a pending reauth (fixes 401s)
 haus integration reconfigure 01K68HW3ZFF0B0X3XQ0ZZKNYJP    # change host/credentials proactively
 
+# See what Home Assistant wants you to fix (Settings → Repairs)
+haus repair list
+haus repair get spook empty_areas_toilet                   # details + the integration's issue data
+haus repair fix spook empty_areas_toilet                   # runs the fix flow; confirm-only repairs apply at once
+haus repair ignore spook empty_areas_toilet                # dismiss it instead
+
 # See what just changed (logbook entries from the last hour)
 haus logbook list
 

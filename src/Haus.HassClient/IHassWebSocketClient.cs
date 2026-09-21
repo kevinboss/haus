@@ -126,4 +126,20 @@ public interface IHassWebSocketClient
 
     // config_entries/flow/progress — flows HA started itself (reauth, discovery)
     Task<IReadOnlyList<ConfigFlowProgress>> ListFlowsInProgressAsync(CancellationToken cancellationToken = default);
+
+    // repairs/list_issues
+    Task<IReadOnlyList<RepairIssue>> ListRepairIssuesAsync(CancellationToken cancellationToken = default);
+
+    // repairs/get_issue_data — the integration-supplied payload behind an issue
+    Task<JsonElement> GetRepairIssueDataAsync(string domain, string issueId, CancellationToken cancellationToken = default);
+
+    // repairs/ignore_issue — true to dismiss the issue, false to surface it again
+    Task SetRepairIssueIgnoredAsync(string domain, string issueId, bool ignored, CancellationToken cancellationToken = default);
+
+    // frontend/get_translations — flat "component.<domain>.<category>.<key>.<field>" → text
+    Task<IReadOnlyDictionary<string, string>> GetTranslationsAsync(
+        string language,
+        string category,
+        IEnumerable<string> integrations,
+        CancellationToken cancellationToken = default);
 }

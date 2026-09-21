@@ -32,4 +32,5 @@ public interface IHassClient
     IHelperClient Helper { get; }
     IZoneClient Zone { get; }
     IIntegrationClient Integration { get; }
+    IRepairsClient Repairs { get; }
 }
