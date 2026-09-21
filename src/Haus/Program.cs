@@ -15,6 +15,7 @@ using Haus.Commands.Integration;
 using Haus.Commands.Label;
 using Haus.Commands.Log;
 using Haus.Commands.Logbook;
+using Haus.Commands.Repair;
 using Haus.Commands.Scene;
 using Haus.Commands.Script;
 using Haus.Commands.Service;
@@ -299,6 +300,20 @@ app.Configure(config =>
             .WithDescription("Change a config entry's connection settings (host, credentials)");
         integ.AddCommand<IntegrationDiagnosticsCommand>("diagnostics")
             .WithDescription("Dump the integration's redacted diagnostics JSON");
+    });
+    config.AddBranch("repair", repair =>
+    {
+        repair.SetDescription("Inspect and resolve repair issues (Settings → Repairs)");
+        repair.AddCommand<RepairListCommand>("list")
+            .WithDescription("List all repair issues raised by integrations");
+        repair.AddCommand<RepairGetCommand>("get")
+            .WithDescription("Show an issue's details and the integration's issue data");
+        repair.AddCommand<RepairFixCommand>("fix")
+            .WithDescription("Run an issue's fix flow (confirm-only repairs complete in one step)");
+        repair.AddCommand<RepairIgnoreCommand>("ignore")
+            .WithDescription("Dismiss an issue so it stops being reported");
+        repair.AddCommand<RepairUnignoreCommand>("unignore")
+            .WithDescription("Surface a previously dismissed issue again");
     });
     config.AddBranch("backup", backup =>
     {

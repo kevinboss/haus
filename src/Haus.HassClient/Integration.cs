@@ -47,4 +47,5 @@ public sealed record OptionsFlowStep(
     [property: JsonPropertyName("data")] JsonElement? Data,
     [property: JsonPropertyName("description")] string? Description,
     [property: JsonPropertyName("reason")] string? Reason,
-    [property: JsonPropertyName("url")] string? Url = null);
+    [property: JsonPropertyName("url")] string? Url = null,
+    [property: JsonPropertyName("menu_options")] JsonElement? MenuOptions = null);

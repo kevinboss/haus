@@ -509,6 +509,43 @@ dotnet run --project src/Haus -- integration diagnostics <entry_id>
 ```
 Downloads the integration's redacted diagnostics document (the UI's "Download diagnostics"). Default output summarizes the top-level keys; use `--json` for the full document (ideal for attaching to a bug report or handing to an AI for analysis). Exits non-zero if the integration doesn't provide diagnostics.
 
+### repair list — List repair issues
+```bash
+dotnet run --project src/Haus -- repair list
+```
+Everything under Settings → Repairs: problems integrations have raised for a human to act on (deprecated YAML, a failed re-auth, a unit that changed). Columns: domain, issue title, severity (`critical`/`error`/`warning`), whether it has a fix flow, whether it's ignored, and the HA version it breaks in. Ignored issues sort last, most severe first.
+
+Issues carry no text of their own — only a translation key — so titles and descriptions are resolved from HA's translations and appear in all three output modes. If an integration ships no translation, the title falls back to `domain: key`.
+
+### repair get — Show an issue's details
+```bash
+dotnet run --project src/Haus -- repair get <domain> <issue_id>
+```
+Full detail for one issue: resolved title and description, severity, when it was raised, the `learn_more_url`, the version it breaks in, and the integration's own issue data payload. Use `--json` for the complete document. Errors if no such issue is currently raised.
+
+### repair fix — Run an issue's fix flow
+```bash
+dotnet run --project src/Haus -- repair fix <domain> <issue_id> [--data '<JSON>' | --from-file <PATH>]
+```
+Runs the repair's fix flow (the UI's "Fix" button). Most repairs are a single confirmation with no fields — those complete in one invocation, no `--data` needed. A flow that wants input prints its fields (or, for a menu step, its options) and exits without changing anything; re-run with `--data` to submit. Inspecting always aborts the flow server-side, so looking is free.
+
+Errors with an actionable message when the issue has no fix flow (`is_fixable: false`) — those have to be resolved at the source, or dismissed with `repair ignore`.
+
+Some flows end in an abort rather than completing — often because you picked an option like "keep it" from a menu. That's reported as `Flow ended: <reason>` with exit 0 and no fix applied, not as an error; check `repair list` to see whether the issue is still open.
+
+**This is the one destructive command in the branch.** A fix flow does real work: deleting an orphaned area, removing an unused blueprint, migrating a config entry. Read `repair get` first.
+
+### repair ignore — Dismiss an issue
+```bash
+dotnet run --project src/Haus -- repair ignore <domain> <issue_id>
+```
+Hides the issue from the repairs list. It stays hidden until an integration raises it again. Reversible with `repair unignore`.
+
+### repair unignore — Surface a dismissed issue again
+```bash
+dotnet run --project src/Haus -- repair unignore <domain> <issue_id>
+```
+
 ### update install — Install an available update
 ```bash
 dotnet run --project src/Haus -- update install <entity_id> [--version <VERSION>] [--backup]

@@ -59,6 +59,7 @@ Format: `<type>(<scope>): <short description>`
 - `config` — DI registration, hosting setup, config check command
 - `hass` — hass lifecycle commands (restart/stop/reload)
 - `backup` — backup list/get/create/delete commands (core backup API)
+- `repair` — repair issue list/get/fix/ignore/unignore commands (HA repairs / issue registry)
 - `skill` — skill install command
 
 Scope is optional — omit if the change spans many areas.

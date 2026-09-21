@@ -109,4 +109,13 @@ public interface IHassApiClient
 
     // GET /api/diagnostics/config_entry/{entry_id} — redacted diagnostics document
     Task<JsonElement> GetConfigEntryDiagnosticsAsync(string entryId, CancellationToken cancellationToken = default);
+
+    // POST /api/repairs/issues/fix — start the fix flow for a repair issue
+    Task<OptionsFlowStep> StartRepairFlowAsync(string domain, string issueId, CancellationToken cancellationToken = default);
+
+    // POST /api/repairs/issues/fix/{flow_id}
+    Task<OptionsFlowStep> ConfigureRepairFlowAsync(string flowId, object userInput, CancellationToken cancellationToken = default);
+
+    // DELETE /api/repairs/issues/fix/{flow_id}
+    Task AbortRepairFlowAsync(string flowId, CancellationToken cancellationToken = default);
 }

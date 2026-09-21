@@ -3,9 +3,9 @@ using Haus.HassClient;
 using Haus.Output;
 using Spectre.Console;
 
-namespace Haus.Commands.Integration;
+namespace Haus.Commands;
 
-// Shared rendering for config-entry flows (reauth, reconfigure). A flow step is either a
+// Shared rendering for data-entry flows (config-entry reauth/reconfigure, repair fixes). A step is either a
 // form asking for input, an external (browser/OAuth) step, or a terminal result. Reauth and
 // reconfigure flows signal success with an `abort` whose reason ends in "_successful".
 internal static class ConfigFlow
@@ -14,6 +14,12 @@ internal static class ConfigFlow
         step.Type == "create_entry" ||
         (step is { Type: "abort", Reason: { } r } && r.EndsWith("_successful", StringComparison.Ordinal));
 
+    public static bool IsConfirmation(OptionsFlowStep step)
+    {
+        if (step.Type != "form") return false;
+        return step.DataSchema is not { ValueKind: JsonValueKind.Array } fields || fields.GetArrayLength() == 0;
+    }
+
     // Human-readable view of what a not-yet-submitted step needs.
     public static void WriteInspectBody(OptionsFlowStep step, string submitHint)
     {
@@ -21,14 +27,15 @@ internal static class ConfigFlow
         {
             case "form":
                 WriteFormSchema(step);
-                AnsiConsole.MarkupLine($"[dim]{submitHint}[/]");
+                WriteHint(submitHint);
                 break;
             case "external_step":
                 AnsiConsole.MarkupLine("[yellow]Browser-based (OAuth) step[/] — open this URL to complete, then re-run:");
                 AnsiConsole.WriteLine(step.Url ?? "(no URL provided)");
                 break;
             case "menu":
-                AnsiConsole.MarkupLine("[dim]This flow presents a menu; submit --data '{\"next_step_id\": \"<option>\"}'.[/]");
+                WriteMenuOptions(step);
+                WriteHint(submitHint.Replace("{...}", "{\"next_step_id\": \"<option>\"}"));
                 break;
             default:
                 AnsiConsole.MarkupLine($"[dim]Step type: {step.Type.EscapeMarkup()}[/]");
@@ -43,8 +50,50 @@ internal static class ConfigFlow
             OutputHelper.WriteKeyValue("url", step.Url ?? "");
             return;
         }
+        if (step.Type == "menu")
+        {
+            var options = MenuOptions(step).ToList();
+            if (options.Any(o => o.Label.Length > 0))
+                OutputHelper.WriteColumns(["OPTION", "LABEL"], options.Select(o => new[] { o.Id, o.Label }));
+            else
+                OutputHelper.WriteColumns(["OPTION"], options.Select(o => new[] { o.Id }));
+            return;
+        }
         WritePorcelainSchema(step);
     }
+
+    private static IEnumerable<(string Id, string Label)> MenuOptions(OptionsFlowStep step) =>
+        step.MenuOptions switch
+        {
+            { ValueKind: JsonValueKind.Array } a => a.EnumerateArray()
+                .Select(o => (o.GetString() ?? "", "")),
+            { ValueKind: JsonValueKind.Object } o => o.EnumerateObject()
+                .Select(p => (p.Name, p.Value.GetString() ?? "")),
+            _ => []
+        };
+
+    private static void WriteMenuOptions(OptionsFlowStep step)
+    {
+        var options = MenuOptions(step).ToList();
+        if (options.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[dim]This flow presents a menu, but offered no options.[/]");
+            return;
+        }
+
+        var labelled = options.Any(o => o.Label.Length > 0);
+        var table = new Table().Border(TableBorder.Rounded).AddColumn("Option");
+        if (labelled) table.AddColumn("Label");
+
+        foreach (var (id, label) in options)
+        {
+            if (labelled) table.AddRow(id.EscapeMarkup(), label.EscapeMarkup());
+            else table.AddRow(id.EscapeMarkup());
+        }
+        AnsiConsole.Write(table);
+    }
+
+    private static void WriteHint(string hint) => Console.WriteLine(hint);
 
     // Result of submitting input to a flow. Returns the process exit code.
     public static int WriteResult(IOutputSettings settings, OptionsFlowStep result, string entryId, string verb)
