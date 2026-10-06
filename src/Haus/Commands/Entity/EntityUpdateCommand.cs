@@ -81,6 +81,8 @@ public sealed class EntityUpdateCommand(IAuthService auth, IHassClient client)
         OutputHelper.WriteResult(settings, new { action = "updated", id = finalId },
             () => AnsiConsole.MarkupLine($"[green]Updated[/] [bold]{finalId.EscapeMarkup()}[/]"),
             () => Console.WriteLine(finalId));
+        if (settings.NewEntityId is not null)
+            OutputHelper.WriteWarning(settings, EntityRenameIdCommand.StaleReferencesWarning(settings.EntityId));
 
         return 0;
     }

@@ -117,7 +117,7 @@ Example: `entity rename sensor.temp_123 "Living Room Temperature"`
 ```bash
 dotnet run --project src/Haus -- entity rename-id <old_entity_id> <new_entity_id>
 ```
-Example: `entity rename-id automation.sunday_morning_cleaning automation.weekly_cleaning`. The new ID must share the same domain prefix. HA rewrites references in automations, scripts, and dashboards atomically. (`entity update --new-id` does the same thing as part of the kitchen-sink update command.)
+Example: `entity rename-id automation.sunday_morning_cleaning automation.weekly_cleaning`. The new ID must share the same domain prefix. **Only the registry entry is renamed — HA does not rewrite references.** Automations, scripts, groups, template entities, and dashboards that use the old ID keep pointing at it (groups go unavailable, templates break). After a rename, search for leftover uses of the old ID and update them by hand. The command prints a reminder to stderr. (`entity update --new-id` does the same thing as part of the kitchen-sink update command, with the same caveat and warning.)
 
 ### entity update — Update an entity's registry fields
 ```bash

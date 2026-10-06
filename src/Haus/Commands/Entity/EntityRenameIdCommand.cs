@@ -11,6 +11,9 @@ namespace Haus.Commands.Entity;
 public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassClient client)
     : HausCommand<EntityRenameIdCommand.Settings>(auth)
 {
+    internal static string StaleReferencesWarning(string oldEntityId) =>
+        $"Home Assistant does not update references to {oldEntityId}. Check automations, scripts, groups, template entities, and dashboards for leftover uses.";
+
     [GeneratedRegex(@"^[a-z0-9_]+\.[a-z0-9_]+$")]
     private static partial Regex EntityIdRegex { get; }
 
@@ -49,6 +52,7 @@ public sealed partial class EntityRenameIdCommand(IAuthService auth, IHassClient
             () => AnsiConsole.MarkupLine(
                 $"[green]Renamed[/] [bold]{settings.OldEntityId.EscapeMarkup()}[/] → [bold]{settings.NewEntityId.EscapeMarkup()}[/]"),
             () => Console.WriteLine($"{settings.OldEntityId}\t{settings.NewEntityId}"));
+        OutputHelper.WriteWarning(settings, StaleReferencesWarning(settings.OldEntityId));
 
         return 0;
     }
