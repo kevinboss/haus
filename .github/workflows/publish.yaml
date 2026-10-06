@@ -65,6 +65,8 @@ jobs:
       - name: Publish
         uses: softprops/action-gh-release@v3
         with:
-          files: "haus*"
+          files: |
+            ${{ steps.build-data.outputs.release_name }}.*
+            haus.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
