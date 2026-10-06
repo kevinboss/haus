@@ -13,6 +13,7 @@ public interface IOutputSettings
 public static class OutputHelper
 {
     private static readonly JsonSerializerOptions JsonOptions = new(HassJsonOptions.Default) { WriteIndented = true };
+    private static readonly IAnsiConsole StdErr = AnsiConsole.Create(new AnsiConsoleSettings { Out = new AnsiConsoleOutput(Console.Error) });
 
     public static void WriteResult<T>(IOutputSettings settings, T data, Action humanOutput, Action porcelainOutput)
     {
@@ -48,5 +49,13 @@ public static class OutputHelper
             Console.Error.WriteLine(JsonSerializer.Serialize(new { error = message }, JsonOptions));
         else
             AnsiConsole.Console.MarkupLine($"[red]Error:[/] {message.EscapeMarkup()}");
+    }
+
+    public static void WriteWarning(IOutputSettings settings, string message)
+    {
+        if (settings.Json)
+            Console.Error.WriteLine(JsonSerializer.Serialize(new { warning = message }, JsonOptions));
+        else
+            StdErr.MarkupLine($"[yellow]Warning:[/] {message.EscapeMarkup()}");
     }
 }

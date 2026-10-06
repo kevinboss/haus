@@ -169,7 +169,7 @@ app.Configure(config =>
         ent.AddCommand<EntityRenameCommand>("rename")
             .WithDescription("Rename an entity's display name");
         ent.AddCommand<EntityRenameIdCommand>("rename-id")
-            .WithDescription("Rename an entity's ID (HA rewires references atomically)");
+            .WithDescription("Rename an entity's ID (references elsewhere are not updated)");
         ent.AddCommand<EntityUpdateCommand>("update")
             .WithDescription("Update an entity's registry fields (name, icon, area, disable, hide, new ID)");
         ent.AddCommand<EntityDeleteCommand>("delete")
