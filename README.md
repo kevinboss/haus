@@ -6,6 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/.NET-512BD4?logo=dotnet&logoColor=white" alt=".NET">
+  <a href="https://github.com/kevinboss/maple"><img src="https://img.shields.io/scoop/v/haus?bucket=https://github.com/kevinboss/maple" alt="Scoop"></a>
   <a href="https://aur.archlinux.org/packages/haus-bin"><img src="https://img.shields.io/aur/version/haus-bin?label=AUR" alt="AUR"></a>
   <a href="https://github.com/microsoft/winget-pkgs/tree/master/manifests/k/kevinboss/haus"><img src="https://img.shields.io/badge/winget-kevinboss.haus-0078D4?logo=windows&logoColor=white" alt="winget"></a>
   <a href="https://github.com/kevinboss/haus/actions/workflows/publish.yaml"><img src="https://img.shields.io/github/actions/workflow/status/kevinboss/haus/publish.yaml?label=CI" alt="CI"></a>
@@ -18,6 +19,32 @@
 <p align="center">
   <img src="docs/haus-demo.gif" alt="haus demo">
 </p>
+
+## Install
+
+**Scoop**
+
+```powershell
+scoop bucket add maple 'https://github.com/kevinboss/maple.git'
+scoop install haus
+```
+
+**Winget**
+
+```powershell
+winget install kevinboss.haus
+```
+
+**AUR**
+
+```bash
+yay -S haus-bin
+```
+
+**Manual**
+
+Grab a binary (Windows or Linux x64) from the [releases page](https://github.com/kevinboss/haus/releases)
+and put it on your `PATH`.
 
 ## Usage
 
